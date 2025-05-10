@@ -130,16 +130,6 @@
                     </a>
                     <div class="collapse" id="base">
                         <ul class="nav nav-collapse">
-                            {{-- <li class="nav-item{{ \Route::is('simpanan.index') ? 'active' : '' }}">
-                                <a href="{{ route('simpanan.index')}}">
-                                    <span class="sub-item">Simpanan</span>
-                                </a>
-                            </li>
-                            <li class="nav-item{{ \Route::is('pinjaman.index') ? 'active' : '' }}">
-                                <a href="{{ route('pinjaman.index')}}">
-                                    <span class="sub-item">Pinjaman</span>
-                                </a>
-                            </li> --}}
                             <li>
                                 <a href="{{ route('angsuran.index') }}">
                                     <span class="sub-item">Angsuran</span>

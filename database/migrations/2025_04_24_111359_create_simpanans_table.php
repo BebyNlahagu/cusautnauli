@@ -16,8 +16,9 @@ return new class extends Migration
             $table->foreign("nasabah_id")->references('id')->on('nasabahs')->onDelete("cascade");
             $table->unsignedBigInteger("nasabah_id");
             $table->enum("jenis_simpanan",["Simpanan Pokok","Simpanan Wajib", "Simpanan Dakesma", "Biaya Administrasi"]);
-            $table->decimal("jumlah_simpanan");
-            $table->decimal("total" ,10 ,2)->nullable();
+            $table->decimal("jumlah_simpanan",15, 2);
+            $table->decimal('jumlah_kapitalisasi',15,2)->nullable();
+            $table->decimal("total" ,15 ,2)->nullable();
             $table->timestamps();
         });
     }

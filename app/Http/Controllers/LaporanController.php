@@ -11,19 +11,49 @@ class LaporanController extends Controller
 {
     public function LaporanSimpanan(Request $request)
     {
-        $simpanan = Simpanan::with('nasabah')->get();
+        $query = Simpanan::query();
+        if ($request->filled('bulan')) {
+            $query->whereMonth('created_at', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+        if ($request->filled('hari')) {
+            $query->whereDate('created_at', $request->hari);
+        }
+        $simpanan = $query->with('nasabah')->get();
         return view('admin.laporan.simpanan', compact('simpanan'));
     }
 
     public function LaporanPinjaman(Request $request)
     {
-        $pinjaman = Pinjaman::with('nasabah')->get();
+        $query = Pinjaman::query();
+        if ($request->filled('bulan')) {
+            $query->whereMonth('created_at', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+        if ($request->filled('hari')) {
+            $query->whereDate('created_at', $request->hari);
+        }
+        $pinjaman = $query->with('nasabah')->get();
         return view('admin.laporan.pinjaman',compact('pinjaman'));
     }
 
     public function LaporanAngsuran(Request $request)
     {
-        $angsuran = Anggsuran::with('nasabah','pinjaman')->get();
+        $query = Anggsuran::query();
+        if ($request->filled('bulan')) {
+            $query->whereMonth('created_at', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+        if ($request->filled('hari')) {
+            $query->whereDate('created_at', $request->hari);
+        }
+        $angsuran = $query->with('nasabah')->get();
         return view('admin.laporan.angsuran', compact('angsuran'));
     }
 }

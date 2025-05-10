@@ -45,8 +45,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 
     Route::post('/angsuran/update-status/{id}', [AnggsuranController::class, 'updateStatus'])->name('angsuran.updateStatus');
     Route::get('/get-max-pinjaman/{nasabah_id}', [PinjamanController::class, 'getMaxPinjaman'])->name('pinjaman.getMaxPinjaman');
-    // Menambahkan route untuk memeriksa usia gabung nasabah
-    Route::get('/check-nasabah-bergabung/{nasabah_id}', [NasabahController::class, 'checkNasabahBergabung']);
+    Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
 });
 
 Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(function () {

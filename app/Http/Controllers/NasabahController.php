@@ -14,25 +14,23 @@ class NasabahController extends Controller
         return view('admin.nasabah.index', compact('nasabah'));
     }
 
-    // Fungsi untuk memeriksa apakah nasabah sudah bergabung lebih dari 6 bulan
-    public function checkNasabahBergabung($nasabah_id)
-    {
-        try {
-            $nasabah = Nasabah::findOrFail($nasabah_id);
-            $bergabung_sejak = Carbon::parse($nasabah->tanggal_masuk); // parse ke Carbon
-            $sekarang = now();
-            $selisih_bulan = $bergabung_sejak->diffInMonths($sekarang);
-        
-            return response()->json(['selisih_bulan' => $selisih_bulan]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Nasabah tidak ditemukan.'], 404);
-        }
-    }
+    // public function checkNasabahBergabung($nasabah_id)
+    // {
+    //     try {
+    //         $nasabah = Nasabah::findOrFail($nasabah_id);
+    //         $bergabung_sejak = Carbon::parse($nasabah->tanggal_masuk);
+    //         $sekarang = now();
+    //         $selisih_bulan = $bergabung_sejak->diffInMonths($sekarang);
+
+    //         return response()->json(['selisih_bulan' => $selisih_bulan]);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Nasabah tidak ditemukan.'], 404);
+    //     }
+    // }
 
 
     public function store(Request $request)
     {
-        // dd($request->tanggal_lahir);
         $request->validate([
             'name' => 'required',
             'Nik' => 'required',
@@ -42,10 +40,26 @@ class NasabahController extends Controller
             'tanggal_lahir' => 'required|date',
             'tanggal_masuk' => 'required|date',
             'foto' => 'nullable',
+            'ktp' => 'nullable',
+            'kk' => 'nullable',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'required'
         ]);
 
+        if ($request->hasFile('foto')) {
+            $foto = time() . '.' . $request->foto->extension();
+            $request->foto->move(public_path('images'), $foto);
+        }
+
+        if ($request->hasFile('ktp')) {
+            $ktp = time() . '.' . $request->ktp->extension();
+            $request->ktp->move(public_path('images'), $ktp);
+        }
+
+        if ($request->hasFile('kk')) {
+            $kk = time() . '.' . $request->kk->extension();
+            $request->kk->move(public_path('images'), $kk);
+        }
 
         Nasabah::create([
             'name' => $request->name,
@@ -76,13 +90,53 @@ class NasabahController extends Controller
             'no_telp' => 'nullable',
             'jenis_kelamin' => 'nullable',
             'tanggal_lahir' => 'nullable',
+            'foto' => 'nullable',
+            'kk' => 'nullable',
+            'ktp' => 'nullable',
             'tanggal_masuk' => 'nullable',
             'alamat' => 'nullable',
             'kelurahan' => 'nullable',
-            'pekerjaan' => 'nullable'
+            'pekerjaan' => 'nullable',
+            'foto' => isset($foto) ? $foto : null,
+            'ktp' => isset($ktp) ? $ktp : null,
+            'kk' => isset($kk) ? $kk : null
         ]);
 
         $nasabah = Nasabah::findOrFail($id);
+
+      
+        if ($request->hasFile('foto')) {
+            if ($nasabah->foto) {
+                unlink(public_path('images/' . $nasabah->foto));
+            }
+
+            $foto = time() . '.' . $request->foto->extension();
+            $request->foto->move(public_path('images'), $foto);
+        } else {
+            $foto = $nasabah->foto;
+        }
+
+        if ($request->hasFile('ktp')) {
+            if ($nasabah->ktp) {
+                unlink(public_path('images/' . $nasabah->ktp));
+            }
+
+            $ktp = time() . '.' . $request->ktp->extension();
+            $request->ktp->move(public_path('images'), $ktp);
+        } else {
+            $ktp = $nasabah->ktp;
+        }
+
+        if ($request->hasFile('kk')) {
+            if ($nasabah->kk) {
+                unlink(public_path('images/' . $nasabah->kk));
+            }
+
+            $kk = time() . '.' . $request->kk->extension();
+            $request->kk->move(public_path('images'), $kk);
+        } else {
+            $kk = $nasabah->kk;
+        }
 
         $nasabah->update([
             'name' => $request->name,
@@ -93,6 +147,9 @@ class NasabahController extends Controller
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
+            'foto' => isset($foto) ? $foto : $nasabah->foto, 
+            'ktp' => isset($ktp) ? $ktp : $nasabah->ktp, 
+            'kk' => isset($kk) ? $kk : $nasabah->kk,
         ]);
 
         return redirect()->route('nasabah.index')->with('success', 'Data berhasil diPerbarui!');

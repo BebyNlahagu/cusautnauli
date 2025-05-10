@@ -19,6 +19,8 @@ return new class extends Migration
             $table->text('alamat');
             $table->string('kelurahan')->nullable();
             $table->string('foto')->nullable();
+            $table->string('ktp')->nullable();
+            $table->string('kk')->nullable();
             $table->enum('jenis_kelamin',['Laki-laki','Perempuan']);
             $table->date('tanggal_lahir')->nullable();
             $table->string('pekerjaan')->nullable();

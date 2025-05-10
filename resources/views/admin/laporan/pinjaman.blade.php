@@ -28,10 +28,61 @@
 <div class="row">
     <div class="col-md-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4 class="card-title">@yield('title')</h4>
+            <div class="card-header d-flex align-items-center flex-wrap">
+                <h4 class="card-title text-start">@yield('title')</h4>
+            
                 @if (auth()->user()->role == "Admin")
-                    <a class="btn btn-success" href="{{ route('pdf.pinjaman')}}"><i class="fa fa-download"></i></a>
+                    <div class="btn-group ms-auto">
+                        <button type="button" class="btn btn-label-info btn-round btn-sm me-2" data-bs-toggle="dropdown" aria-expanded="false" title="Filter">
+                            <i class="fa fa-filter"></i>
+                        </button>
+                        <div class="dropdown-menu p-4" style="min-width: 300px;">
+                            <form action="{{ route('laporan.pinjaman') }}" method="GET">
+                                <!-- Bulan Filter -->
+                                <div class="mb-3">
+                                    <label for="bulan" class="form-label">Pilih Bulan</label>
+                                    <select name="bulan" id="bulan" class="form-control">
+                                        <option value="">-- Semua Bulan --</option>
+                                        @for ($i = 1; $i <= 12; $i++)
+                                            <option value="{{ $i }}" {{ request('bulan') == $i ? 'selected' : '' }}>
+                                                {{ date("F", mktime(0, 0, 0, $i, 1)) }}
+                                            </option>
+                                        @endfor
+                                    </select>
+                                </div>
+                
+                                <!-- Tahun Filter -->
+                                <div class="mb-3">
+                                    <label for="tahun" class="form-label">Pilih Tahun</label>
+                                    <select name="tahun" id="tahun" class="form-control">
+                                        <option value="">-- Semua Tahun --</option>
+                                        @for ($i = now()->year; $i >= 2000; $i--)
+                                            <option value="{{ $i }}" {{ request('tahun') == $i ? 'selected' : '' }}>
+                                                {{ $i }}
+                                            </option>
+                                        @endfor
+                                    </select>
+                                </div>
+                
+                                <!-- Hari Filter -->
+                                <div class="mb-3">
+                                    <label for="hari" class="form-label">Pilih Hari</label>
+                                    <input type="date" name="hari" id="hari" value="{{ request('hari') }}" class="form-control">
+                                </div>
+                
+                                <!-- Submit & Reset Button -->
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary">Terapkan</button>
+                                    <a href="{{ route('laporan.pinjaman') }}" class="btn btn-secondary">Reset</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+            
+                
+                    <a class="btn btn-label-info btn-round btn-sm"" href="{{ route('pdf.pinjaman') }}">
+                        <i class="fa fa-download"></i>
+                    </a>
                 @endif
             </div>
             <div class="card-body">

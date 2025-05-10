@@ -20,79 +20,7 @@ class PinjamanController extends Controller
       return view('admin.pinjaman.index', compact('pinjaman', 'nasabah'));
    }
 
-   public function store(Request $request)
-   {
-
-      $request->validate([
-         'nasabah_id' => 'required|exists:nasabahs,id',
-         'lama_pinjaman' => 'required|in:5 Bulan,10 Bulan,15 Bulan,20 Bulan,25 Bulan,30 Bulan',
-         'jumlah_pinjaman' => 'required|numeric|min:0',
-         'bunga_pinjaman' => 'required|numeric|min:0',
-         'simpanan' => 'nullable|numeric|min:0',
-         // 'adm' => 'nullable|numeric|min:0',
-      ]);
-
-      DB::beginTransaction();
-
-      try {
-         $nasabah = Nasabah::findOrFail($request->nasabah_id);
-         $bergabung_sejak = Carbon::parse($nasabah->tanggal_masuk);
-         $sekarang = now();
-         $selisih_bulan = $bergabung_sejak->diffInMonths($sekarang);
-
-         if ($selisih_bulan < 6) {
-            return redirect()->back()->withErrors(['nasabah_id' => 'Nasabah belum bergabung minimal 6 bulan.']);
-         }
-
-         $total_simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)->sum('jumlah_simpanan');
-         $max_pinjaman = $total_simpanan * 5;
-
-         if ($request->jumlah_pinjaman > $max_pinjaman) {
-            return redirect()->back()->withErrors(['jumlah_pinjaman' => 'Jumlah pinjaman tidak boleh lebih dari 5x total simpanan.']);
-         }
-
-         $potongan = $max_pinjaman * (2 / 100);
-         $adm = $max_pinjaman * (0.5 / 100);
-         $total_terima = $max_pinjaman - ($potongan + $adm);
-         $bunga_perbulan = 3;
-
-         $pinjaman = Pinjaman::create([
-            'nasabah_id' => $request->nasabah_id,
-            'lama_pinjaman' => $request->lama_pinjaman,
-            'jumlah_pinjaman' => $max_pinjaman,
-            'bunga_pinjaman' => $bunga_perbulan,
-            'kapitalisasi' => $potongan,
-            'proposi' => $adm,
-            'terima_total' => $total_terima,
-         ]);
-
-         $simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)
-            ->where('jenis_simpanan', 'Simpanan Kapitalisasi')
-            ->first();
-
-         if ($simpanan) {
-            $simpanan->jumlah_simpanan += $potongan;
-            $simpanan->save();
-         } else {
-            Simpanan::create([
-               'nasabah_id' => $request->nasabah_id,
-               'jenis_simpanan' => 'Simpanan Kapitalisasi',
-               'jumlah_simpanan' => $potongan,
-            ]);
-         }
-
-         DB::commit();
-
-         return redirect()->route('pinjaman.index')->with('success', 'Data pinjaman dan kapitalisasi berhasil disimpan.');
-      } catch (\Exception $e) {
-         DB::rollback();
-         return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-      }
-
-      return redirect()->route('pinjaman.index')->with('success', 'Data Berhasil Di Tambahkan');
-   }
-
-   public function getMaxPinjaman($nasabah_id)
+   public function checkEligibility($nasabah_id)
    {
       $nasabah = Nasabah::find($nasabah_id);
 
@@ -100,10 +28,75 @@ class PinjamanController extends Controller
          return response()->json(['error' => 'Nasabah tidak ditemukan.'], 404);
       }
 
-      $total_simpanan = Simpanan::where('nasabah_id', $nasabah->id)->sum('jumlah_simpanan');
-      $max_pinjaman = $total_simpanan * 5;
+      $selisih_bulan = Carbon::parse($nasabah->tanggal_masuk)->diffInMonths(now());
 
-      return response()->json(['max_pinjaman' => $max_pinjaman]);
+      if ($selisih_bulan < 6) {
+         return response()->json([
+            'status' => 'not_eligible',
+            'message' => 'Nasabah belum bergabung minimal 6 bulan.',
+         ]);
+      }
+
+      $total_simpanan = Simpanan::where('nasabah_id', $nasabah->id)->sum('jumlah_simpanan');
+      $jumlah_pinjaman = $total_simpanan * 5;
+      // $potongan = $jumlah_pinjaman * (2 / 100);
+      // $adm = $jumlah_pinjaman * (0.5 / 100);
+      // $total_terima = $jumlah_pinjaman - ($potongan + $adm);
+      $bunga_pinjaman = 3;
+
+      return response()->json([
+         'status' => 'eligible',
+         'nama_nasabah' => $nasabah->name,
+         'jumlah_pinjaman' => $jumlah_pinjaman,
+         'bunga_pinjaman' => $bunga_pinjaman,
+         // 'kapitalisasi' => $potongan,
+         // 'proposi' => $adm,
+         // 'terima_total' => $total_terima
+      ]);
+   }
+
+   public function store(Request $request)
+   {
+      $request->validate([
+         'nasabah_id' => 'required|exists:nasabahs,id',
+         'lama_pinjaman' => 'required|in:5 Bulan,10 Bulan,15 Bulan,20 Bulan,25 Bulan,30 Bulan',
+         'jumlah_pinjaman' => 'required|numeric|min:0',
+         'bunga_pinjaman' => 'required|numeric|min:0',
+         'kapitalisasi' => 'nullable|numeric|min:0',
+         'proposi' => 'required|numeric|min:0',
+         'terima_total' => 'required|numeric|min:0',
+      ]);
+
+      DB::beginTransaction();
+
+      try {
+         $nasabah = Nasabah::findOrFail($request->nasabah_id);
+         $total_simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)->sum('jumlah_simpanan');
+         $maksimal_pinjaman = $total_simpanan * 5;
+
+         if ($request->jumlah_pinjaman > $maksimal_pinjaman) {
+            return back()->withErrors([
+               'jumlah_pinjaman' => 'Jumlah pinjaman melebihi batas maksimal yang diperbolehkan (' . number_format($maksimal_pinjaman, 0, ',', '.') . ')'
+            ])->withInput();
+         }
+
+         Pinjaman::create([
+            'nasabah_id' => $request->nasabah_id,
+            'lama_pinjaman' => $request->lama_pinjaman,
+            'jumlah_pinjaman' => $request->jumlah_pinjaman,
+            'bunga_pinjaman' => $request->bunga_pinjaman,
+            'kapitalisasi' => $request->kapitalisasi,
+            'proposi' => $request->proposi,
+            'terima_total' => $request->terima_total
+         ]);
+
+         DB::commit();
+
+         return redirect()->route('pinjaman.index')->with('success', 'Pinjaman berhasil disimpan.');
+      } catch (\Exception $e) {
+         DB::rollback();
+         return back()->withErrors('Terjadi kesalahan: ' . $e->getMessage())->withInput();
+      }
    }
 
 
@@ -125,9 +118,9 @@ class PinjamanController extends Controller
       ]);
 
 
-      $potongan = $request->jumlah_pinjaman * (2 / 100);
+      // $potongan = $request->jumlah_pinjaman * (2 / 100);
       $adm = $request->jumlah_pinjaman * (0.5 / 100);
-      $total_terima = $request->jumlah_pinjaman - ($potongan + $adm);
+      $total_terima = $request->jumlah_pinjaman -  $adm;
 
       $bunga_perbulan = 3;
       Pinjaman::findOrFail($id);
@@ -137,7 +130,7 @@ class PinjamanController extends Controller
          'lama_pinjaman' => $request->lama_pinjaman,
          'jumlah_pinjaman' => $request->jumlah_pinjaman,
          'bunga_pinjaman' => $bunga_perbulan,
-         'kapitalisasi' => $potongan,
+         // 'kapitalisasi' => $potongan,
          'proposi' => $adm,
          'terima_total' => $total_terima,
       ]);

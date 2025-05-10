@@ -75,7 +75,7 @@ class AnggsuranController extends Controller
             'pinjaman_id' => 'required|exists:pinjaman,id',
         ]);
 
-        // Mendapatkan data pinjaman
+        // Cari data pinjaman
         $pinjaman = Pinjaman::where('id', $request->pinjaman_id)
             ->where('nasabah_id', $request->nasabah_id)
             ->first();
@@ -88,16 +88,30 @@ class AnggsuranController extends Controller
         $jumlah = $pinjaman->jumlah_pinjaman;
         $bunga_persen = $pinjaman->bunga_pinjaman;
 
-        // Menghitung pokok per bulan dan sisa pokok
+        // Hitung pokok per bulan
         $pokok_per_bulan = $jumlah / $lama;
         $sisa_pokok = $jumlah;
+        $sisa_angsuran_total = 0;
 
         $jatuh_tempo = Carbon::parse($request->jatuh_tempo);
 
-        // Loop untuk membuat angsuran berdasarkan jumlah bulan (lama pinjaman)
+        // Hitung dulu total semua angsuran untuk kebutuhan sisa angsuran
+        $temp_sisa_pokok = $jumlah;
+        $angsuran_per_bulan = [];
+
+        for ($bulan = 1; $bulan <= $lama; $bulan++) {
+            $bunga_bulan_ini = round($temp_sisa_pokok * ($bunga_persen / 100), 2);
+            $total_bulan_ini = round($pokok_per_bulan + $bunga_bulan_ini, 2);
+            $angsuran_per_bulan[$bulan] = $total_bulan_ini;
+
+            $temp_sisa_pokok -= $pokok_per_bulan;
+        }
+
         for ($bulan = 1; $bulan <= $lama; $bulan++) {
             $bunga_bulan_ini = round($sisa_pokok * ($bunga_persen / 100), 2);
             $total_angsuran = round($pokok_per_bulan + $bunga_bulan_ini, 2);
+
+            $sisa_angsuran = array_sum(array_slice($angsuran_per_bulan, $bulan - 1));
 
             Anggsuran::create([
                 'nasabah_id' => $request->nasabah_id,
@@ -108,11 +122,10 @@ class AnggsuranController extends Controller
                 'bunga' => $bunga_bulan_ini,
                 'total_angsuran' => $total_angsuran,
                 'tanggal_jatuh_tempo' => $jatuh_tempo->copy()->addMonths($bulan - 1),
-                // 'tanggal_bayar' => ,
                 'status' => 'Belum Lunas',
+                'sisa_angsuran' => $sisa_angsuran, 
             ]);
 
-            // Update sisa pokok
             $sisa_pokok -= $pokok_per_bulan;
         }
 

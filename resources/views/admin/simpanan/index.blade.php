@@ -69,6 +69,12 @@
                                 </td>
                             </tr>
                             @endforeach
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-center">Jumlah Kapitalisasi</td>
+                                    <td class="text-end">Rp {{ number_format($kapitalisasi, 0, ',', '.') }}</td>
+                                </tr>
+                            </tfoot>
                         </tbody>
                     </table>
                 </div>
@@ -261,7 +267,7 @@
 
     function formatUang(input) {
         let value = input.value.replace(/\D+/g, '');
-        if (value.length > 14) value = value.slice(0, 14);
+        if (value.length > 14) value = value.slice(14);
         let formatted = 'Rp ' + value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         input.value = formatted;
         document.getElementById('jumlah_simpanan').value = value;
@@ -271,7 +277,9 @@
         const jenis = document.getElementById('jenis_simpanan').value;
         const jumlahInput = document.getElementById('jumlah_simpanan_display');
         
-        let jumlah = 50000;
+        const awal = 50000;
+        const potongan = awal * 0.02;
+        const jumlah = awal - potongan;
 
         if (jenis) {
             jumlahInput.value = jumlah;

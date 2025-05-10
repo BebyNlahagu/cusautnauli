@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Anggsuran;
 use App\Models\Pinjaman;
 use App\Models\Simpanan;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -29,7 +30,8 @@ class HomeController extends Controller
         $simpanan = Simpanan::sum('jumlah_simpanan');
         $pinjaman = Pinjaman::sum('jumlah_pinjaman');
         $angsuran = Anggsuran::sum('total_angsuran');
-        $nasabah = Anggsuran::count();
-        return view('home', compact('simpanan','pinjaman','angsuran','nasabah'));
+        $nasabah = User::count();
+        $kapitalisasi = Pinjaman::sum('kapitalisasi');
+        return view('home', compact('simpanan','pinjaman','angsuran','nasabah','kapitalisasi'));
     }
 }

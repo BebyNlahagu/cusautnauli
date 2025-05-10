@@ -12,12 +12,12 @@ class SimpananController extends Controller
     {
         $simpanan = Simpanan::with('nasabah')->get();
         $nasabah = Nasabah::all();
-        return view("admin.simpanan.index", compact('simpanan', 'nasabah'));
+        $kapitalisasi = Simpanan::sum('kapitalisasi');
+        return view("admin.simpanan.index", compact('simpanan', 'nasabah','kapitalisasi'));
     }
 
     public function store(Request $request)
     {
-
         $request->validate([
             'nasabah_id' => 'required|exists:nasabahs,id',
             'jenis_simpanan' => 'nullable',
@@ -25,28 +25,33 @@ class SimpananController extends Controller
             'total' => 'nullable',
         ]);
 
+        $jumlahSimpananAwal = 50000;
+        $potongan = 0.02 * $jumlahSimpananAwal;
+        $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
+
         $simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)
-        ->where('jenis_simpanan', $request->jenis_simpanan)
-        ->first();
+            ->where('jenis_simpanan', $request->jenis_simpanan)
+            ->first();
 
-        if($simpanan)
-        {
-            $simpanan->jumlah_simpanan += $request->jumlah_simpanan;
+        if ($simpanan) {
+            $simpanan->jumlah_simpanan += $jumlahSetelahPotong;
+            $simpanan->kapitalisasi += $potongan;
             $simpanan->save();
-        }
-        else{
+        } else {
+            $simpananAll = $jumlahSetelahPotong;
+            $kap = $potongan;
 
-            $simpanaAll = 50000;
-    
             Simpanan::create([
                 'nasabah_id' => $request->nasabah_id,
-                'jumlah_simpanan' => $simpanaAll,
+                'jumlah_simpanan' => $simpananAll,
+                'kapitalisasi' => $kap,
                 'jenis_simpanan' => $request->jenis_simpanan,
             ]);
         }
-        
+
         return redirect()->route('simpanan.index')->with('success', 'Data Berhasil Di Tambahkan');
     }
+
 
     public function edit($id)
     {
@@ -65,23 +70,27 @@ class SimpananController extends Controller
 
         $simpanan = Simpanan::findOrFail($id);
 
-        $simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)
-        ->where('jenis_simpanan', $request->jenis_simpanan)
-        ->first();
+        $jumlahSimpananAwal = 50000;
+        $potongan = 0.02 * $jumlahSimpananAwal;
+        $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
 
-        if($simpanan)
-        {
-            $simpanan->jumlah_simpanan += $request->jumlah_simpanan;
+        $simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)
+            ->where('jenis_simpanan', $request->jenis_simpanan)
+            ->first();
+
+        if ($simpanan) {
+            $simpanan->jumlah_simpanan += $jumlahSetelahPotong;
+            $simpanan->kapitalisasi += $potongan;
             $simpanan->save();
-        }
-        else{
-            $simpanaAll = 50000;
-            $simpanan->update([
+        } else {
+            Simpanan::create([
                 'nasabah_id' => $request->nasabah_id,
-                'jumlah_simpanan' => $simpanaAll,
+                'jumlah_simpanan' => $jumlahSetelahPotong,
+                'kapitalisasi' => $potongan,
                 'jenis_simpanan' => $request->jenis_simpanan,
             ]);
         }
+
 
         return redirect()->route('simpanan.index')->with('success', 'Data Berhasil Di Perbarui');
     }

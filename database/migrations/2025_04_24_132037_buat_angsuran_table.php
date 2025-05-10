@@ -20,6 +20,7 @@ return new class extends Migration
 
             $table->integer('bulan_ke');
             $table->decimal('sisa_pokok', 15, 2);
+            $table->decimal('sisa_angsuran',15,2);
             $table->decimal('angsuran_pokok', 15, 2);
             $table->decimal('bunga', 15, 2);
             $table->decimal('total_angsuran', 15, 2);
@@ -27,7 +28,7 @@ return new class extends Migration
             $table->date('tanggal_jatuh_tempo');
             $table->date('tanggal_bayar')->nullable();
             $table->enum('status', ['Belum Lunas', 'Lunas'])->default('Belum Lunas');
-            $table->decimal('denda')->nullable();
+            $table->decimal('denda',15,2)->nullable();
             $table->timestamps();
         });
     }

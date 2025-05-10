@@ -87,6 +87,25 @@
             </div>
         </div>
     </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card card-stats card-round">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-icon">
+                        <div class="icon-big text-center icon-success bubble-shadow-small">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                    <div class="col col-stats ms-3 ms-sm-0">
+                        <div class="numbers">
+                            <p class="card-category">Total Kapitalisasi</p>
+                            <h4 class="card-title" id="kapitalisasi">{{ $kapitalisasi}}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="row">
     <div class="col-md-12">
@@ -98,6 +117,7 @@
     </div>
 </div>
 
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function formatRupiah(angka) {
@@ -108,7 +128,7 @@
     }
 
     $(document).ready(function () {
-        var elements = ['#jumlahSimpanan', '#jumlahPinjaman', '#jumlahAngsuran'];
+        var elements = ['#jumlahSimpanan', '#jumlahPinjaman', '#jumlahAngsuran','#kapitalisasi'];
 
         elements.forEach(function (id) {
             var value = $(id).text();

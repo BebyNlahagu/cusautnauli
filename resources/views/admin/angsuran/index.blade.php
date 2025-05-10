@@ -104,7 +104,7 @@
                             Detail Angsuran: {{ $angsurans->first()->nasabah->name }}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                       
+
                     </div>
                     <div class="modal-body">
                         @if ($angsurans->count() > 0)
@@ -134,23 +134,37 @@
                                                         <td>{{ \Carbon\Carbon::parse($detail->tanggal_jatuh_tempo)->translatedFormat('l, d F Y') }}
                                                         </td>
                                                         <td>
-                                                            @if ($detail->status == "Lunas")
-                                                            <span class="badge text-bg-success">Lunas</span>
+                                                            @if ($detail->status == 'Lunas')
+                                                                <span class="badge text-bg-success">Lunas</span>
                                                             @else
-                                                            <span class="badge text-bg-danger">Belum Lunas</span>
+                                                                <span class="badge text-bg-danger">Belum Lunas</span>
                                                             @endif
                                                         </td>
                                                         <td>
                                                             @if ($detail->status != 'Lunas')
-                                                            <form action="{{ route('angsuran.updateStatus', $detail->id) }}" method="POST" onclick="confirmUbahStatus{{ $detail->id}}">
-                                                                @csrf
                                                                 @if (auth()->user()->role == 'Admin')
-                                                                    <button type="submit" class="btn btn-link btn-warning btn-lg" title="Ubah Status">
-                                                                        <i class="fa fa-edit"></i>
-                                                                    </button>
+                                                                    <form id="ubah-status-form-{{ $detail->id }}"
+                                                                        action="{{ route('angsuran.updateStatus', $detail->id) }}"
+                                                                        method="POST" style="display: inline;">
+                                                                        @csrf
+                                                                        <button type="button"
+                                                                            class="btn btn-warning btn-sm"
+                                                                            title="Ubah Status"
+                                                                            onclick="confirmUbahStatus({{ $detail->id }})">
+                                                                            <i class="fa fa-edit"></i>
+                                                                        </button>
+                                                                    </form>
                                                                 @endif
-                                                            </form>
+                                                            @else
+                                                                <div class="alert alert-success p-3">
+                                                                    <h5><strong>Angsuran Sudah Lunas!</strong></h5>
+                                                                    <p><strong>Sisa Angsuran:</strong>
+                                                                        <span
+                                                                            class="badge bg-info">{{ number_format($detail->sisa_pokok, 0, ',', '.') }}</span>
+                                                                    </p>
+                                                                </div>
                                                             @endif
+
                                                         </td>
                                                     </tr>
                                                 @endforeach
@@ -219,10 +233,6 @@
                         </div>
 
                         <div class="form-floating form-floating-custom mb-3">
-                            <input type="text" id="kapitalisasi" class="form-control" readonly>
-                            <label for="kapitalisasi">Potongan Kapitalisasi 2 %</label>
-                        </div>
-                        <div class="form-floating form-floating-custom mb-3">
                             <input type="text" id="proposi" class="form-control" readonly>
                             <label for="proposi">Biaya Adm 0.5%</label>
                         </div>
@@ -239,54 +249,55 @@
         </div>
     </div>
     @if (session('success'))
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
-        text: '{{ session('success') }}',
-        showConfirmButton: false,
-        timer: 2000
-    });
-</script>
-@endif
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 2000
+            });
+        </script>
+    @endif
 
-@if (session('error'))
-<script>
-    Swal.fire({
-        icon: 'error',
-        title: 'Gagal!',
-        text: '{{ session('error') }}',
-        showConfirmButton: false,
-        timer: 3000
-    });
-</script>
-@endif
+    @if (session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: '{{ session('error') }}',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        </script>
+    @endif
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        function confirmUbahStatus(id) {
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Status angsuran akan diubah menjadi Lunas!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Ubah!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('ubahStatusForm' + id).submit();
+                }
+            })
+        }
         $(document).ready(function() {
             $(document).ready(function() {
                 $("#basic-datatables").DataTable({});
             });
 
-            function confirmUbahStatus(id) {
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Status angsuran akan diubah menjadi Lunas!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, Ubah!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        document.getElementById('ubahStatusForm' + id).submit();
-                    }
-                })
-            }
+
 
             function formatCurrency(number) {
                 return "Rp. " + parseFloat(number).toLocaleString('id-ID');
@@ -338,7 +349,7 @@
                                 window.bungaMenurunData = [];
                                 $('#tabel-bunga-menurun tbody').html(
                                     '<tr><td colspan="5" class="text-center">Tidak ada data</td></tr>'
-                                    );
+                                );
                             }
                         },
                         error: function(xhr) {
