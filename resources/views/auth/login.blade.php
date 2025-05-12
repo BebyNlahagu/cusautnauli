@@ -31,7 +31,7 @@
                             </div>
                         </div>
                         <div class="form-group d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary mt-2 me-2">Gaskan</button>
+                            <button type="submit" class="btn btn-primary mt-2 me-2">Login</button>
                             <a href="{{ route('register') }}" class="btn btn-link mt-2">Register</a>
                         </div>
                         

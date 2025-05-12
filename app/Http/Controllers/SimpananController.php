@@ -12,7 +12,7 @@ class SimpananController extends Controller
     {
         $simpanan = Simpanan::with('nasabah')->get();
         $nasabah = Nasabah::all();
-        $kapitalisasi = Simpanan::sum('kapitalisasi');
+        $kapitalisasi = Simpanan::sum('jumlah_kapitalisasi');
         return view("admin.simpanan.index", compact('simpanan', 'nasabah','kapitalisasi'));
     }
 
@@ -35,7 +35,7 @@ class SimpananController extends Controller
 
         if ($simpanan) {
             $simpanan->jumlah_simpanan += $jumlahSetelahPotong;
-            $simpanan->kapitalisasi += $potongan;
+            $simpanan->jumlah_kapitalisasi += $potongan;
             $simpanan->save();
         } else {
             $simpananAll = $jumlahSetelahPotong;
@@ -44,7 +44,7 @@ class SimpananController extends Controller
             Simpanan::create([
                 'nasabah_id' => $request->nasabah_id,
                 'jumlah_simpanan' => $simpananAll,
-                'kapitalisasi' => $kap,
+                'jumlah_kapitalisasi' => $kap,
                 'jenis_simpanan' => $request->jenis_simpanan,
             ]);
         }
@@ -80,13 +80,13 @@ class SimpananController extends Controller
 
         if ($simpanan) {
             $simpanan->jumlah_simpanan += $jumlahSetelahPotong;
-            $simpanan->kapitalisasi += $potongan;
+            $simpanan->jumlah_kapitalisasi += $potongan;
             $simpanan->save();
         } else {
             Simpanan::create([
                 'nasabah_id' => $request->nasabah_id,
                 'jumlah_simpanan' => $jumlahSetelahPotong,
-                'kapitalisasi' => $potongan,
+                'jumlah_kapitalisasi' => $potongan,
                 'jenis_simpanan' => $request->jenis_simpanan,
             ]);
         }

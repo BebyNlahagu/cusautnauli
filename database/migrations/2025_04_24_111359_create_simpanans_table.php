@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal("jumlah_simpanan",15, 2);
             $table->decimal('jumlah_kapitalisasi',15,2)->nullable();
             $table->decimal("total" ,15 ,2)->nullable();
+            $table->decimal("total_pinjaman" ,15 ,2)->nullable();
             $table->timestamps();
         });
     }

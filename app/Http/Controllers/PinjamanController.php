@@ -65,6 +65,7 @@ class PinjamanController extends Controller
          'kapitalisasi' => 'nullable|numeric|min:0',
          'proposi' => 'required|numeric|min:0',
          'terima_total' => 'required|numeric|min:0',
+         'total_pinjaman' => 'nullable|numeric|min:0'
       ]);
 
       DB::beginTransaction();
@@ -85,7 +86,7 @@ class PinjamanController extends Controller
             'lama_pinjaman' => $request->lama_pinjaman,
             'jumlah_pinjaman' => $request->jumlah_pinjaman,
             'bunga_pinjaman' => $request->bunga_pinjaman,
-            'kapitalisasi' => $request->kapitalisasi,
+            // 'kapitalisasi' => $request->kapitalisasi,
             'proposi' => $request->proposi,
             'terima_total' => $request->terima_total
          ]);

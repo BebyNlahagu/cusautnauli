@@ -337,7 +337,7 @@
                 // Hitung ulang kapitalisasi dan terima total jika ada
                 const kapitalisasi = value * 0.02;
                 const proposi = value * 0.005;
-                const total_terima = value - kapitalisasi - proposi;
+                const total_terima = value - proposi;
 
                 $('#jumlah_kapitalisasi').val(kapitalisasi);
                 $('#jumlah_adm').val(proposi);

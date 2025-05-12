@@ -25,6 +25,8 @@ return new class extends Migration
             $table->decimal('bunga', 15, 2);
             $table->decimal('total_angsuran', 15, 2);
             $table->decimal('jumlah_bayar', 15, 2)->nullable();
+            $table->decimal('total_pinjaman',15,2)->nullable();
+            
             $table->date('tanggal_jatuh_tempo');
             $table->date('tanggal_bayar')->nullable();
             $table->enum('status', ['Belum Lunas', 'Lunas'])->default('Belum Lunas');

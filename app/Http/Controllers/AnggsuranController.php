@@ -62,7 +62,7 @@ class AnggsuranController extends Controller
             'proposi' => $pinjaman->proposi,
             'terima_total' => $pinjaman->terima_total,
             'bunga_pinjaman' => $bunga_persen,
-            'total_pinjaman_flat' => $total_flat,
+            'total_pinjaman_flat' => $jumlah,
             'angsuran_per_bulan_flat' => $angsuran_flat,
             'bunga_menurun' => $angsuran_bunga_menurun,
         ]);
@@ -111,8 +111,7 @@ class AnggsuranController extends Controller
             $bunga_bulan_ini = round($sisa_pokok * ($bunga_persen / 100), 2);
             $total_angsuran = round($pokok_per_bulan + $bunga_bulan_ini, 2);
 
-            $sisa_angsuran = array_sum(array_slice($angsuran_per_bulan, $bulan - 1));
-
+            $sisa_angsuran = $sisa_pokok - $total_angsuran;
             Anggsuran::create([
                 'nasabah_id' => $request->nasabah_id,
                 'pinjaman_id' => $request->pinjaman_id,
@@ -123,7 +122,7 @@ class AnggsuranController extends Controller
                 'total_angsuran' => $total_angsuran,
                 'tanggal_jatuh_tempo' => $jatuh_tempo->copy()->addMonths($bulan - 1),
                 'status' => 'Belum Lunas',
-                'sisa_angsuran' => $sisa_angsuran, 
+                'sisa_angsuran' => $sisa_angsuran,
             ]);
 
             $sisa_pokok -= $pokok_per_bulan;
@@ -136,10 +135,22 @@ class AnggsuranController extends Controller
     {
         $angsuran = Anggsuran::findOrFail($id);
 
+        $tanggal_jatuh_tempo = $angsuran->tanggal_jatuh_tempo;
+        $tanggal_bayar = now();
+
+        $denda = 0;
+        if ($tanggal_bayar > $tanggal_jatuh_tempo) {
+            $selisih_hari = $tanggal_bayar->diffInDays($tanggal_jatuh_tempo);
+
+            $denda = round(($angsuran->total_angsuran * 2 / 100), 2);
+        }
+
         $angsuran->status = 'Lunas';
-        $angsuran->tanggal_bayar = now();
+        $angsuran->tanggal_bayar = $tanggal_bayar;
+        $angsuran->denda = $denda;  
+        $angsuran->total_angsuran += $denda; 
         $angsuran->save();
 
-        return redirect()->back()->with('success', 'Status angsuran berhasil diubah menjadi lunas.');
+        return redirect()->back()->with('success', 'Status angsuran berhasil diubah menjadi lunas. Denda: Rp ' . number_format($denda, 0, ',', '.'));
     }
 }
