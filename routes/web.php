@@ -46,6 +46,8 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::post('/angsuran/update-status/{id}', [AnggsuranController::class, 'updateStatus'])->name('angsuran.updateStatus');
     Route::get('/get-max-pinjaman/{nasabah_id}', [PinjamanController::class, 'getMaxPinjaman'])->name('pinjaman.getMaxPinjaman');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
+
+    Route::Post('/admin/petugas/{id}',[PetugasController::class,'petugas'])->name('admin.petugas');
 });
 
 Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(function () {
