@@ -4,6 +4,7 @@ use App\Http\Controllers\AnggsuranController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\NasabahController;
 use App\Http\Controllers\PdfController;
+use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PinjamanController;
 use App\Http\Controllers\SimpananController;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
 
     Route::Post('/admin/petugas/{id}',[PetugasController::class,'petugas'])->name('admin.petugas');
+    Route::resource('/admin/petugas', PetugasController::class);
 });
 
 Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(function () {

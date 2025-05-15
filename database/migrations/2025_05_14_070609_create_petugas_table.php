@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('user_id');
+            $table->string('nama_lengkap')->nullable();
             $table->enum('jenis_kelamin',['Laki-laki', 'Perempuan']);
             $table->string('no_hp');
             $table->string('img')->nullable();

@@ -230,7 +230,7 @@
                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#"
                     aria-expanded="false">
                     <div class="avatar-sm">
-                        <img src="assets/img/profile.jpg" alt="..."
+                        <img src="{{ Route::url('images', $p->img) }}" alt="..."
                             class="avatar-img rounded-circle" />
                     </div>
                     <span class="profile-username">
@@ -243,7 +243,7 @@
                         <li>
                             <div class="user-box">
                                 <div class="avatar-lg">
-                                    <img src="assets/img/profile.jpg" alt="image profile"
+                                    <img src="{{ Route::url('images', $p->img) }}" alt="image profile"
                                         class="avatar-img rounded" />
                                 </div>
                                 <div class="u-text">
@@ -256,11 +256,7 @@
                         </li>
                         <li>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">My Profile</a>
-                            <a class="dropdown-item" href="#">My Balance</a>
-                            <a class="dropdown-item" href="#">Inbox</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">Account Setting</a>
+                            <a class="dropdown-item" href="{{ route('petugas.index') }}">My Profile</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" id="Logout" style="cursor:pointer;">Logout</a>
                             <form id="logout-form" action="{{ route('logout') }}" method="post" style="display:none;">
