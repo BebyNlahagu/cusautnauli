@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Transaksi</title>
+    <title>Laporan Pinjaman</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,7 +47,9 @@
             margin-top: 20px;
         }
 
-        table, th, td {
+        table,
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
         }
@@ -94,74 +97,73 @@
             border: 1px solid black;
             margin-top: 10px;
         }
-
     </style>
 </head>
+
 <body>
     <div class="header">
         <div class="logo">
-            <img src="{{ public_path('masuk/futsal.png') }}" alt="Logo" style="width: 150%;">
+            <img src="{{ public_path('img/logo.png') }}" alt="Logo" style="width: 150%;">
         </div>
         <div class="kop-surat" style="padding-left: 5rem;">
-            <h2>Aw Soccer Park</h2>
+            <h2>CU Saut Jaya Nauli</h2>
             <p>Alamat: Jl. Setia Budi Ps. II, Tj. Sari, Kec. Medan Selayang, <br>
-            Kota Medan, Sumatera Utara 20132 <br>HP/WA: +6282134997287 </p>
+                Kota Medan, Sumatera Utara 20132 <br>HP/WA: +6282134997287 </p>
         </div>
     </div>
 
     <hr>
 
     <div class="header">
-        <h2 style="font-weight: bold;">Laporan Simpanan</h2>
+        <h2 style="font-weight: bold;">Laporan Pinjaman</h2>
     </div>
 
     <table>
         <thead>
             <tr>
                 <th>No</th>
-                <th>User</th>
-                <th>No Hp</th>
-                <th>Tanggal Main</th>
-                <th>Harga Total</th>
+                <th>Tanggal</th>
+                <th>No. NIK</th>
+                <th>Nama</th>
+                <th>Jumlah Pinjaman</th>
+                <th>Tenor</th>
+                <th>Bunga</th>
             </tr>
         </thead>
-        <tbody>            @php
-                $no = 1;
-                $totalHarga = 0;
-            @endphp
-            @foreach ($pinjaman as $s)
+        <tbody>
             @php
-                $totalHarga += $s->jumlah_pinjaman;
+            $no = 1;
             @endphp
+
+            @foreach ($pinjaman as $n)
             <tr>
                 <td>{{ $no++ }}</td>
-                <td>{{ $s->nasabah->name }}</td>
-                <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
-                <td>{{ $s->jenis_simpanan}}</td>
-                <td class="text-end bold">Rp {{ number_format($s->jumlah_simpanan, 0, ',', '.') }}</td>
+                <td>{{ \Carbon\Carbon::parse($n->created_at)->translatedFormat('l, d F Y') }}</td>
+                <td>{{ $n->nasabah->Nik }}</td>
+                <td>{{ $n->nasabah->name }}</td>
+                <td>Rp {{ number_format((float)$n->jumlah_pinjaman, 0, ',', '.') }}</td>
+                <td>{{ $n->lama_pinjaman }}</td>
+                <td>{{ $n->bunga_pinjaman }} %</td>
             </tr>
             @endforeach
-            <tr>
-                <td colspan="4" class="text-center">Jumlah Total</td>
-                <td class="text-right" style="font-weight: 900;">Rp. {{ number_format($totalHarga, 0, ',', '.') }} ,-</td>
-            </tr>
         </tbody>
-    </table>
+    </table>>
 
-     <div class="signature-inline">
+    <div class="signature-inline">
         <div class="signature-left">
             <p></p>
             <p>Ketua</p>
             <br><br>
-            <p><u>Admin</u></p>
+            <p><u>H. Nababan</u></p>
         </div>
         <div class="signature-right" style="margin-left:400px;margin-top:-550px">
             <p>Medan, {{ date('d-m-Y') }}</p>
             <p>Penanggung Jawab,</p>
             <br><br>
-            <p><u>Admin</u></p>
+            <p><u>{{ $user->name }}</u></p>
         </div>
     </div>
 
 </body>
+
 </html>

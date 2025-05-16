@@ -326,6 +326,16 @@
                             </div>
 
                             <div class="form-floating form-floating-custom mb-3">
+                                <input type="date" class="form-control @error('tanggal_masuk') is-invalid @enderror"
+                                    id="tanggal_masuk" name="tanggal_masuk" placeholder="Tanggal Lahir"
+                                    value="{{ old('tanggal_masuk') }}" />
+                                <label for="tanggal_masuk">Tanggal Masuk</label>
+                                @error('tanggal_masuk')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-floating form-floating-custom mb-3">
                                 <textarea name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror" cols="30"
                                     rows="3">{{ $n->alamat }}</textarea>
                                 <label for="floatingInput">Alamat</label>

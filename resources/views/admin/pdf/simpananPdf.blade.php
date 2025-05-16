@@ -100,10 +100,10 @@
 <body>
     <div class="header">
         <div class="logo">
-            <img src="{{ public_path('masuk/futsal.png') }}" alt="Logo" style="width: 150%;">
+            <img src="{{ public_path('img/logo.png') }}" alt="Logo" style="width: 150%;">
         </div>
         <div class="kop-surat" style="padding-left: 5rem;">
-            <h2>Aw Soccer Park</h2>
+            <h2>CU Saut Jaya Nauli</h2>
             <p>Alamat: Jl. Setia Budi Ps. II, Tj. Sari, Kec. Medan Selayang, <br>
             Kota Medan, Sumatera Utara 20132 <br>HP/WA: +6282134997287 </p>
         </div>
@@ -119,10 +119,10 @@
         <thead>
             <tr>
                 <th>No</th>
-                <th>User</th>
-                <th>No Hp</th>
-                <th>Tanggal Main</th>
-                <th>Harga Total</th>
+                <th>Anggota</th>
+                <th>Tanggal Simpanan</th>
+                <th>Jenis Simpanan</th>
+                <th>Jumlah Simpanan</th>
             </tr>
         </thead>
         <tbody>
@@ -156,13 +156,13 @@
             <p></p>
             <p>Ketua</p>
             <br><br>
-            <p><u>Admin</u></p>
+            <p><u>H.Nababan</u></p>
         </div>
         <div class="signature-right" style="margin-left:400px;margin-top:-550px">
             <p>Medan, {{ date('d-m-Y') }}</p>
             <p>Penanggung Jawab,</p>
             <br><br>
-            <p><u>Admin</u></p>
+            <p><u>{{ $user->name }}</u></p>
         </div>
     </div>
 

@@ -37,11 +37,30 @@ class PinjamanController extends Controller
          ]);
       }
 
+      $umur = Carbon::parse($nasabah->tanggal_lahir)->diffInYears(now());
+      if ($umur < 17) {
+         return response()->json([
+            'status' => 'not_eligible',
+            'message' => 'Nasabah belum berumur 17 tahun.',
+         ]);
+      }
+
+      $adaAngsuranBelumLunas = DB::table('angsuran')
+         ->join('pinjamans', 'angsuran.pinjaman_id', '=', 'pinjamans.id')
+         ->where('pinjamans.nasabah_id', $nasabah->id)
+         ->where('angsuran.status', '!=', 'lunas')
+         ->exists();
+
+      if ($adaAngsuranBelumLunas) {
+         return response()->json([
+            'status' => 'not_eligible',
+            'message' => 'Nasabah masih memiliki angsuran yang belum lunas.'
+         ]);
+      }
+
+
       $total_simpanan = Simpanan::where('nasabah_id', $nasabah->id)->sum('jumlah_simpanan');
       $jumlah_pinjaman = $total_simpanan * 5;
-      // $potongan = $jumlah_pinjaman * (2 / 100);
-      // $adm = $jumlah_pinjaman * (0.5 / 100);
-      // $total_terima = $jumlah_pinjaman - ($potongan + $adm);
       $bunga_pinjaman = 3;
 
       return response()->json([
@@ -49,9 +68,9 @@ class PinjamanController extends Controller
          'nama_nasabah' => $nasabah->name,
          'jumlah_pinjaman' => $jumlah_pinjaman,
          'bunga_pinjaman' => $bunga_pinjaman,
-         // 'kapitalisasi' => $potongan,
-         // 'proposi' => $adm,
-         // 'terima_total' => $total_terima
+         'umur' => $umur,
+         'lama_gabung_bulan' => $selisih_bulan,
+         'angsuran' => $adaAngsuranBelumLunas,
       ]);
    }
 
@@ -71,7 +90,9 @@ class PinjamanController extends Controller
       DB::beginTransaction();
 
       try {
+
          $nasabah = Nasabah::findOrFail($request->nasabah_id);
+
          $total_simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)->sum('jumlah_simpanan');
          $maksimal_pinjaman = $total_simpanan * 5;
 
@@ -86,7 +107,6 @@ class PinjamanController extends Controller
             'lama_pinjaman' => $request->lama_pinjaman,
             'jumlah_pinjaman' => $request->jumlah_pinjaman,
             'bunga_pinjaman' => $request->bunga_pinjaman,
-            // 'kapitalisasi' => $request->kapitalisasi,
             'proposi' => $request->proposi,
             'terima_total' => $request->terima_total
          ]);

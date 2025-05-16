@@ -226,7 +226,7 @@
                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
                         {{-- @if ($petugas)
-                        <img src="{{ asset('storage/images/' . optional($petugas)->img) }}" alt=""
+                        <img src="{{ asset('images/' . optional($petugas)->img) }}" alt=""
                             class="avatar-img rounded" />
                         @endif --}}
                     </div>

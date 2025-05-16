@@ -97,9 +97,6 @@ class NasabahController extends Controller
             'alamat' => 'nullable',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'nullable',
-            'foto' => isset($foto) ? $foto : null,
-            'ktp' => isset($ktp) ? $ktp : null,
-            'kk' => isset($kk) ? $kk : null
         ]);
 
         $nasabah = Nasabah::findOrFail($id);
@@ -144,6 +141,7 @@ class NasabahController extends Controller
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
+            'tanggal_masuk' => $request->tanggal_masuk,
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
