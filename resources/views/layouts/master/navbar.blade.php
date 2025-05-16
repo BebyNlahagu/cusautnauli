@@ -225,11 +225,10 @@
             <li class="nav-item topbar-user dropdown hidden-caret">
                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
-                        @if ($petugas)
-                        <img src="{{ asset('storage/images/' . $petugas->first()->img) }}" alt=""
+                        {{-- @if ($petugas)
+                        <img src="{{ asset('storage/images/' . optional($petugas)->img) }}" alt=""
                             class="avatar-img rounded" />
-                        @endif
-
+                        @endif --}}
                     </div>
                     <span class="profile-username">
                         <span class="op-7">Hi,</span>
@@ -241,10 +240,10 @@
                         <li>
                             <div class="user-box">
                                 <div class="avatar-lg">
-                                    @if ($petugas)
-                                    <img src="{{ asset('storage/images/' . $petugas->first()->img) }}" alt="image profile"
+                                    {{-- @if ($petugas)
+                                    <img src="{{ asset('storage/images/' . optional($petugas)->img) }}" alt="image profile"
                                         class="avatar-img rounded" />
-                                    @endif
+                                    @endif --}}
                                 </div>
                                 <div class="u-text">
                                     <h4>{{ Auth::user()->name }}</h4>
