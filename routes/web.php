@@ -33,6 +33,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::resource('/admin/pinjaman', PinjamanController::class);
     Route::resource('/admin/angsuran', AnggsuranController::class);
     Route::resource('/admin/simpanan', SimpananController::class);
+    Route::resource('/admin/petugas', PetugasController::class);
 
     Route::get('/get-pinjaman/{nasabah_id}', [AnggsuranController::class, 'getPinjaman']);
 
@@ -48,8 +49,6 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/get-max-pinjaman/{nasabah_id}', [PinjamanController::class, 'getMaxPinjaman'])->name('pinjaman.getMaxPinjaman');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
 
-    Route::Post('/admin/petugas/{id}',[PetugasController::class,'petugas'])->name('admin.petugas');
-    Route::resource('/admin/petugas', PetugasController::class);
 });
 
 Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(function () {
