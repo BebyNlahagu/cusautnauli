@@ -46,9 +46,9 @@ class PinjamanController extends Controller
       }
 
       $adaAngsuranBelumLunas = DB::table('angsuran')
-         ->join('pinjamans', 'angsuran.pinjaman_id', '=', 'pinjamans.id')
-         ->where('pinjamans.nasabah_id', $nasabah->id)
-         ->where('angsuran.status', '!=', 'lunas')
+         ->join('pinjaman', 'angsuran.pinjaman_id', '=', 'pinjaman.id')
+         ->where('pinjaman.nasabah_id', $nasabah->id)
+         ->where('angsuran.status', '!=', 'Lunas')
          ->exists();
 
       if ($adaAngsuranBelumLunas) {

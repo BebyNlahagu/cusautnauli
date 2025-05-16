@@ -319,71 +319,69 @@
         });
 
         // Saat nasabah dipilih
-        $('#nasabah_id').on('change', function() {
-            var nasabah_id = $(this).val();
+       $('#nasabah_id').on('change', function () {
+    var nasabah_id = $(this).val();
 
-            if (nasabah_id) {
-                $.ajax({
-                    url: '/pinjaman/check-eligibility/' + nasabah_id
-                    , type: 'GET'
-                    , success: function(response) {
-                        if (response.status === 'not_eligible') {
-                            // Tambahan: jika respons ada alasan
-                            let alasan = response.message ? ? 'Nasabah tidak memenuhi syarat.';
+    if (nasabah_id) {
+        $.ajax({
+            url: '/pinjaman/check-eligibility/' + nasabah_id,
+            type: 'GET',
+            success: function (response) {
+                if (response.status === 'not_eligible') {
+                    // Tambahan: jika respons ada alasan
+                    let alasan = response.message ?? 'Nasabah tidak memenuhi syarat.';
 
-                            // Tampilkan modal
-                            $('#nasabahBergabungModal').modal('show');
+                    // Tampilkan modal
+                    $('#nasabahBergabungModal').modal('show');
 
-                            // Optional: update isi modal jika perlu
-                            $('#nasabahBergabungModal .modal-body').html(`<p>${alasan}</p>`);
+                    // Optional: update isi modal jika perlu
+                    $('#nasabahBergabungModal .modal-body').html(`<p>${alasan}</p>`);
 
-                            // Reset semua inputan
-                            $('#nama_nasabah').val('');
-                            $('#jumlah_pinjaman_display').val('');
-                            $('#jumlah_pinjaman').val('');
-                            $('#bunga_pinjaman').val('');
-                            $('#jumlah_kapitalisasi').val('');
-                            $('#jumlah_adm').val('');
-                            $('#jumlah_terima').val('');
-                            $('#maxInfo').hide();
-                            $('#infoTambahan').hide();
-                        } else if (response.status === 'eligible') {
-                            $('#nama_nasabah').val(response.nama_nasabah);
-                            maxLoan = response.jumlah_pinjaman;
+                    // Reset semua inputan
+                    $('#nama_nasabah').val('');
+                    $('#jumlah_pinjaman_display').val('');
+                    $('#jumlah_pinjaman').val('');
+                    $('#bunga_pinjaman').val('');
+                    $('#jumlah_kapitalisasi').val('');
+                    $('#jumlah_adm').val('');
+                    $('#jumlah_terima').val('');
+                    $('#maxInfo').hide();
+                    $('#infoTambahan').hide();
+                } else if (response.status === 'eligible') {
+                    $('#nama_nasabah').val(response.nama_nasabah);
+                    maxLoan = response.jumlah_pinjaman;
 
-                            // Reset input nilai
-                            $('#jumlah_pinjaman_display').val('');
-                            $('#jumlah_pinjaman').val('');
-                            $('#jumlah_kapitalisasi').val('');
-                            $('#jumlah_adm').val('');
-                            $('#jumlah_terima').val('');
+                    // Reset input nilai
+                    $('#jumlah_pinjaman_display').val('');
+                    $('#jumlah_pinjaman').val('');
+                    $('#jumlah_kapitalisasi').val('');
+                    $('#jumlah_adm').val('');
+                    $('#jumlah_terima').val('');
 
-                            // Set bunga default
-                            $('#bunga_pinjaman').val(response.bunga_pinjaman);
+                    // Set bunga default
+                    $('#bunga_pinjaman').val(response.bunga_pinjaman);
 
-                            // Tampilkan maksimal pinjaman
-                            $('#maxInfo').text('Maksimal pinjaman: ' + formatRupiah(maxLoan)).show();
+                    // Tampilkan maksimal pinjaman
+                    $('#maxInfo').text('Maksimal pinjaman: ' + formatRupiah(maxLoan)).show();
 
-                            let info = '';
-                            if (response.umur && response.lama_gabung_bulan !== undefined) {
-                                info = `Umur nasabah: ${response.umur} tahun<br>Lama bergabung: ${response.lama_gabung_bulan} bulan<br>Nasabah Masih Ada Angsuran`;
-                            }
-
-                            if (response.angsuran) {
-                                info = `<br><span class="text-danger">Nasabah masih memiliki angsuran yang belum lunas</span>`;
-                            }
-
-                            $('#infoTambahan').html(info).show();
-                        }
+                    // 🆕 Tambahan: info umur & lama gabung
+                    debugger;
+                    let info = '';
+                    if (response.umur && response.lama_gabung_bulan && response.angsuran !== undefined) {
+                        info = `Umur nasabah: ${response.umur} tahun<br>Lama bergabung: ${response.lama_gabung_bulan} bulan`;
                     }
-                    , error: function(xhr) {
-                        alert('Terjadi kesalahan: ' + (xhr.responseJSON ? .error ? ? 'Unknown Error'));
-                    }
-                });
+
+                    $('#infoTambahan').html(info).show();
+                }
+            },
+            error: function (xhr) {
+                alert('Terjadi kesalahan: ' + (xhr.responseJSON?.error ?? 'Unknown Error'));
             }
         });
+    }
+});
 
-    });
+});
 
 </script>
 

@@ -111,7 +111,7 @@ class AnggsuranController extends Controller
             $bunga_bulan_ini = round($sisa_pokok * ($bunga_persen / 100), 2);
             $total_angsuran = round($pokok_per_bulan + $bunga_bulan_ini, 2);
 
-            $sisa_angsuran = $sisa_pokok - $total_angsuran;
+            $sisa_angsuran = $sisa_pokok - $pokok_per_bulan;
             Anggsuran::create([
                 'nasabah_id' => $request->nasabah_id,
                 'pinjaman_id' => $request->pinjaman_id,
@@ -142,7 +142,7 @@ class AnggsuranController extends Controller
         if ($tanggal_bayar > $tanggal_jatuh_tempo) {
             $selisih_hari = $tanggal_bayar->diffInDays($tanggal_jatuh_tempo);
 
-            $denda = round(($angsuran->total_angsuran * 2 / 100), 2);
+            $denda = round(($angsuran->sisa_pokok * 2 / 100), 2);
         }
 
         $angsuran->status = 'Lunas';
