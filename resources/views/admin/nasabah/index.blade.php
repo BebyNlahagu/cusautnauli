@@ -454,6 +454,35 @@
             });
         }
 
+        function validateImage(input,previewId,errorId){
+            const file = files.input[0];
+            const tipe = ['image/jpeg','image/jpg','image/png','image/webp'];
+            const maxSize = 2 * 1024 * 1024;
+
+            $(errorId).text('');
+            $(previewId).attr('src', '');
+
+            if (file) {
+                if (!tipe.includes(file.type)) {
+                    $(errorId).text('File harus berupa gambar (jpeg, png, jpg, webp).');
+                    input.value = '';
+                    return;
+                }
+
+                if (file.size > maxSize) {
+                    $(errorId).text('Ukuran file maksimal 2MB.');
+                    input.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    $(previewId).attr('src', e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         $(document).ready(function() {
             // Preview for Foto Diri
             $('#foto').change(function(e) {

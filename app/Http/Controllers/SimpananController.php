@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Nasabah;
+use App\Models\Simpan;
 use App\Models\Simpanan;
 use Illuminate\Http\Request;
 
@@ -48,6 +49,12 @@ class SimpananController extends Controller
                 'jenis_simpanan' => $request->jenis_simpanan,
             ]);
         }
+
+        Simpan::create([
+            'nasabah_id' => $request->nasabah_id,
+            'nama_simpanan' => $request->jenis_simpanan ?? 'Tidak diketahui',
+            'besar_simpanan' => $jumlahSetelahPotong,
+        ]);
 
         return redirect()->route('simpanan.index')->with('success', 'Data Berhasil Di Tambahkan');
     }

@@ -1,12 +1,21 @@
 @extends('layouts.auth')
 
-@section('title','Halaman Login')
+@section('title', 'Halaman Login')
 @section('content')
+    {{-- @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif --}}
     <div class="container py-5 d-flex justify-content-center align-items-center min-vh-100">
         <div class="col-md-4">
             <div class="card">
                 <div class="row mb-3 justify-content-center align-items-center">
-                    <img src="{{ asset('img/logo.png')}}" alt="logo" style="width: 120px;">
+                    <img src="{{ asset('img/logo.png') }}" alt="logo" style="width: 120px;">
                 </div>
                 <div class="card-body">
                     <h1 class="text-center mb-3">LOGIN</h1>
@@ -15,6 +24,9 @@
                         <div class="form-group mb-2">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" name="email" id="email" class="form-control">
+                            @error('email')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="form-group mb-2">
@@ -29,12 +41,15 @@
                                     </div>
                                 </div>
                             </div>
+                            @error('password')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="form-group d-flex justify-content-between">
                             <button type="submit" class="btn btn-primary mt-2 me-2">Login</button>
                             <a href="{{ route('register') }}" class="btn btn-link mt-2">Register</a>
                         </div>
-                        
+
                     </form>
                 </div>
             </div>

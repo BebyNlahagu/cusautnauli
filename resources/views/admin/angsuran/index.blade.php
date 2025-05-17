@@ -78,10 +78,7 @@
                                 </td>
                                 <td>
                                     <div class="form-button-action">
-                                        <button type="button" class="btn btn-link btn-info btn-lg"
-                                            title="Detail Angsuran" data-bs-toggle="modal"
-                                            data-bs-target="#DetailModal{{ $nasabahId }}"><i
-                                                class="fa fa-eye"></i></button>
+                                        <button type="button" class="btn btn-link btn-info btn-lg" title="Detail Angsuran" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $nasabahId }}"><i class="fa fa-eye"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -96,8 +93,7 @@
 
 @foreach ($groupedAngsuran as $nasabahId => $angsurans)
 <!-- Modal Detail -->
-<div class="modal fade" id="DetailModal{{ $nasabahId }}" tabindex="-1"
-    aria-labelledby="DetailModalLabel{{ $nasabahId }}" aria-hidden="true">
+<div class="modal fade" id="DetailModal{{ $nasabahId }}" tabindex="-1" aria-labelledby="DetailModalLabel{{ $nasabahId }}" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -148,12 +144,9 @@
                                         <td>
                                             @if ($detail->status != 'Lunas')
                                             @if (auth()->user()->role == 'Admin')
-                                            <form id="ubahStatusForm{{ $detail->id }}"
-                                                action="{{ route('angsuran.updateStatus', $detail->id) }}" method="POST"
-                                                style="display: inline;">
+                                            <form id="ubahStatusForm{{ $detail->id }}" action="{{ route('angsuran.updateStatus', $detail->id) }}" method="POST" style="display: inline;">
                                                 @csrf
-                                                <button type="button" class="btn btn-warning btn-sm" title="Ubah Status"
-                                                    onclick="confirmUbahStatus({{ $detail->id }})">
+                                                <button type="button" class="btn btn-warning btn-sm" title="Ubah Status" onclick="confirmUbahStatus({{ $detail->id }})">
                                                     <i class="fa fa-edit"></i>
                                                 </button>
                                             </form>
@@ -201,8 +194,7 @@
 @endforeach
 
 
-<div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -266,24 +258,28 @@
 @if (session('success'))
 <script>
     Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                showConfirmButton: false,
-                timer: 2000
-            });
+        icon: 'success'
+        , title: 'Berhasil!'
+        , text: '{{ session('
+        success ') }}'
+        , showConfirmButton: false
+        , timer: 2000
+    });
+
 </script>
 @endif
 
 @if (session('error'))
 <script>
     Swal.fire({
-                icon: 'error',
-                title: 'Gagal!',
-                text: '{{ session('error') }}',
-                showConfirmButton: false,
-                timer: 3000
-            });
+        icon: 'error'
+        , title: 'Gagal!'
+        , text: '{{ session('
+        error ') }}'
+        , showConfirmButton: false
+        , timer: 3000
+    });
+
 </script>
 @endif
 
@@ -293,114 +289,115 @@
 
 <script>
     function confirmUbahStatus(id) {
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Status angsuran akan diubah menjadi Lunas!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#28a745',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Ubah!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('ubahStatusForm' + id).submit();
-                }
-            })
-        }
+        Swal.fire({
+            title: 'Apakah Anda yakin?'
+            , text: "Angsuran Lunas!"
+            , icon: 'warning'
+            , showCancelButton: true
+            , confirmButtonColor: '#28a745'
+            , cancelButtonColor: '#d33'
+            , confirmButtonText: 'Ya, Lunas!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('ubahStatusForm' + id).submit();
+            }
+        })
+    }
+    $(document).ready(function() {
         $(document).ready(function() {
-            $(document).ready(function() {
-                $("#basic-datatables").DataTable({});
-            });
-
-            function formatCurrency(number) {
-                return "Rp. " + parseFloat(number).toLocaleString('id-ID');
-            }
-
-            // Format angka di tampilan awal (kalau perlu)
-            $('.angsuran-perbulan').each(function() {
-                var originalValue = $(this).text();
-                var formattedValue = formatCurrency(originalValue);
-                $(this).text(formattedValue);
-            });
-
-            // Saat nasabah dipilih
-            $('#nasabah_id').on('change', function() {
-                debugger;
-                var nasabahId = $(this).val();
-                if (nasabahId) {
-                    $.ajax({
-                        url: '/get-pinjaman/' + nasabahId,
-                        type: 'GET',
-                        success: function(data) {
-
-                            $('#jumlah_pinjaman').val(formatCurrency(data.jumlah_pinjaman));
-                            $('#lama_pinjaman').val(data.lama_pinjaman);
-                            $('#bunga_pinjaman').val(data.bunga_pinjaman + '%');
-                            $('#total_pinjaman').val(formatCurrency(data.total_pinjaman_flat));
-                            $('#angsuran_bulan').val(formatCurrency(data.angsuran_per_bulan_flat));
-                            $('#kapitalisasi').val(formatCurrency(data.kapitalisasi));
-                            $('#proposi').val(formatCurrency(data.proposi));
-                            $('#terima_total').val(formatCurrency(data.terima_total));
-
-                            // Set hidden input untuk dikirim ke server
-                            $('#pinjaman_id_hidden').val(data.pinjaman_id);
-                            $('#jumlah_total_pinjaman_hidden').val(data.total_pinjaman_flat);
-                            $('#angsuran_perbulan_hidden').val(data.angsuran_per_bulan_flat);
-
-                            // Hitung jatuh tempo
-                            let jatuhTempo = new Date();
-                            jatuhTempo.setMonth(jatuhTempo.getMonth() + 1);
-                            let jatuhTempoFormatted = jatuhTempo.toISOString().split('T')[0];
-                            $('#jatuh_tempo_hidden').val(jatuhTempoFormatted);
-
-                            // Kalau ada data bunga menurun, tampilkan di tabel
-                            if (data.bunga_menurun && data.bunga_menurun.length > 0) {
-                                window.bungaMenurunData = data.bunga_menurun;
-                                renderTabelBungaMenurun(window.bungaMenurunData);
-                            } else {
-                                window.bungaMenurunData = [];
-                                $('#tabel-bunga-menurun tbody').html(
-                                    '<tr><td colspan="5" class="text-center">Tidak ada data</td></tr>'
-                                );
-                            }
-                        },
-                        error: function(xhr) {
-                            alert('Pinjaman tidak ditemukan atau terjadi kesalahan.');
-                        }
-                    });
-                } else {
-                    // Reset input
-                    $('#jumlah_pinjaman').val('');
-                    $('#lama_pinjaman').val('');
-                    $('#bunga_pinjaman').val('');
-                    $('#total_pinjaman').val('');
-                    $('#angsuran_per_bulan').val('');
-
-                    $('#pinjaman_id_hidden').val('');
-                    $('#jumlah_total_pinjaman_hidden').val('');
-                    $('#angsuran_perbulan_hidden').val('');
-                    $('#jatuh_tempo_hidden').val('');
-
-                    window.bungaMenurunData = [];
-                    $('#tabel-bunga-menurun tbody').html('');
-                }
-            });
-
-            // Fungsi render tabel bunga menurun
-            function renderTabelBungaMenurun(data) {
-                var html = '';
-                data.forEach(function(item) {
-                    html += '<tr>' +
-                        '<td>' + item.bulan_ke + '</td>' +
-                        '<td>' + formatCurrency(item.sisa_pokok) + '</td>' +
-                        '<td>' + formatCurrency(item.angsuran_pokok) + '</td>' +
-                        '<td>' + formatCurrency(item.bunga_bulan_ini) + '</td>' +
-                        '<td>' + formatCurrency(item.total_angsuran_bulan_ini) + '</td>' +
-                        '</tr>';
-                });
-                $('#tabel-bunga-menurun tbody').html(html);
-            }
-
+            $("#basic-datatables").DataTable({});
         });
+
+        function formatCurrency(number) {
+            return "Rp. " + parseFloat(number).toLocaleString('id-ID');
+        }
+
+        // Format angka di tampilan awal (kalau perlu)
+        $('.angsuran-perbulan').each(function() {
+            var originalValue = $(this).text();
+            var formattedValue = formatCurrency(originalValue);
+            $(this).text(formattedValue);
+        });
+
+        // Saat nasabah dipilih
+        $('#nasabah_id').on('change', function() {
+            debugger;
+            var nasabahId = $(this).val();
+            if (nasabahId) {
+                $.ajax({
+                    url: '/get-pinjaman/' + nasabahId
+                    , type: 'GET'
+                    , success: function(data) {
+
+                        $('#jumlah_pinjaman').val(formatCurrency(data.jumlah_pinjaman));
+                        $('#lama_pinjaman').val(data.lama_pinjaman);
+                        $('#bunga_pinjaman').val(data.bunga_pinjaman + '%');
+                        $('#total_pinjaman').val(formatCurrency(data.total_pinjaman_flat));
+                        $('#angsuran_bulan').val(formatCurrency(data.angsuran_per_bulan_flat));
+                        $('#kapitalisasi').val(formatCurrency(data.kapitalisasi));
+                        $('#proposi').val(formatCurrency(data.proposi));
+                        $('#terima_total').val(formatCurrency(data.terima_total));
+
+                        // Set hidden input untuk dikirim ke server
+                        $('#pinjaman_id_hidden').val(data.pinjaman_id);
+                        $('#jumlah_total_pinjaman_hidden').val(data.total_pinjaman_flat);
+                        $('#angsuran_perbulan_hidden').val(data.angsuran_per_bulan_flat);
+
+                        // Hitung jatuh tempo
+                        let jatuhTempo = new Date();
+                        jatuhTempo.setMonth(jatuhTempo.getMonth() + 1);
+                        let jatuhTempoFormatted = jatuhTempo.toISOString().split('T')[0];
+                        $('#jatuh_tempo_hidden').val(jatuhTempoFormatted);
+
+                        // Kalau ada data bunga menurun, tampilkan di tabel
+                        if (data.bunga_menurun && data.bunga_menurun.length > 0) {
+                            window.bungaMenurunData = data.bunga_menurun;
+                            renderTabelBungaMenurun(window.bungaMenurunData);
+                        } else {
+                            window.bungaMenurunData = [];
+                            $('#tabel-bunga-menurun tbody').html(
+                                '<tr><td colspan="5" class="text-center">Tidak ada data</td></tr>'
+                            );
+                        }
+                    }
+                    , error: function(xhr) {
+                        alert('Pinjaman tidak ditemukan atau terjadi kesalahan.');
+                    }
+                });
+            } else {
+                // Reset input
+                $('#jumlah_pinjaman').val('');
+                $('#lama_pinjaman').val('');
+                $('#bunga_pinjaman').val('');
+                $('#total_pinjaman').val('');
+                $('#angsuran_per_bulan').val('');
+
+                $('#pinjaman_id_hidden').val('');
+                $('#jumlah_total_pinjaman_hidden').val('');
+                $('#angsuran_perbulan_hidden').val('');
+                $('#jatuh_tempo_hidden').val('');
+
+                window.bungaMenurunData = [];
+                $('#tabel-bunga-menurun tbody').html('');
+            }
+        });
+
+        // Fungsi render tabel bunga menurun
+        function renderTabelBungaMenurun(data) {
+            var html = '';
+            data.forEach(function(item) {
+                html += '<tr>' +
+                    '<td>' + item.bulan_ke + '</td>' +
+                    '<td>' + formatCurrency(item.sisa_pokok) + '</td>' +
+                    '<td>' + formatCurrency(item.angsuran_pokok) + '</td>' +
+                    '<td>' + formatCurrency(item.bunga_bulan_ini) + '</td>' +
+                    '<td>' + formatCurrency(item.total_angsuran_bulan_ini) + '</td>' +
+                    '</tr>';
+            });
+            $('#tabel-bunga-menurun tbody').html(html);
+        }
+
+    });
+
 </script>
 @endsection

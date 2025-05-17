@@ -39,9 +39,9 @@ class NasabahController extends Controller
             'jenis_kelamin' => 'required',
             'tanggal_lahir' => 'required|date',
             'tanggal_masuk' => 'required|date',
-            'foto' => 'nullable',
-            'ktp' => 'nullable',
-            'kk' => 'nullable',
+            'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'ktp'  => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'kk'   => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'required'
         ]);
@@ -101,7 +101,7 @@ class NasabahController extends Controller
 
         $nasabah = Nasabah::findOrFail($id);
 
-      
+
         if ($request->hasFile('foto')) {
             if ($nasabah->foto) {
                 unlink(public_path('images/' . $nasabah->foto));
@@ -145,8 +145,8 @@ class NasabahController extends Controller
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
-            'foto' => isset($foto) ? $foto : $nasabah->foto, 
-            'ktp' => isset($ktp) ? $ktp : $nasabah->ktp, 
+            'foto' => isset($foto) ? $foto : $nasabah->foto,
+            'ktp' => isset($ktp) ? $ktp : $nasabah->ktp,
             'kk' => isset($kk) ? $kk : $nasabah->kk,
         ]);
 
