@@ -156,7 +156,7 @@
             <p><u>H.Nababan</u></p>
         </div>
         <div class="signature-right" style="margin-left:400px;margin-top:-550px">
-            <p>Medan, {{ date('d-m-Y') }}</p>
+            <p>Nagasaribu, {{ date('d-m-Y') }}</p>
             <p>Penanggung Jawab,</p>
             <br><br>
             <p><u>{{ $user->name }}</u></p>
