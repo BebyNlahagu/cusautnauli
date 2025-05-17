@@ -27,12 +27,12 @@
             text-align: center;
         }
 
-        .kop-surat h3 {
+        /* .kop-surat h3 {
             margin: 0;
             font-size: 2rem;
             color: #08b430;
             font-weight: bold;
-        }
+        } */
 
         .kop-surat p {
             margin: 0;
