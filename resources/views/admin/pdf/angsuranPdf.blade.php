@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Transaksi</title>
+    <title>Laporan Angsuran</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -103,9 +103,8 @@
             <img src="{{ public_path('masuk/logo.png') }}" alt="Logo" style="width: 150%;">
         </div>
         <div class="kop-surat" style="padding-left: 5rem;">
-            <h2>CU Saut Jaya Nauli</h2>
-            <p>Alamat: Jl. Setia Budi Ps. II, Tj. Sari, Kec. Medan Selayang, <br>
-            Kota Medan, Sumatera Utara 20132 <br>HP/WA: +6282134997287 </p>
+            <h2>CU SAUT MAJU NAULI</h2>
+            <p>Nagasaribu iii, Kecamatan Lintongnihuta, Kabupaten Humbang Hasundutan</p>
         </div>
     </div>
 
