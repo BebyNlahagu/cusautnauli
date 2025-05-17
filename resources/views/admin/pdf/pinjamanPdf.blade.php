@@ -150,7 +150,7 @@
 
     <div class="signature-inline">
         <div class="signature-left">
-            <p></p>
+            <br>
             <p>Ketua</p>
             <br><br>
             <p><u>H. Nababan</u></p>

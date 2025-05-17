@@ -100,7 +100,7 @@
 <body>
     <div class="header">
         <div class="logo">
-            <img src="{{ public_path('masuk/logo.png') }}" alt="Logo" style="width: 150%;">
+            <img src="{{ public_path('img/logo.png') }}" alt="Logo" style="width: 150%;">
         </div>
         <div class="kop-surat" style="padding-left: 5rem;">
             <h3>CU SAUT MAJU NAULI</h3>
@@ -148,7 +148,7 @@
     
     <div class="signature-inline">
         <div class="signature-left">
-            <p></p>
+            <br>
             <p>Ketua</p>
             <br><br>
             <p><u>H. Nababan</u></p>
