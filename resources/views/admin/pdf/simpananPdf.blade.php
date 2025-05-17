@@ -27,7 +27,7 @@
             text-align: center;
         }
 
-        .kop-surat h2 {
+        .kop-surat h3 {
             margin: 0;
             font-size: 3rem;
             color: #08b430;
