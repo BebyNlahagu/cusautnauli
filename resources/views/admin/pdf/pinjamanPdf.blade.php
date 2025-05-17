@@ -30,7 +30,7 @@
 
         .kop-surat h3 {
             margin: 0;
-            font-size: 3rem;
+            font-size: 2rem;
             color: #08b430;
             font-weight: bold;
         }
