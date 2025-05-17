@@ -103,8 +103,8 @@
             <img src="{{ public_path('masuk/logo.png') }}" alt="Logo" style="width: 150%;">
         </div>
         <div class="kop-surat" style="padding-left: 5rem;">
-            <h2>CU SAUT MAJU NAULI</h2>
-            <p>Nagasaribu iii, Kecamatan Lintongnihuta, Kabupaten Humbang Hasundutan</p>
+            <h3>CU SAUT MAJU NAULI</h3>
+            <p>Nagasaribu iii, Kecamatan Lintongnihuta, <br>Kabupaten Humbang Hasundutan</p>
         </div>
     </div>
 
