@@ -34,7 +34,7 @@ class HomeController extends Controller
         $angsuran = Anggsuran::sum('total_angsuran');
         $nasabah = Nasabah::count();
         $petugas = Petugas::first();
-        $kapitalisasi = Pinjaman::sum('kapitalisasi');
+        $kapitalisasi = Simpanan::sum('Jumlah_kapitalisasi');
         return view('home', compact('simpanan','pinjaman','angsuran','nasabah','kapitalisasi','petugas'));
     }
 }
