@@ -99,7 +99,7 @@
                     <div class="col col-stats ms-3 ms-sm-0">
                         <div class="numbers">
                             <p class="card-category">Total Kapitalisasi</p>
-                            <h4 class="card-title" id="kapitalisasi">{{ $Jumlah_kapitalisasi}}</h4>
+                            <h4 class="card-title" id="kapitalisasi">{{ $kapitalisasi}}</h4>
                         </div>
                     </div>
                 </div>
