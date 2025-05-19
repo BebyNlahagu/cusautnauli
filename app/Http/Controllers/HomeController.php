@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Anggsuran;
+use App\Models\Nasabah;
 use App\Models\Pinjaman;
 use App\Models\Simpanan;
 use App\Models\Petugas;
@@ -31,7 +32,7 @@ class HomeController extends Controller
         $simpanan = Simpanan::sum('jumlah_simpanan');
         $pinjaman = Pinjaman::sum('jumlah_pinjaman');
         $angsuran = Anggsuran::sum('total_angsuran');
-        $nasabah = User::count();
+        $nasabah = Nasabah::count();
         $petugas = Petugas::first();
         $kapitalisasi = Pinjaman::sum('kapitalisasi');
         return view('home', compact('simpanan','pinjaman','angsuran','nasabah','kapitalisasi','petugas'));
