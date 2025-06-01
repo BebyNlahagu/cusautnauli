@@ -48,6 +48,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/pdf/pinjaman', [PdfController::class, 'pinjamanPdf'])->name('pdf.pinjaman');
     Route::get('/admin/pdf/angsuran', [PdfController::class, 'angsuranPdf'])->name('pdf.angsuran');
 
+    Route::post('/admin/nasabah/{id}',[NasabahController::class,'verify'])->name('nasabah.verify');
     Route::post('/angsuran/update-status/{id}', [AnggsuranController::class, 'updateStatus'])->name('angsuran.updateStatus');
     Route::get('/get-max-pinjaman/{nasabah_id}', [PinjamanController::class, 'getMaxPinjaman'])->name('pinjaman.getMaxPinjaman');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);

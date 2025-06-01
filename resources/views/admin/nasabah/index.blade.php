@@ -85,6 +85,8 @@
                                         @endif</td>
                                         <td>
                                             <div class="form-button-action">
+                                            <button type="button" class="btn btn-link btn-info btn-lg" title="Email dan Password" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $n->id }}"><i class="fa fa-eye"></i></button>
+
                                                 <a href="{{ route('nasabah.edit', $n->id) }}" data-bs-toggle="modal"
                                                     class="btn btn-link btn-primary btn-lg"
                                                     data-bs-target="#edit{{ $n->id }}"
@@ -98,6 +100,15 @@
                                                         onclick="confirmDelete({{ $n->id }})"><i
                                                             class="fa fa-times"></i></button>
                                                 </form>
+
+                                                @if ($n->status != "Verify")
+                                                    <form id="ubahStatusForm{{ $n->id }}" action="{{ route('nasabah.verify', $n->id) }}" method="POST" style="display: inline;">
+                                                        @csrf
+                                                        <button type="button" class="btn btn-warning btn-sm" title="Ubah Status" onclick="confirmUbahStatus({{ $n->id }})">
+                                                            <i class="fa fa-edit"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -109,6 +120,10 @@
             </div>
         </div>
     </div>
+
+    @foreach ($nasabah as $n)
+        
+    @endforeach
 
     <!-- Modal Tambah-->
     {{-- <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -445,6 +460,22 @@
     @endif
 
     <script>
+        function confirmUbahStatus(id) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?'
+            , text: "Verifikasi Data!"
+            , icon: 'warning'
+            , showCancelButton: true
+            , confirmButtonColor: '#28a745'
+            , cancelButtonColor: '#d33'
+            , confirmButtonText: 'Ya, Terverifikasi!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('ubahStatusForm' + id).submit();
+            }
+        })
+    }
+
         function confirmDelete(id) {
             Swal.fire({
                 title: "Apakah Anda Yakin?",

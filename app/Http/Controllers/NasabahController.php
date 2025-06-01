@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Nasabah;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
 
 class NasabahController extends Controller
 {
@@ -75,6 +79,35 @@ class NasabahController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Data berhasil ditambahkan!');
+    }
+
+    public function verify($id)
+    {
+        $nasabah = Nasabah::findOrFail($id);
+
+        $nasabah->status = 'Verify';
+        $nasabah->save();
+
+        if($nasabah->status == 'Verify')
+        {
+            $randomDigits = rand(1000, 9999);
+            $email = Str::slug($nasabah->name, '.') . $randomDigits . '@gmail.com';
+
+            $password = "12345678";
+            $hashedPassword = Hash::make($password);
+
+            $user = new User();
+            $user->name = $nasabah->name;
+            $user->email = $email;
+            $user->password = $hashedPassword;
+            $user->role = 'User';
+            $user->save();
+            return redirect()->back()->with("success","Nasabah Berhasil Terverifikasi");
+        }
+        else{
+            return redirect()->back()->with("error","Data Tidak Lengkap");
+        }
+
     }
 
     public function edit($id)
