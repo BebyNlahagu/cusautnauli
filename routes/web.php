@@ -22,10 +22,13 @@ use Illuminate\Support\Facades\Auth;
 */
 
 Route::get('/', function () {
-    return view('auth.login');
+    return view('landingPage');
 });
 
 Auth::routes();
+
+Route::get('/nasabah',[NasabahController::class,'create'])->name("create");
+Route::post('/nasabah',[NasabahController::class, 'addData'])->name('addNasabah');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
 Route::middleware(['auth', 'role:Admin'])->group(function () {
 

@@ -39,8 +39,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title">@yield('title')</h4>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span
-                            class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
+                    {{-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button> --}}
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -48,6 +47,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>No.Reg</th>
                                     <th>No. NIK</th>
                                     <th>Nama</th>
                                     <th>Jenis Kelamin</th>
@@ -56,6 +56,7 @@
                                     <th>Kelurahan</th>
                                     <th>Pekerjaan</th>
                                     <th>Alamat</th>
+                                    <th>Status</th>
                                     <th style="width: 10%">Action</th>
                                 </tr>
                             </thead>
@@ -67,6 +68,7 @@
                                 @foreach ($nasabah as $n)
                                     <tr>
                                         <td>{{ $no++ }}</td>
+                                        <td>{{ $n->nmr_anggota }}</td>
                                         <td>{{ $n->Nik }}</td>
                                         <td>{{ $n->name }}</td>
                                         <td>{{ $n->jenis_kelamin }}</td>
@@ -76,6 +78,11 @@
                                         <td>{{ $n->kelurahan }}</td>
                                         <td>{{ $n->pekerjaan }}</td>
                                         <td>{{ $n->alamat }}</td>
+                                        <td>@if($n->status == "Verify")
+                                            <span class="badge text-bg-success">Terverifikasi</span>
+                                            @else
+                                            <span class="badge text-bg-danger">Tidak Terverifikasi</span>
+                                        @endif</td>
                                         <td>
                                             <div class="form-button-action">
                                                 <a href="{{ route('nasabah.edit', $n->id) }}" data-bs-toggle="modal"
@@ -104,7 +111,7 @@
     </div>
 
     <!-- Modal Tambah-->
-    <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    {{-- <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -254,7 +261,7 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Modal Edit  --}}
     @foreach ($nasabah as $n)
