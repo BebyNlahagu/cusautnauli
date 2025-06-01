@@ -121,10 +121,6 @@
         </div>
     </div>
 
-    @foreach ($nasabah as $n)
-        
-    @endforeach
-
     <!-- Modal Tambah-->
     {{-- <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
