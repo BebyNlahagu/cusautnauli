@@ -48,11 +48,11 @@
             </a>
 
             <nav id="navmenu" class="navmenu">
-                <ul>
+                {{-- <ul>
                     <li><a href="#hero" class="active">Home<br></a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#services">Services</a></li>
-                </ul>
+                </ul> --}}
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>
 
@@ -234,10 +234,10 @@
 
         </section><!-- /Hero Section -->
 
-        <!-- About Section -->
+        <!-- About Section 
         <section id="about" class="about section">
 
-            <div class="container" data-aos="fade-up">
+            {{-- <div class="container" data-aos="fade-up">
                 <div class="row gx-0">
 
                     <div class="col-lg-6 d-flex flex-column justify-content-center" data-aos="fade-up" data-aos-delay="200">
@@ -251,7 +251,7 @@
                                 {{-- <a href="#" class="btn-read-more d-inline-flex align-items-center justify-content-center align-self-center">
                   <span>Read More</span>
                   <i class="bi bi-arrow-right"></i>
-                </a> --}}
+                </a>
                             </div>
                         </div>
                     </div>
@@ -261,21 +261,21 @@
                     </div>
 
                 </div>
-            </div>
+            </div> --}}
 
-        </section><!-- /About Section -->
+        </section>/About Section -->
 
 
-        <!-- Services Section -->
+        <!-- Services Section 
         <section id="services" class="services section">
 
-            <!-- Section Title -->
+            
             <div class="container section-title" data-aos="fade-up">
                 <h2>Layanan</h2>
                 <p>Lihat Layanan Kami<br></p>
-            </div><!-- End Section Title -->
+            </div><End Section Title -->
 
-            <div class="container">
+            {{-- <div class="container">
 
                 <div class="row gy-4">
 
@@ -307,14 +307,14 @@
                     </div><!-- End Service Item -->
                 </div>
 
-            </div>
+            </div> --}}
 
-        </section><!-- /Services Section -->
+        {{-- </section>/Services Section --> --}}
     </main>
 
     <footer id="footer" class="footer">
 
-        <div class="container footer-top">
+        {{-- <div class="container footer-top">
             <div class="row gy-4">
                 <div class="col-lg-4 col-md-6 footer-about">
                     <a href="index.html" class="d-flex align-items-center">
@@ -338,7 +338,7 @@
                 </div>
 
             </div>
-        </div>
+        </div> --}}
 
         <div class="container copyright text-center mt-4">
             <p>© <span>Copyright</span> <strong class="px-1 sitename">CU Saut Jaya Nauli</strong> <span>All Rights Reserved</span></p>

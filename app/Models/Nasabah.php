@@ -14,7 +14,7 @@ class Nasabah extends Model
 
     public function pinjaman()
     {
-        return $this->hasMany(Pinjaman::class,"nasabah_id");
+        return $this->hasMany(Pinjaman::class, "nasabah_id");
     }
 
     public function simpanan()
@@ -24,5 +24,10 @@ class Nasabah extends Model
     public function angsuran()
     {
         return $this->hasMany(Anggsuran::class, "nasabah_id");
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, "user_id");
     }
 }

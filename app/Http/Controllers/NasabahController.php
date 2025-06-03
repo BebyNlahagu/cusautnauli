@@ -6,6 +6,7 @@ use App\Models\Nasabah;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -19,6 +20,7 @@ class NasabahController extends Controller
 
     public function index()
     {
+        $user = Auth::user();
         $nasabah = Nasabah::all();
         return view('admin.nasabah.index', compact('nasabah'));
     }
@@ -83,31 +85,34 @@ class NasabahController extends Controller
 
     public function verify($id)
     {
-        $nasabah = Nasabah::findOrFail($id);
+        $nasabah = Nasabah::with('user')->findOrFail($id);
 
         $nasabah->status = 'Verify';
         $nasabah->save();
 
-        if($nasabah->status == 'Verify')
-        {
+        if ($nasabah->status == 'Verify') {
             $randomDigits = rand(1000, 9999);
             $email = Str::slug($nasabah->name, '.') . $randomDigits . '@gmail.com';
 
-            $password = "12345678";
-            $hashedPassword = Hash::make($password);
+            $plainPassword = "12345678";
+            $hashedPassword = Hash::make($plainPassword);
 
             $user = new User();
             $user->name = $nasabah->name;
             $user->email = $email;
             $user->password = $hashedPassword;
+            $user->plain_password = $plainPassword;
             $user->role = 'User';
             $user->save();
-            return redirect()->back()->with("success","Nasabah Berhasil Terverifikasi");
-        }
-        else{
-            return redirect()->back()->with("error","Data Tidak Lengkap");
-        }
 
+           
+            $nasabah->user_id = $user->id;
+            $nasabah->save();
+
+            return redirect()->back()->with("success", "Nasabah berhasil diverifikasi");
+        } else {
+            return redirect()->back()->with("error", "Data tidak lengkap");
+        }
     }
 
     public function edit($id)

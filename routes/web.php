@@ -71,5 +71,7 @@ Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(functio
 
 
 Route::middleware(['auth', 'role:User,Admin'])->prefix('admin')->group(function () {
+    Route::resource('/admin/pinjaman', PinjamanController::class);
     Route::resource('/admin/angsuran', AnggsuranController::class);
+    Route::resource('/admin/simpanan', SimpananController::class);
 });

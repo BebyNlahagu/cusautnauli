@@ -30,7 +30,9 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">@yield('title')</h4>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
+                @if (auth()->user()->role == "Admin")
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
+                @endif
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -97,12 +99,12 @@
                 <div class="modal-body">
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('nasabah_id') is-invalid @enderror" id="nasabah_id" name="nasabah_id">
-                            <option value="">--Pilih Nama--</option>
+                            <option value="">--Pilih Nomor Registrasi--</option>
                             @foreach ($nasabah as $n)
-                                <option value="{{ $n->id}}">{{ $n->name}}</option>
+                                <option value="{{ $n->id}}">{{ $n->nmr_anggota}}</option>
                             @endforeach
                         </select>
-                        <label for="nasabah_id">Pilih Nama</label>
+                        <label for="nasabah_id">Pilih Nomor Registrasi</label>
                     </div>
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" onchange="setJumlahSimpanan()" id="jenis_simpanan" name="jenis_simpanan">
@@ -115,8 +117,8 @@
                         <label for="jenis_simpanan">Jenis Simpanan</label>
                     </div>
                     <div class="form-floating form-floating-custom mb-3">
-                        <input type="text" id="jumlah_simpanan_display" oninput="formatUang(this)" class="form-control @error('jumlah_simpanan') is-invalid @enderror" placeholder="Jumlah Simpanan" value="{{ old('jumlah_simpanan') ? 'Rp ' . number_format(old('jumlah_simpanan'), 0, ',', '.') : '' }}" />
-                        <input type="hidden" name="jumlah_simpanan" class="form-control @error('jumlah_simpanan') is-invalid @enderror" id="jumlah_simpanan" placeholder="Jumlah Simpanan" value="{{ old('jumlah_simpanan') }}" />
+                        <input type="text" id="jumlah_simpanan_display" oninput="formatUang(this)" class="form-control @error('jumlah_simpanan') is-invalid @enderror" readonly placeholder="Jumlah Simpanan" value="{{ old('jumlah_simpanan') ? 'Rp ' . number_format(old('jumlah_simpanan'), 0, ',', '.') : '' }}" />
+                        <input type="hidden" readonly name="jumlah_simpanan" class="form-control @error('jumlah_simpanan') is-invalid @enderror" id="jumlah_simpanan" placeholder="Jumlah Simpanan" value="{{ old('jumlah_simpanan') }}" />
                         <label for="floatingInput">Jumlah Simpanan</label>
                         @error('jumlah_simpanan')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -147,12 +149,12 @@
                 <div class="modal-body">
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('nasabah_id') is-invalid @enderror" id="nasabah_id" name="nasabah_id">
-                            <option value="">--Pilih Nama--</option>
+                            <option value="">--Pilih Nomor Registrasi--</option>
                             @foreach ($nasabah as $n)
-                                <option value="{{ $n->id }}" {{ $n->id == $s->nasabah_id ? 'selected' : '' }}>{{ $n->name }}</option>
+                                <option value="{{ $n->id }}" {{ $n->id == $s->nasabah_id ? 'selected' : '' }}>{{ $n->nmr_anggota }}</option>
                             @endforeach
                         </select>                        
-                        <label for="nasabah_id">Pilih Nama</label>
+                        <label for="nasabah_id">Pilih Nomor Registrasi</label>
                     </div>
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" id="jenis_simpanan" name="jenis_simpanan">

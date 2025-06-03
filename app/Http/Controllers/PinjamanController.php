@@ -8,15 +8,20 @@ use Illuminate\Http\Request;
 use App\Models\Pinjaman;
 use App\Models\Simpanan;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PinjamanController extends Controller
 {
    public function index()
    {
-      $nasabah = Nasabah::all();
-      $nasabah = $nasabah ?: collect();
-      $pinjaman = Pinjaman::with("nasabah")->get();
+      $user = Auth::user();
+
+      $nasabah = Nasabah::where('user_id', $user->id)->first();
+      $pinjaman = $nasabah
+         ? Pinjaman::with('nasabah')->where('nasabah_id', $nasabah->id)->get()
+         : collect(); // kosongkan jika tidak ada
+
       return view('admin.pinjaman.index', compact('pinjaman', 'nasabah'));
    }
 
