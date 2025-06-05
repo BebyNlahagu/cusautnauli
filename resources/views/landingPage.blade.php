@@ -312,7 +312,7 @@
         {{-- </section>/Services Section --> --}}
     </main>
 
-    <footer id="footer" class="footer">
+    {{-- <footer id="footer" class="footer">
 
         {{-- <div class="container footer-top">
             <div class="row gy-4">
@@ -340,7 +340,7 @@
             </div>
         </div> --}}
 
-        <div class="container copyright text-center mt-4">
+        {{-- <div class="container copyright text-center mt-4">
             <p>© <span>Copyright</span> <strong class="px-1 sitename">CU Saut Jaya Nauli</strong> <span>All Rights Reserved</span></p>
             <div class="credits">
                 <!-- All the links in the footer should remain intact. -->
@@ -348,9 +348,9 @@
                 <!-- Licensing information: https://bootstrapmade.com/license/ -->
                 <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
             </div>
-        </div>
+        </div> --}}
 
-    </footer>
+    {{-- </footer> --}}
 
     <!-- Scroll Top -->
     <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
