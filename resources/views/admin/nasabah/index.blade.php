@@ -78,6 +78,33 @@
                                 <td>{{ $n->kelurahan }}</td>
                                 <td>{{ $n->pekerjaan }}</td>
                                 <td>{{ $n->alamat }}</td>
+                                <td>
+                                    @if($n->foto)
+                                         <a href="{{ asset('storage/' . $n->foto) }}" target="_blank" class="btn btn-primary">
+                                            Lihat Foto
+                                        </a>
+                                    @else
+                                        <span>Data Foto Tidak Ada</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($n->ktp)
+                                         <a href="{{ asset('storage/' . $item->ktp) }}" target="_blank" class="btn btn-primary">
+                                            Lihat Foto
+                                        </a>
+                                    @else
+                                        <span>Data Foto Tidak Ada</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($n->kk)
+                                         <a href="{{ asset('storage/' . $item->kk) }}" target="_blank" class="btn btn-primary">
+                                            Lihat Foto
+                                        </a>
+                                    @else
+                                        <span>Data Foto Tidak Ada</span>
+                                    @endif
+                                </td>
                                 <td>@if($n->status == "Verify")
                                     <span class="badge text-bg-success">Terverifikasi</span>
                                     @else

@@ -78,9 +78,12 @@ class NasabahController extends Controller
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
+            'foto' => $foto ?? null,
+            'ktp' => $ktp ?? null,
+            'kk' => $kk ?? null,
         ]);
 
-        return redirect()->back()->with('success', 'Data berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'Nasabah berhasil didaftarkan!');
     }
 
     public function verify($id)
@@ -117,7 +120,7 @@ class NasabahController extends Controller
 
     public function edit($id)
     {
-        $nasabah = Nasabah::findOrfail($id)->get();
+        $nasabah = Nasabah::findOrfail($id);
         return redirect()->route('nasabah.index', compact('nasabah'));
     }
 

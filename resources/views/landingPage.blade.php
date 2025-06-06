@@ -200,21 +200,19 @@
                 </div>
             </div>
         </div>
-
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         @if(session('success'))
         <script>
             Swal.fire({
-                title: "Berhasil!"
-                , text: "{{ session('success') }}"
-                , icon: "success"
-                , confirmButtonText: "OK"
+                title: "Berhasil!",
+                text: "{{ session('success') }}",
+                icon: "success",
+                confirmButtonText: "OK"
             });
-
         </script>
         @endif
 
 
-       
         <!-- Hero Section -->
         <section id="hero" class="hero section">
 
@@ -358,6 +356,8 @@
     <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
     <!-- Vendor JS Files -->
+   
+
     <script src="{{asset('components/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('components/vendor/php-email-form/validate.js')}}"></script>
     <script src="{{asset('components/vendor/aos/aos.js')}}"></script>

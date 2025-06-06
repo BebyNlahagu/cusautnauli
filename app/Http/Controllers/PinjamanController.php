@@ -17,7 +17,15 @@ class PinjamanController extends Controller
    {
    
       $nasabah = Nasabah::all();
-      $pinjaman = Pinjaman::all();
+
+      if(auth()->user()->role == "Admin")
+      {
+         $pinjaman = Pinjaman::all();
+      }else
+      {
+         $pinjaman = Pinjaman::where('nasabah_id', auth()->user()->nasabah_id)->get();
+      }
+      
 
       return view('admin.pinjaman.index', compact('pinjaman', 'nasabah'));
    }
