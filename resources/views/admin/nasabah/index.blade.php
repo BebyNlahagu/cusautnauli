@@ -89,7 +89,7 @@
                                 </td>
                                 <td>
                                     @if($n->ktp)
-                                         <a href="{{ asset('storage/' . $item->ktp) }}" target="_blank" class="btn btn-primary">
+                                         <a href="{{ asset('storage/' . $n->ktp) }}" target="_blank" class="btn btn-primary">
                                             Lihat Foto
                                         </a>
                                     @else
@@ -98,7 +98,7 @@
                                 </td>
                                 <td>
                                     @if($n->kk)
-                                         <a href="{{ asset('storage/' . $item->kk) }}" target="_blank" class="btn btn-primary">
+                                         <a href="{{ asset('storage/' . $n->kk) }}" target="_blank" class="btn btn-primary">
                                             Lihat Foto
                                         </a>
                                     @else
