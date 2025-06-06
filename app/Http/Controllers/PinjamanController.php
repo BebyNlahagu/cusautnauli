@@ -15,12 +15,9 @@ class PinjamanController extends Controller
 {
    public function index()
    {
-      $user = Auth::user();
-
-      $nasabah = Nasabah::where('user_id', $user->id)->first();
-      $pinjaman = $nasabah
-         ? Pinjaman::with('nasabah')->where('nasabah_id', $nasabah->id)->get()
-         : collect(); // kosongkan jika tidak ada
+   
+      $nasabah = Nasabah::all();
+      $pinjaman = Pinjaman::all();
 
       return view('admin.pinjaman.index', compact('pinjaman', 'nasabah'));
    }

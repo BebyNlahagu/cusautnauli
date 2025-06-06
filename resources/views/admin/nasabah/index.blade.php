@@ -97,8 +97,8 @@
                                         @if ($n->status != "Verify")
                                         <form id="ubahStatusForm{{ $n->id }}" action="{{ route('nasabah.verify', $n->id) }}" method="POST" style="display: inline;">
                                             @csrf
-                                            <button type="button" class="btn btn-warning btn-lg" title="Ubah Status" onclick="confirmUbahStatus({{ $n->id }})">
-                                                <i class="fa fa-edit"></i>
+                                            <button type="button" class="btn btn-warning btn-link" title="Ubah Status" onclick="confirmUbahStatus({{ $n->id }})">
+                                                <i class="fa fa-angle-left"></i>
                                             </button>
                                         </form>
                                         @else

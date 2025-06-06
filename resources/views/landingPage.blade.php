@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>CU Saut Jaya Nauli</title>
+    <title>CU Saut Maut Nauli</title>
     <meta name="description" content="">
     <meta name="keywords" content="">
 
@@ -44,7 +44,7 @@
             <a href="index.html" class="logo d-flex align-items-center me-auto">
                 <!-- Uncomment the line below if you also wish to use an image logo -->
                 <img src="{{ asset('img/logo.png') }}" alt="">
-                <h1 class="sitename">CU Saut Jaya Nauli</h1>
+                <h1 class="sitename">CU Saut Maju Nauli</h1>
             </a>
 
             <nav id="navmenu" class="navmenu">
@@ -213,13 +213,15 @@
         </script>
         @endif
 
+
+       
         <!-- Hero Section -->
         <section id="hero" class="hero section">
 
             <div class="container">
                 <div class="row gy-4">
                     <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center">
-                        <h1 data-aos="fade-up">Selamat Datang Di Cu Saut Jaya Nauli</h1>
+                        <h1 data-aos="fade-up">Selamat Datang Di CU Saut Maut Nauli</h1>
                         <p data-aos="fade-up" data-aos-delay="100">Kami Siap Melayani Kebutuhan Anda</p>
                         {{-- <div class="d-flex flex-column flex-md-row" data-aos="fade-up" data-aos-delay="200">
               <a href="#about" class="btn-get-started"> <i class="bi bi-arrow-right"></i></a>
