@@ -44,17 +44,17 @@ class NasabahController extends Controller
 
         if ($request->hasFile('foto')) {
             $foto = time() . '.' . $request->foto->extension();
-            $request->foto->move(public_path('images'), $foto);
+            $request->foto->storeAs('images', $foto);
         }
 
         if ($request->hasFile('ktp')) {
             $ktp = time() . '.' . $request->ktp->extension();
-            $request->ktp->move(public_path('images'), $ktp);
+            $request->ktp->storeAs('images', $ktp);
         }
 
         if ($request->hasFile('kk')) {
             $kk = time() . '.' . $request->kk->extension();
-            $request->kk->move(public_path('images'), $kk);
+            $request->kk->storeAs('images', $kk);
         }
 
         $tanggal = Carbon::now();
@@ -108,7 +108,6 @@ class NasabahController extends Controller
             $user->role = 'User';
             $user->save();
 
-           
             $nasabah->user_id = $user->id;
             $nasabah->save();
 

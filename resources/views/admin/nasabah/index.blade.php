@@ -56,6 +56,9 @@
                                 <th>Kelurahan</th>
                                 <th>Pekerjaan</th>
                                 <th>Alamat</th>
+                                <th>Foto Diri</th>
+                                <th>Foto KTP</th>
+                                <th>Foto KK</th>
                                 <th>Status</th>
                                 <th style="width: 10%">Action</th>
                             </tr>
@@ -80,31 +83,32 @@
                                 <td>{{ $n->alamat }}</td>
                                 <td>
                                     @if($n->foto)
-                                         <a href="{{ asset('storage/' . $n->foto) }}" target="_blank" class="btn btn-primary">
-                                            Lihat Foto
-                                        </a>
+                                    <a href="{{ Storage::url('images/' . $n->foto) }}" target="_blank">
+                                        Lihat Foto
+                                    </a>
                                     @else
-                                        <span>Data Foto Tidak Ada</span>
+                                    <span>Data Foto Tidak Ada</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($n->ktp)
-                                         <a href="{{ asset('storage/' . $n->ktp) }}" target="_blank" class="btn btn-primary">
-                                            Lihat Foto
-                                        </a>
+                                    <a href="{{ Storage::url('images/' . $n->ktp) }}" target="_blank">
+                                        lihat ktp
+                                    </a>
                                     @else
-                                        <span>Data Foto Tidak Ada</span>
+                                    <span>Data Foto Tidak Ada</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($n->kk)
-                                         <a href="{{ asset('storage/' . $n->kk) }}" target="_blank" class="btn btn-primary">
-                                            Lihat Foto
-                                        </a>
+                                    <a href="{{ Storage::url('images/' . $n->kk) }}" target="_blank">
+                                        lihat KK
+                                    </a>
                                     @else
-                                        <span>Data Foto Tidak Ada</span>
+                                    <span>Data Foto Tidak Ada</span>
                                     @endif
                                 </td>
+
                                 <td>@if($n->status == "Verify")
                                     <span class="badge text-bg-success">Terverifikasi</span>
                                     @else
