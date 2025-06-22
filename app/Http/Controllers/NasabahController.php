@@ -22,39 +22,47 @@ class NasabahController extends Controller
     {
         $user = Auth::user();
         $nasabah = Nasabah::all();
-        return view('admin.nasabah.index', compact('nasabah'));
+
+        $nasabahTerverifikasi = Nasabah::where("status","Verify")->get();
+        $nasabahTidakTerverifikasi = Nasabah::where("status","Unverifyed")->get();
+        return view('admin.nasabah.index', compact('nasabah','nasabahTerverifikasi','nasabahTidakTerverifikasi'));
     }
 
     public function addData(Request $request)
     {
         $request->validate([
             'name' => 'required',
-            'Nik' => 'required',
-            'no_telp' => 'required',
+            'Nik' => 'required|max_digits:16',
+            'no_telp' => 'required|max_digits:12',
             'alamat' => 'required',
             'jenis_kelamin' => 'required',
-            'tanggal_lahir' => 'required|date',
-            'tanggal_masuk' => 'required|date',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'ktp'  => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'kk'   => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'required',
+            'tanggal_lahir' => ['required', 'date', function ($attribute, $value, $fail) {
+                $minAge = 17;
+                $birthDate = Carbon::parse($value);
+                if ($birthDate->diffInYears(Carbon::now()) < $minAge) {
+                    $fail('Umur harus minimal 17 tahun.');
+                }
+            }],
         ]);
 
         if ($request->hasFile('foto')) {
             $foto = time() . '.' . $request->foto->extension();
-            $request->foto->storeAs('images', $foto);
+            $request->foto->storeAs('images', $foto, 'public');
         }
 
         if ($request->hasFile('ktp')) {
             $ktp = time() . '.' . $request->ktp->extension();
-            $request->ktp->storeAs('images', $ktp);
+            $request->ktp->storeAs('images', $ktp, 'public');
         }
 
         if ($request->hasFile('kk')) {
             $kk = time() . '.' . $request->kk->extension();
-            $request->kk->storeAs('images', $kk);
+            $request->kk->storeAs('images', $kk, 'public');
         }
 
         $tanggal = Carbon::now();
@@ -62,19 +70,26 @@ class NasabahController extends Controller
         $bln = $tanggal->format('m');
         $thn = $tanggal->format('y');
 
-        $jumlah = Nasabah::whereDate('created_at', $tanggal->toDateString())->count(); 
+        $jumlah = Nasabah::whereDate('created_at', $tanggal->toDateString())->count();
         $hariIni = str_pad($jumlah + 1, 3, '0', STR_PAD_LEFT);
 
         $nmr_anggota = "NMR-{$tgl}{$bln}{$thn}-{$hariIni}";
 
-        Nasabah::create([
+        $user = User::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "role" => "User",
+            "password" => Hash::make($request->password),
+        ]);
+
+        $nasabah = Nasabah::create([
+            'user_id' => $user->id,
             'name' => $request->name,
             'nmr_anggota' => $nmr_anggota,
             'Nik' => $request->Nik,
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
-            'tanggal_masuk' => $request->tanggal_masuk,
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
@@ -82,6 +97,9 @@ class NasabahController extends Controller
             'ktp' => $ktp ?? null,
             'kk' => $kk ?? null,
         ]);
+
+        $user->nasabah_id = $nasabah->id;
+        $user->save();
 
         return redirect()->back()->with('success', 'Nasabah berhasil didaftarkan!');
     }
@@ -92,29 +110,7 @@ class NasabahController extends Controller
 
         $nasabah->status = 'Verify';
         $nasabah->save();
-
-        if ($nasabah->status == 'Verify') {
-            $randomDigits = rand(1000, 9999);
-            $email = Str::slug($nasabah->name, '.') . $randomDigits . '@gmail.com';
-
-            $plainPassword = "12345678";
-            $hashedPassword = Hash::make($plainPassword);
-
-            $user = new User();
-            $user->name = $nasabah->name;
-            $user->email = $email;
-            $user->password = $hashedPassword;
-            $user->plain_password = $plainPassword;
-            $user->role = 'User';
-            $user->save();
-
-            $nasabah->user_id = $user->id;
-            $nasabah->save();
-
-            return redirect()->back()->with("success", "Nasabah berhasil diverifikasi");
-        } else {
-            return redirect()->back()->with("error", "Data tidak lengkap");
-        }
+        return redirect()->route('nasabah.index')->with("success", "Nasabah berhasil diverifikasi");
     }
 
     public function edit($id)
@@ -134,7 +130,7 @@ class NasabahController extends Controller
             'foto' => 'nullable',
             'kk' => 'nullable',
             'ktp' => 'nullable',
-            'tanggal_masuk' => 'nullable',
+            // 'tanggal_masuk' => 'nullable',
             'alamat' => 'nullable',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'nullable',
@@ -182,7 +178,7 @@ class NasabahController extends Controller
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
-            'tanggal_masuk' => $request->tanggal_masuk,
+            // 'tanggal_masuk' => $request->tanggal_masuk,
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,

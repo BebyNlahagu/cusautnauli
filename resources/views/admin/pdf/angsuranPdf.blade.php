@@ -122,7 +122,6 @@
                 <th>Tanggal Pinjaman</th>
                 <th>Jumlah Angsuran</th>
                 <th>Total Pinjaman</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>

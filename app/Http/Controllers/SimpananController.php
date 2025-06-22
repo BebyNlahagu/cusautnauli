@@ -6,15 +6,24 @@ use App\Models\Nasabah;
 use App\Models\Simpan;
 use App\Models\Simpanan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SimpananController extends Controller
 {
     public function index()
     {
-        $simpanan = Simpanan::with('nasabah')->get();
-        $nasabah = Nasabah::all();
-        $kapitalisasi = Simpanan::sum('jumlah_kapitalisasi');
-        return view("admin.simpanan.index", compact('simpanan', 'nasabah','kapitalisasi'));
+        $user = auth()->user();
+
+        if ($user->role == "Admin") {
+            $simpanan = Simpanan::with('nasabah')->get();
+            $nasabah = Nasabah::all();
+            $kapitalisasi = Simpanan::sum('jumlah_kapitalisasi');
+        } else {
+            $simpanan = Simpanan::with('nasabah')->where('nasabah_id', $user->nasabah_id)->get();
+            $nasabah = Nasabah::where('id', $user->nasabah_id)->get();
+            $kapitalisasi = Simpanan::where('nasabah_id', $user->nasabah_id)->sum('jumlah_kapitalisasi');
+        }
+        return view("admin.simpanan.index", compact('simpanan', 'nasabah', 'kapitalisasi'));
     }
 
     public function store(Request $request)
@@ -56,13 +65,14 @@ class SimpananController extends Controller
             'besar_simpanan' => $jumlahSetelahPotong,
         ]);
 
+
         return redirect()->route('simpanan.index')->with('success', 'Data Berhasil Di Tambahkan');
     }
 
 
     public function edit($id)
     {
-        $simpanan = Simpanan::findOrFail($id)->get();
+        $simpanan = Simpanan::findOrFail($id);
         return redirect()->route('simpanan.index', compact('simpanan'));
     }
 

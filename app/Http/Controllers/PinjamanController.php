@@ -23,10 +23,8 @@ class PinjamanController extends Controller
          $pinjaman = Pinjaman::all();
       }else
       {
-         $pinjaman = Pinjaman::where('nasabah_id', auth()->user()->nasabah_id)->get();
+        $pinjaman = Pinjaman::where('nasabah_id', auth()->user()->nasabah_id)->get();
       }
-      
-
       return view('admin.pinjaman.index', compact('pinjaman', 'nasabah'));
    }
 
@@ -38,7 +36,7 @@ class PinjamanController extends Controller
          return response()->json(['error' => 'Nasabah tidak ditemukan.'], 404);
       }
 
-      $selisih_bulan = Carbon::parse($nasabah->tanggal_masuk)->diffInMonths(now());
+      $selisih_bulan = Carbon::parse($nasabah->created_at)->diffInMonths(now());
 
       if ($selisih_bulan < 6) {
          return response()->json([
@@ -101,7 +99,8 @@ class PinjamanController extends Controller
 
       try {
 
-         $nasabah = Nasabah::findOrFail($request->nasabah_id);
+         Nasabah::findOrFail($request->nasabah_id);
+
 
          $total_simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)->sum('jumlah_simpanan');
          $maksimal_pinjaman = $total_simpanan * 5;

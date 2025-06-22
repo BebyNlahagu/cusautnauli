@@ -63,15 +63,15 @@
     </header>
 
     <main class="main">
-    @if ($errors->any())
+        @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
-    @endif
+        @endif
 
         <div class="modal fade" id="add" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -93,7 +93,8 @@
                                 </div>
 
                                 <div class="form-floating form-floating-custom mb-3">
-                                    <input type="number" class="form-control @error('Nik') is-invalid @enderror" id="Nik" name="Nik" placeholder="Nomor NIK" value="{{ old('Nik') }}" />
+                                    <input type="number" class="form-control @error('Nik') is-invalid @enderror" id="Nik" name="Nik" min="0" oninput="if(this.value.length > 16) this.value = this.value.slice(0,16);" placeholder="Nomor NIK" value="{{ old('Nik') }}" />
+                                    <span id="hasil"></span>
                                     <label for="floatingInput">Nomor NIK</label>
                                     @error('Nik')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -121,17 +122,10 @@
                                 </div>
 
                                 <div class="form-floating form-floating-custom mb-3">
-                                    <input type="number" name="no_telp" class="form-control @error('no_telp') is-invalid @enderror" id="No_telp" placeholder="No. Hp/Wa" value="{{ old('no_telp') }}" />
+                                    <input type="number" name="no_telp" class="form-control  @error('no_telp') is-invalid @enderror" min="0" oninput="if(this.value.length > 12) this.value = this.value.slice(0,12);" id="No_telp" placeholder="No. Hp/Wa" value="{{ old('no_telp') }}" />
+                                    <span id="h"></span>
                                     <label for="floatingInput">No. Hp/Wa</label>
                                     @error('no_telp')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-floating form-floating-custom mb-3">
-                                    <input type="date" name="tanggal_masuk" class="form-control @error('tanggal_masuk') is-invalid @enderror" id="tanggal_masuk" placeholder="No. Hp/Wa" value="{{ old('tanggal_masuk') }}" />
-                                    <label for="floatingInput">Tanggal Masuk</label>
-                                    @error('tanggal_masuk')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -160,7 +154,24 @@
                                     @enderror
                                 </div>
 
-                                <br>
+                                <hr>
+                                <h5>Email Dan Password</h5>
+                                <div class="form-floating form-floating-custom mb-3">
+                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" id="email" placeholder="email" value="{{ old('email') }}" />
+                                    <label for="floatingInput">Email</label>
+                                    @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="form-floating form-floating-custom mb-3">
+                                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="password" value="{{ old('password') }}" />
+                                    <label for="floatingInput">Password</label>
+                                    @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <hr>
+                                <h5>Dokumen Pendukung</h5>
                                 <hr>
 
                                 <div class="form-floating form-floating-custom mb-3">
@@ -193,24 +204,81 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-success">Save</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-success">Daftar</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
+        
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         @if(session('success'))
         <script>
             Swal.fire({
-                title: "Berhasil!",
-                text: "{{ session('success') }}",
-                icon: "success",
-                confirmButtonText: "OK"
+                title: "Berhasil!"
+                , text: "{{ session('success') }}"
+                , icon: "success"
+                , confirmButtonText: "OK"
             });
+
         </script>
         @endif
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $("#Nik").on("input", function() {
+                    var input = $(this).val();
+                    var regex = /^[0-9]{0,16}$/;
+
+                    if (regex.test(input)) {
+                        $('#hasil').text("");
+                    } else {
+                        $('#hasil').text("");
+                    }
+                })
+
+                $("#No_telp").on("input", function() {
+                    var input = $(this).val();
+                    var regex = /^08[0-9]{8,12}$/;
+
+                    if (regex.test(input)) {
+                        $("#h").text("");
+                    } else {
+                        $("#h").text("");
+                    }
+                })
+
+                $('form').on('submit', function(e) {
+                    var tanggalLahirVal = $('#tanggal_lahir').val();
+                    if (!tanggalLahirVal) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'warning'
+                            , title: 'Oops...'
+                            , text: 'Tanggal lahir harus diisi'
+                        , });
+                        return;
+                    }
+
+                    var tanggalLahir = new Date(tanggalLahirVal);
+                    var today = new Date();
+                    var ageDifMs = today - tanggalLahir;
+                    var ageDate = new Date(ageDifMs);
+                    var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+                    if (age < 17) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error'
+                            , title: 'Gagal'
+                            , text: 'Umur harus minimal 17 tahun'
+                        , });
+                    }
+                });
+            })
+
+        </script>
 
 
         <!-- Hero Section -->
@@ -275,7 +343,7 @@
                 <p>Lihat Layanan Kami<br></p>
             </div><End Section Title -->
 
-            {{-- <div class="container">
+        {{-- <div class="container">
 
                 <div class="row gy-4">
 
@@ -340,7 +408,7 @@
             </div>
         </div> --}}
 
-        {{-- <div class="container copyright text-center mt-4">
+    {{-- <div class="container copyright text-center mt-4">
             <p>© <span>Copyright</span> <strong class="px-1 sitename">CU Saut Jaya Nauli</strong> <span>All Rights Reserved</span></p>
             <div class="credits">
                 <!-- All the links in the footer should remain intact. -->
@@ -356,7 +424,7 @@
     <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
     <!-- Vendor JS Files -->
-   
+
 
     <script src="{{asset('components/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('components/vendor/php-email-form/validate.js')}}"></script>
@@ -370,9 +438,9 @@
     <!-- Main JS File -->
     <script src="{{asset('components/js/main.js')}}"></script>
     <script>
-        function validateImage(input,previewId,errorId){
+        function validateImage(input, previewId, errorId) {
             const file = files.input[0];
-            const tipe = ['image/jpeg','image/jpg','image/png','image/webp'];
+            const tipe = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
             const maxSize = 2 * 1024 * 1024;
 
             $(errorId).text('');
@@ -392,7 +460,7 @@
                 }
 
                 const reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     $(previewId).attr('src', e.target.result);
                 };
                 reader.readAsDataURL(file);
@@ -436,6 +504,7 @@
                 }
             });
         });
+
     </script>
 </body>
 

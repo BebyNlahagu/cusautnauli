@@ -207,8 +207,18 @@
         icon: "success", 
         confirmButtonText: "OK"
     });
-
 </script>
+@endif
+
+@if(session("error"))
+    <script>
+        swal.fire({
+            title : "Gagal!",
+            text : "{{ session('error') }}",
+            icon : "error",
+            confirmButtonText: "Ok"
+        });
+    </script>    
 @endif
 
 @if(session('delete'))

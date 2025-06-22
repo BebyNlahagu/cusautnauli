@@ -48,8 +48,13 @@ class User extends Authenticatable
         return $this->hasMany(Petugas::class,'user_id');
     }
 
-    public function nasabah()
+    public function nasabahs()
     {
         return $this->hasMany(Nasabah::class, "user_id");
+    }
+
+    public function nasabah()
+    {
+        return $this->belongsTo(Nasabah::class, 'nasabah_id');
     }
 }
