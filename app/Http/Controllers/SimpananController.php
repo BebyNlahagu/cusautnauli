@@ -16,7 +16,7 @@ class SimpananController extends Controller
 
         if ($user->role == "Admin") {
             $simpanan = Simpanan::with('nasabah')->get();
-            $nasabah = Nasabah::all();
+            $nasabah = Nasabah::where('status', 'Verify')->get();
             $kapitalisasi = Simpanan::sum('jumlah_kapitalisasi');
         } else {
             $simpanan = Simpanan::with('nasabah')->where('nasabah_id', $user->nasabah_id)->get();
