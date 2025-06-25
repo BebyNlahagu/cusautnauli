@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AlamatController;
 use App\Http\Controllers\AnggsuranController;
+use App\Http\Controllers\Daftar;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\NasabahController;
 use App\Http\Controllers\PdfController;
@@ -27,8 +29,13 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::get('/alamat', [AlamatController::class,"index"])->name("alamat.index");
+Route::post('/alamat',[AlamatController::class, "store"])->name("alamat.store");
+
 Route::get('/nasabah',[NasabahController::class,'create'])->name("create");
 Route::post('/nasabah',[NasabahController::class, 'addData'])->name('addNasabah');
+Route::get('/',[Daftar::class,'index']);
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
 Route::middleware(['auth', 'role:Admin'])->group(function () {
 

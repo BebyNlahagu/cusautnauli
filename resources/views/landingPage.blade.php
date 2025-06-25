@@ -130,8 +130,21 @@
                                     @enderror
                                 </div>
 
-                                <div class="form-floating form-floating-custom mb-3">
+                                {{-- <div class="form-floating form-floating-custom mb-3">
                                     <textarea name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror" cols="30" rows="3">{{ old('alamat') }}</textarea>
+                                    <label for="floatingInput">Alamat</label>
+                                    @error('alamat')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div> --}}
+
+                                <div class="form-floating form-floating-custom mb-3">
+                                    <select name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror">
+                                        <option value="">-pilih-</option>
+                                        @foreach ($alamat as $a)
+                                            <option value="{{ $a->id }}">{{ $a->alamat }}</option>
+                                        @endforeach
+                                    </select>
                                     <label for="floatingInput">Alamat</label>
                                     @error('alamat')
                                     <div class="invalid-feedback">{{ $message }}</div>

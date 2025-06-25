@@ -31,10 +31,10 @@ class NasabahController extends Controller
     public function addData(Request $request)
     {
         $request->validate([
+            'alamat' => 'required|exists:alamat,id',
             'name' => 'required',
             'Nik' => 'required|max_digits:16',
             'no_telp' => 'required|max_digits:12',
-            'alamat' => 'required',
             'jenis_kelamin' => 'required',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'ktp'  => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -90,7 +90,7 @@ class NasabahController extends Controller
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
-            'alamat' => $request->alamat,
+            'alamat_id' => $request->alamat_id,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
             'foto' => $foto ?? null,
