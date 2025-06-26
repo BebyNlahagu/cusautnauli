@@ -32,7 +32,7 @@ class Nasabah extends Model
     }
     public function users()
     {
-        return $this->hasMany(User::class, "nasabah_id");
+        return $this->belongsTo(User::class, "nasabah_id");
     }
 
     public function alamat()

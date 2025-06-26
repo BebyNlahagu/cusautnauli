@@ -21,11 +21,11 @@ class NasabahController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $nasabah = Nasabah::all();
+        $nasabahLain = $user->nasabahh;
 
         $nasabahTerverifikasi = Nasabah::where("status","Verify")->get();
         $nasabahTidakTerverifikasi = Nasabah::where("status","Unverifyed")->get();
-        return view('admin.nasabah.index', compact('nasabah','nasabahTerverifikasi','nasabahTidakTerverifikasi'));
+        return view('admin.nasabah.index', compact('nasabahLain','nasabahTerverifikasi','nasabahTidakTerverifikasi'));
     }
 
     public function addData(Request $request)

@@ -16,12 +16,15 @@
                     <label for="alamat">Alamat</label>
                     <input type="text" name="alamat" id="alamat" class="form-control">
                 </div>
+                <div class="form-footer mt-2">
+                    <button class="btn btn-primary" type="submit" title="Save"> save</button>
+                </div>
             </form>
         </div>
     </div>
 
     @if (session('success'))
-    <div class="alert alert-success">
+    <div class="alert alert-success mb-3">
         <p>{{ session('success') }}</p>
     </div>
     @endif
@@ -38,15 +41,11 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach ($alamat as $a)
                                 <tr>
-
-                                    @foreach ($alamat as $a)
-                                    @php
-                                    $no = 1;
-                                    @endphp
                                     <td>{{ $a->alamat }}</td>
-                                    @endforeach
                                 </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
