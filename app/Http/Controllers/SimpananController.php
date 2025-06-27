@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Nasabah;
 use App\Models\Simpan;
 use App\Models\Simpanan;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,13 +16,13 @@ class SimpananController extends Controller
         $user = auth()->user();
 
         if ($user->role == "Admin") {
-            $simpanan = Simpanan::with('nasabah')->get();
-            $nasabah = Nasabah::where('status', 'Verify')->get();
+            $simpanan = Simpanan::with('user')->get();
+            $nasabah = User::where('status', 'Verify')->get();
             $kapitalisasi = Simpanan::sum('jumlah_kapitalisasi');
         } else {
-            $simpanan = Simpanan::with('nasabah')->where('nasabah_id', $user->nasabah_id)->get();
-            $nasabah = Nasabah::where('id', $user->nasabah_id)->get();
-            $kapitalisasi = Simpanan::where('nasabah_id', $user->nasabah_id)->sum('jumlah_kapitalisasi');
+            $simpanan = Simpanan::with('user')->where('user_id', $user->user_id)->get();
+            $nasabah = User::where('id', $user->user_id)->get();
+            $kapitalisasi = Simpanan::where('user_id', $user->user_id)->sum('jumlah_kapitalisasi');
         }
         return view("admin.simpanan.index", compact('simpanan', 'nasabah', 'kapitalisasi'));
     }
@@ -29,7 +30,7 @@ class SimpananController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nasabah_id' => 'required|exists:nasabahs,id',
+            'user_id' => 'required|exists:users,id',
             'jenis_simpanan' => 'nullable',
             'jumlah_simpanan' => 'nullable|numeric',
             'total' => 'nullable',
@@ -39,7 +40,7 @@ class SimpananController extends Controller
         $potongan = 0.02 * $jumlahSimpananAwal;
         $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
 
-        $simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)
+        $simpanan = Simpanan::where('user_id', $request->user_id)
             ->where('jenis_simpanan', $request->jenis_simpanan)
             ->first();
 
@@ -52,7 +53,7 @@ class SimpananController extends Controller
             $kap = $potongan;
 
             Simpanan::create([
-                'nasabah_id' => $request->nasabah_id,
+                'user_id' => $request->user_id,
                 'jumlah_simpanan' => $simpananAll,
                 'jumlah_kapitalisasi' => $kap,
                 'jenis_simpanan' => $request->jenis_simpanan,
@@ -60,7 +61,7 @@ class SimpananController extends Controller
         }
 
         Simpan::create([
-            'nasabah_id' => $request->nasabah_id,
+            'user_id' => $request->user_id,
             'nama_simpanan' => $request->jenis_simpanan ?? 'Tidak diketahui',
             'besar_simpanan' => $jumlahSetelahPotong,
         ]);
@@ -79,7 +80,7 @@ class SimpananController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nasabah_id' => 'nullable|exists:nasabahs,id',
+            'user_id' => 'nullable|exists:users,id',
             'jenis_simpanan' => 'nullable',
             'jumlah_simpanan' => 'nullable|numeric',
             'total' => 'nullable',
@@ -91,7 +92,7 @@ class SimpananController extends Controller
         $potongan = 0.02 * $jumlahSimpananAwal;
         $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
 
-        $simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)
+        $simpanan = Simpanan::where('user_id', $request->user_id)
             ->where('jenis_simpanan', $request->jenis_simpanan)
             ->first();
 
@@ -101,7 +102,7 @@ class SimpananController extends Controller
             $simpanan->save();
         } else {
             Simpanan::create([
-                'nasabah_id' => $request->nasabah_id,
+                'user_id' => $request->user_id,
                 'jumlah_simpanan' => $jumlahSetelahPotong,
                 'jumlah_kapitalisasi' => $potongan,
                 'jenis_simpanan' => $request->jenis_simpanan,

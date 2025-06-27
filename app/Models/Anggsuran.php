@@ -17,8 +17,8 @@ class Anggsuran extends Model
         return $this->belongsTo(Pinjaman::class, "pinjaman_id");
     }
 
-    public function nasabah()
+    public function user()
     {
-        return $this->belongsTo(Nasabah::class, 'nasabah_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

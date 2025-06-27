@@ -13,7 +13,7 @@ class PdfController extends Controller
 {
     public function simpananPdf(Request $request)
     {
-        $simpanan = Simpanan::with('nasabah')->get();
+        $simpanan = Simpanan::with('user')->get();
 
         $query = Simpanan::query();
         if ($request->filled('bulan')) {
@@ -35,7 +35,7 @@ class PdfController extends Controller
 
     public function pinjamanPdf(Request $request)
     {
-        $pinjaman = Pinjaman::with('nasabah')->get();
+        $pinjaman = Pinjaman::with('user')->get();
         $query = Pinjaman::query();
         if ($request->filled('bulan')) {
             $query->whereMonth('created_at', $request->bulan);
@@ -56,7 +56,7 @@ class PdfController extends Controller
 
     public function angsuranPdf(Request $request)
     {
-        $angsuran = Anggsuran::with('nasabah','pinjaman')->get();
+        $angsuran = Anggsuran::with('user','pinjaman')->get();
         $query = Anggsuran::query();
         if ($request->filled('bulan')) {
             $query->whereMonth('tanggal_main', $request->bulan);

@@ -21,10 +21,10 @@ class NasabahController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $nasabah = Nasabah::all();
+        $nasabah = User::all();
 
-        $nasabahTerverifikasi = Nasabah::where("status","Verify")->get();
-        $nasabahTidakTerverifikasi = Nasabah::where("status","Unverifyed")->get();
+        $nasabahTerverifikasi = User::where("status","Verify")->get();
+        $nasabahTidakTerverifikasi = User::where("status","Unverifyed")->get();
         return view('admin.nasabah.index', compact('nasabah','nasabahTerverifikasi','nasabahTidakTerverifikasi'));
     }
 
@@ -70,20 +70,12 @@ class NasabahController extends Controller
         $bln = $tanggal->format('m');
         $thn = $tanggal->format('y');
 
-        $jumlah = Nasabah::whereDate('created_at', $tanggal->toDateString())->count();
+        $jumlah = User::whereDate('created_at', $tanggal->toDateString())->count();
         $hariIni = str_pad($jumlah + 1, 3, '0', STR_PAD_LEFT);
 
         $nmr_anggota = "NMR-{$tgl}{$bln}{$thn}-{$hariIni}";
 
-        $user = User::create([
-            "name" => $request->name,
-            "email" => $request->email,
-            "role" => "User",
-            "password" => Hash::make($request->password),
-        ]);
-
-        $nasabah = Nasabah::create([
-            'user_id' => $user->id,
+        User::create([
             'alamat_id' => $request->alamat_id,
             'name' => $request->name,
             'nmr_anggota' => $nmr_anggota,
@@ -98,15 +90,12 @@ class NasabahController extends Controller
             'kk' => $kk ?? null,
         ]);
 
-        $user->nasabah_id = $nasabah->id;
-        $user->save();
-
         return redirect()->back()->with('success', 'Nasabah berhasil didaftarkan!');
     }
 
     public function verify($id)
     {
-        $nasabah = Nasabah::with('user')->findOrFail($id);
+        $nasabah = User::with('user')->findOrFail($id);
 
         $nasabah->status = 'Verify';
         $nasabah->save();
@@ -115,7 +104,7 @@ class NasabahController extends Controller
 
     public function edit($id)
     {
-        $nasabah = Nasabah::findOrfail($id);
+        $nasabah = User::findOrfail($id);
         return redirect()->route('nasabah.index', compact('nasabah'));
     }
 
@@ -136,7 +125,7 @@ class NasabahController extends Controller
             'pekerjaan' => 'nullable',
         ]);
 
-        $nasabah = Nasabah::findOrFail($id);
+        $nasabah = User::findOrFail($id);
 
 
         if ($request->hasFile('foto')) {
@@ -192,7 +181,7 @@ class NasabahController extends Controller
 
     public function destroy($id)
     {
-        Nasabah::findOrFail($id)->delete();
+        User::findOrFail($id)->delete();
 
         return redirect()->route('nasabah.index')->with('delete', 'Data berhasil diHapus!');
     }

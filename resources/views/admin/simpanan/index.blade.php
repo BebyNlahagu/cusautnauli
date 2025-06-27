@@ -98,13 +98,13 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-floating form-floating-custom mb-3">
-                        <select class="form-control @error('nasabah_id') is-invalid @enderror" id="nasabah_id" name="nasabah_id">
+                        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">--Pilih Nomor Registrasi--</option>
                             @foreach ($nasabah as $n)
                             <option value="{{ $n->id}}">{{ $n->nmr_anggota}}</option>
                             @endforeach
                         </select>
-                        <label for="nasabah_id">Pilih Nomor Registrasi</label>
+                        <label for="user_id">Pilih Nomor Registrasi</label>
                     </div>
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" onchange="setJumlahSimpanan()" id="jenis_simpanan" name="jenis_simpanan">
@@ -148,13 +148,13 @@
                 @csrf
                 <div class="modal-body">
                     <div class="form-floating form-floating-custom mb-3">
-                        <select class="form-control @error('nasabah_id') is-invalid @enderror" id="nasabah_id" name="nasabah_id">
+                        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">--Pilih Nomor Registrasi--</option>
                             @foreach ($nasabah->where('status', 'Verify') as $n)
-                                <option value="{{ $n->id }}" {{ $n->id == $s->nasabah_id ? 'selected' : '' }}>{{ $n->nmr_anggota }}</option>
+                                <option value="{{ $n->id }}" {{ $n->id == $s->user_id ? 'selected' : '' }}>{{ $n->nmr_anggota }}</option>
                             @endforeach
                         </select>
-                        <label for="nasabah_id">Pilih Nomor Registrasi</label>
+                        <label for="user_id">Pilih Nomor Registrasi</label>
                     </div>
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" id="jenis_simpanan" name="jenis_simpanan">

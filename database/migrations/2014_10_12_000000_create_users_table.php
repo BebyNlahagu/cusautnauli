@@ -19,7 +19,19 @@ return new class extends Migration
             $table->enum('role',['Admin', 'Kepala', 'User'])->default("User");
             $table->string('password');
 
+            #Data Nasabah
+            $table->string('Nik');
+            $table->string('nmr_anggota');
+            $table->string('no_telp');
+            $table->string('kelurahan')->nullable();
             $table->string('foto')->nullable();
+            $table->string('ktp')->nullable();
+            $table->string('kk')->nullable();
+            $table->enum('jenis_kelamin',['Laki-laki','Perempuan']);
+            $table->date('tanggal_lahir')->nullable();
+            $table->string('pekerjaan')->nullable();
+            $table->date('tanggal_masuk')->nullable();
+            $table->enum('status',['Verify', 'Unverifyed'])->default('Unverifyed');
             $table->rememberToken();
             $table->timestamps();
         });

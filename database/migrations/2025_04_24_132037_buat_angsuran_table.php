@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreign('pinjaman_id')->references('id')->on('pinjaman')->onDelete('cascade');
             $table->unsignedBigInteger('pinjaman_id');
-            $table->foreign('nasabah_id')->references('id')->on('nasabahs')->onDelete('cascade');
-            $table->unsignedBigInteger('nasabah_id');
+            $table->foreign('user_id')->references('id')->on('nasabahs')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
 
             $table->integer('bulan_ke');
             $table->decimal('sisa_pokok', 15, 2);

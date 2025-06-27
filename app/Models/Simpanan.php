@@ -12,8 +12,8 @@ class Simpanan extends Model
     protected $table = 'simpanans';
     protected $guarded = [];
 
-    public function nasabah()
+    public function user()
     {
-        return $this->belongsTo(Nasabah::class, "nasabah_id");
+        return $this->belongsTo(User::class, "user_id");
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Nasabah;
 use Illuminate\Http\Request;
 use App\Models\Pinjaman;
 use App\Models\Simpanan;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,21 +17,21 @@ class PinjamanController extends Controller
    public function index()
    {
    
-      $nasabah = Nasabah::all();
+      $nasabah = User::all();
 
       if(auth()->user()->role == "Admin")
       {
          $pinjaman = Pinjaman::all();
       }else
       {
-        $pinjaman = Pinjaman::where('nasabah_id', auth()->user()->nasabah_id)->get();
+        $pinjaman = Pinjaman::where('user_id', auth()->user()->user_id)->get();
       }
       return view('admin.pinjaman.index', compact('pinjaman', 'nasabah'));
    }
 
-   public function checkEligibility($nasabah_id)
+   public function checkEligibility($user_id)
    {
-      $nasabah = Nasabah::find($nasabah_id);
+      $nasabah = User::find($user_id);
 
       if (!$nasabah) {
          return response()->json(['error' => 'Nasabah tidak ditemukan.'], 404);
@@ -55,7 +56,7 @@ class PinjamanController extends Controller
 
       $adaAngsuranBelumLunas = DB::table('angsuran')
          ->join('pinjaman', 'angsuran.pinjaman_id', '=', 'pinjaman.id')
-         ->where('pinjaman.nasabah_id', $nasabah->id)
+         ->where('pinjaman.user_id', $nasabah->id)
          ->where('angsuran.status', '!=', 'Lunas')
          ->exists();
 
@@ -67,7 +68,7 @@ class PinjamanController extends Controller
       }
 
 
-      $total_simpanan = Simpanan::where('nasabah_id', $nasabah->id)->sum('jumlah_simpanan');
+      $total_simpanan = Simpanan::where('user_id', $nasabah->id)->sum('jumlah_simpanan');
       $jumlah_pinjaman = $total_simpanan * 5;
       $bunga_pinjaman = 3;
 
@@ -85,7 +86,7 @@ class PinjamanController extends Controller
    public function store(Request $request)
    {
       $request->validate([
-         'nasabah_id' => 'required|exists:nasabahs,id',
+         'user_id' => 'required|exists:users,id',
          'lama_pinjaman' => 'required|in:5 Bulan,10 Bulan,15 Bulan,20 Bulan,25 Bulan,30 Bulan',
          'jumlah_pinjaman' => 'required|numeric|min:0',
          'bunga_pinjaman' => 'required|numeric|min:0',
@@ -99,10 +100,10 @@ class PinjamanController extends Controller
 
       try {
 
-         Nasabah::findOrFail($request->nasabah_id);
+         User::findOrFail($request->user_id);
 
 
-         $total_simpanan = Simpanan::where('nasabah_id', $request->nasabah_id)->sum('jumlah_simpanan');
+         $total_simpanan = Simpanan::where('user_id', $request->user_id)->sum('jumlah_simpanan');
          $maksimal_pinjaman = $total_simpanan * 5;
 
          if ($request->jumlah_pinjaman > $maksimal_pinjaman) {
@@ -112,7 +113,7 @@ class PinjamanController extends Controller
          }
 
          Pinjaman::create([
-            'nasabah_id' => $request->nasabah_id,
+            'user_id' => $request->user_id,
             'lama_pinjaman' => $request->lama_pinjaman,
             'jumlah_pinjaman' => $request->jumlah_pinjaman,
             'bunga_pinjaman' => $request->bunga_pinjaman,
@@ -139,7 +140,7 @@ class PinjamanController extends Controller
    public function update(Request $request, $id)
    {
       $request->validate([
-         'nasabah_id' => 'nullable|exists:nasabahs,id',
+         'user_id' => 'nullable|exists:users,id',
          'lama_pinjaman' => 'nullable|in:5 Bulan,10 Bulan,15 Bulan,20 Bulan,25 Bulan,30 Bulan',
          'jumlah_pinjaman' => 'nullable|numeric|min:0',
          'bunga_pinjaman' => 'nullable|numeric|min:0',
@@ -156,7 +157,7 @@ class PinjamanController extends Controller
       Pinjaman::findOrFail($id);
 
       Pinjaman::create([
-         'nasabah_id' => $request->nasabah_id,
+         'user_id' => $request->user_id,
          'lama_pinjaman' => $request->lama_pinjaman,
          'jumlah_pinjaman' => $request->jumlah_pinjaman,
          'bunga_pinjaman' => $bunga_perbulan,
