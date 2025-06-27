@@ -31,7 +31,7 @@ class NasabahController extends Controller
     public function addData(Request $request)
     {
         $request->validate([
-            'alamat_id' => 'required|exists:alamat,id',
+            'alamat_id' => 'required|exists:alamats,id',
             'name' => 'required',
             'Nik' => 'required|max_digits:16',
             'no_telp' => 'required|max_digits:12',

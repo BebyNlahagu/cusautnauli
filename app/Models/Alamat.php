@@ -12,7 +12,7 @@ class Alamat extends Model
     protected $table = "alamats";
     protected $guarded = [];
 
-    public function nasabah()
+    public function nasabahs()
     {
         return $this->hasMany(Nasabah::class, "alamat_id");
     }
