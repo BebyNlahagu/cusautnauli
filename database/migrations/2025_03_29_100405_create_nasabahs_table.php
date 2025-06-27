@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('Nik');
             $table->string('no_telp');
-            $table->text('alamat');
             $table->string('kelurahan')->nullable();
             $table->string('foto')->nullable();
             $table->string('ktp')->nullable();
