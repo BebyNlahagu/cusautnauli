@@ -31,7 +31,7 @@ class NasabahController extends Controller
     public function addData(Request $request)
     {
         $request->validate([
-            'alamat' => 'required|exists:alamat,id',
+            'alamat_id' => 'required|exists:alamat,id',
             'name' => 'required',
             'Nik' => 'required|max_digits:16',
             'no_telp' => 'required|max_digits:12',
@@ -84,13 +84,13 @@ class NasabahController extends Controller
 
         $nasabah = Nasabah::create([
             'user_id' => $user->id,
+            'alamat_id' => $request->alamat_id,
             'name' => $request->name,
             'nmr_anggota' => $nmr_anggota,
             'Nik' => $request->Nik,
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
-            'alamat_id' => $request->alamat_id,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
             'foto' => $foto ?? null,

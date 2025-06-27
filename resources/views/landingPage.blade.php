@@ -139,14 +139,14 @@
                                 </div> --}}
 
                                 <div class="form-floating form-floating-custom mb-3">
-                                    <select name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror">
+                                    <select name="alamat_id" id="alamat_id" class="form-control @error('alamat_id') is-invalid @enderror">
                                         <option value="">-pilih-</option>
                                         @foreach ($alamat as $a)
                                             <option value="{{ $a->id }}">{{ $a->alamat }}</option>
                                         @endforeach
                                     </select>
                                     <label for="floatingInput">Alamat</label>
-                                    @error('alamat')
+                                    @error('alamat_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
