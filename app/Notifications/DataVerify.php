@@ -57,7 +57,7 @@ class DataVerify extends Notification
     public function toDatabase(object $notifiable)
     {
         return [
-            'message' => "{$this->admin} (Admin) telah memverifikasi data Anda.",
+            'message' => "Data anda Telah Diverifikasi",
             'time' => now(),
         ];
     }

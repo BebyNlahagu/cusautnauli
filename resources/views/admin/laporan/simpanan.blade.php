@@ -106,7 +106,7 @@
                             @foreach ($simpanan as $s)
                             <tr>
                                 <td>{{ $no++ }}</td>
-                                <td>{{ $s->nasabah->name }}</td>
+                                <td>{{ $s->user->name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
                                 <td>{{ $s->jenis_simpanan}}</td>
                                 <td class="text-end bold">Rp {{ number_format($s->jumlah_simpanan, 0, ',', '.') }}</td>

@@ -127,14 +127,14 @@
         <tbody>
             @php $no = 1; @endphp
             @php
-                $groupedAngsuran = $angsuran->groupBy('nasabah_id');
+                $groupedAngsuran = $angsuran->groupBy('user_id');
                 $no = 1;
             @endphp
 
             @foreach ($groupedAngsuran as $nasabahId => $angsurans)
                 <tr>
                     <td>{{ $no++ }}</td>
-                    <td>{{ $angsurans->first()->nasabah->name }}</td>
+                    <td>{{ $angsurans->first()->user->name }}</td>
                     <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F Y') }}
                     </td>
                     <td>{{ $angsurans->first()->pinjaman->lama_pinjaman }}</td>
