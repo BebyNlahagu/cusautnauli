@@ -301,7 +301,7 @@
             <div class="container">
                 <div class="row gy-4">
                     <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center">
-                        <h1 data-aos="fade-up">Selamat Datang Di CU Saut Maut Nauli</h1>
+                        <h1 data-aos="fade-up">Selamat Datang Di Cu Saut Maju Nauli</h1>
                         <p data-aos="fade-up" data-aos-delay="100">Kami Siap Melayani Kebutuhan Anda</p>
                         {{-- <div class="d-flex flex-column flex-md-row" data-aos="fade-up" data-aos-delay="200">
               <a href="#about" class="btn-get-started"> <i class="bi bi-arrow-right"></i></a>
