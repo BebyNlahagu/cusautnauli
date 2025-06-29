@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Nasabah;
+use App\Notifications\DataVerify;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
 
 class NasabahController extends Controller
 {
@@ -15,40 +20,55 @@ class NasabahController extends Controller
 
     public function index()
     {
-        $nasabah = Nasabah::all();
-        return view('admin.nasabah.index', compact('nasabah'));
+        $user = Auth::user();
+        $nasabah = User::with('alamat')->get();
+
+        $nasabahTerverifikasi = User::where('status', 'Verify')->where('role', 'User')->get();
+        $nasabahTidakTerverifikasi = User::where('status', 'Unverifyed')->where('role', 'User')->get();
+
+        return view('admin.nasabah.index', compact('nasabah', 'nasabahTerverifikasi', 'nasabahTidakTerverifikasi'));
     }
 
     public function addData(Request $request)
     {
         $request->validate([
+            'alamat_id' => 'required|exists:alamats,id',
             'name' => 'required',
-            'Nik' => 'required',
-            'no_telp' => 'required',
-            'alamat' => 'required',
+            'Nik' => 'required|max_digits:16',
+            'no_telp' => 'required|max_digits:12',
             'jenis_kelamin' => 'required',
-            'tanggal_lahir' => 'required|date',
-            'tanggal_masuk' => 'required|date',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'ktp'  => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'kk'   => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'ktp' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'kk' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'required',
+            'tanggal_lahir' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) {
+                    $minAge = 17;
+                    $birthDate = Carbon::parse($value);
+                    if ($birthDate->diffInYears(Carbon::now()) < $minAge) {
+                        $fail('Umur harus minimal 17 tahun.');
+                    }
+                }
+            ],
+
         ]);
 
         if ($request->hasFile('foto')) {
             $foto = time() . '.' . $request->foto->extension();
-            $request->foto->move(public_path('images'), $foto);
+            $request->foto->storeAs('images', $foto, 'public');
         }
 
         if ($request->hasFile('ktp')) {
             $ktp = time() . '.' . $request->ktp->extension();
-            $request->ktp->move(public_path('images'), $ktp);
+            $request->ktp->storeAs('images', $ktp, 'public');
         }
 
         if ($request->hasFile('kk')) {
             $kk = time() . '.' . $request->kk->extension();
-            $request->kk->move(public_path('images'), $kk);
+            $request->kk->storeAs('images', $kk, 'public');
         }
 
         $tanggal = Carbon::now();
@@ -56,30 +76,46 @@ class NasabahController extends Controller
         $bln = $tanggal->format('m');
         $thn = $tanggal->format('y');
 
-        $jumlah = Nasabah::whereDate('created_at', $tanggal->toDateString())->count(); 
+        $jumlah = User::whereDate('created_at', $tanggal->toDateString())->count();
         $hariIni = str_pad($jumlah + 1, 3, '0', STR_PAD_LEFT);
 
         $nmr_anggota = "NMR-{$tgl}{$bln}{$thn}-{$hariIni}";
 
-        Nasabah::create([
+        User::create([
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'alamat_id' => $request->alamat_id,
             'name' => $request->name,
             'nmr_anggota' => $nmr_anggota,
             'Nik' => $request->Nik,
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
-            'tanggal_masuk' => $request->tanggal_masuk,
-            'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
+            'foto' => $foto ?? null,
+            'ktp' => $ktp ?? null,
+            'kk' => $kk ?? null,
         ]);
 
-        return redirect()->back()->with('success', 'Data berhasil ditambahkan!');
+        return redirect()->back()->with('success', 'Nasabah berhasil didaftarkan!');
+    }
+
+    public function verify($id)
+    {
+        $nasabah = User::findOrFail($id);
+
+        $nasabah->status = 'Verify';
+        $nasabah->save();
+
+        $nasabah->notify(new DataVerify(Auth::user()->name));
+
+        return redirect()->route('nasabah.index')->with("success", "Nasabah berhasil diverifikasi");
     }
 
     public function edit($id)
     {
-        $nasabah = Nasabah::findOrfail($id)->get();
+        $nasabah = User::findOrfail($id);
         return redirect()->route('nasabah.index', compact('nasabah'));
     }
 
@@ -94,13 +130,12 @@ class NasabahController extends Controller
             'foto' => 'nullable',
             'kk' => 'nullable',
             'ktp' => 'nullable',
-            'tanggal_masuk' => 'nullable',
             'alamat' => 'nullable',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'nullable',
         ]);
 
-        $nasabah = Nasabah::findOrFail($id);
+        $nasabah = User::findOrFail($id);
 
 
         if ($request->hasFile('foto')) {
@@ -142,7 +177,7 @@ class NasabahController extends Controller
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
-            'tanggal_masuk' => $request->tanggal_masuk,
+            // 'tanggal_masuk' => $request->tanggal_masuk,
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
@@ -156,7 +191,7 @@ class NasabahController extends Controller
 
     public function destroy($id)
     {
-        Nasabah::findOrFail($id)->delete();
+        User::findOrFail($id)->delete();
 
         return redirect()->route('nasabah.index')->with('delete', 'Data berhasil diHapus!');
     }

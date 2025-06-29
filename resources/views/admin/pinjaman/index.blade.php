@@ -40,7 +40,9 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">@yield('title')</h4>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
+                @if (auth()->user()->role == "Admin")
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
+                @endif
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -104,7 +106,7 @@
 @csrf
 <div class="modal-body">
     <div class="form-floating form-floating-custom mb-3">
-        <select class="form-control @error('nasabah_id') is-invalid @enderror" id="nasabah_id" name="nasabah_id">
+        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
             <option value="">Pilih NIK</option>
             @if ($nasabah ?? $nasabah->isNotEmpty())
             @foreach ($nasabah as $n)
@@ -114,7 +116,7 @@
             <p>Tidak ada Data</p>
             @endif
         </select>
-        <label for="nasabah_id">Pilih NIK</label>
+        <label for="user_id">Pilih NIK</label>
     </div>
 
     <div class="form-floating form-floating-custom mb-3">
@@ -176,17 +178,17 @@
                 <div class="modal-body">
                     <!-- NIK Nasabah -->
                     <div class="form-floating form-floating-custom mb-3">
-                        <select class="form-control @error('nasabah_id') is-invalid @enderror" id="nasabah_id" name="nasabah_id">
-                            <option value="">Pilih NIK</option>
-                            @if ($nasabah ?? $nasabah->isNotEmpty())
-                            @foreach ($nasabah as $n)
-                            <option value="{{ $n->id }}" data-nik="{{ $n->Nik ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->Nik }}</option>
-                            @endforeach
+                        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
+                            <option value="">Pilih Nomor Anggota</option>
+                           @if (isset($nasabah) && $nasabah->isNotEmpty())
+                                @foreach ($nasabah->where('status','Verify') as $n)
+                                    <option value="{{ $n->id }}" data-nik="{{ $n->nmr_anggota ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nmr_anggota }}</option>
+                                @endforeach
                             @else
                             <p>Tidak ada Data</p>
                             @endif
                         </select>
-                        <label for="nasabah_id">Pilih NIK</label>
+                        <label for="user_id">Pilih Nomor Anggota</label>
                     </div>
 
                     <!-- Nama Nasabah -->
@@ -319,12 +321,12 @@
         });
 
         // Saat nasabah dipilih
-       $('#nasabah_id').on('change', function () {
-    var nasabah_id = $(this).val();
+       $('#user_id').on('change', function () {
+    var user_id = $(this).val();
 
-    if (nasabah_id) {
+    if (user_id) {
         $.ajax({
-            url: '/pinjaman/check-eligibility/' + nasabah_id,
+            url: '/pinjaman/check-eligibility/' + user_id,
             type: 'GET',
             success: function (response) {
                 if (response.status === 'not_eligible') {
@@ -399,11 +401,11 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="form-floating form-floating-custom mb-3">
-                        <select class="form-control @error('nasabah_id') is-invalid @enderror" id="nasabah_id" name="nasabah_id">
-                            <option value="">Pilih NIK</option>
+                        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
+                            <option value="">Pilih</option>
                             @if (isset($nasabah) && $nasabah->isNotEmpty())
-                            @foreach ($nasabah as $item)
-                            <option value="{{ $item->id }}" {{ $item->id == $n->nasabah_id ? 'selected' : '' }} data-nik="{{ $item->Nik }}" data-nama="{{ $item->name }}">
+                            @foreach ($nasabah->where('status','Verify') as $item)
+                            <option value="{{ $item->id }}" {{ $item->id == $n->user_id ? 'selected' : '' }} data-nik="{{ $item->Nik }}" data-nama="{{ $item->name }}">
                                 {{ $item->Nik }}
                             </option>
                             @endforeach
@@ -411,7 +413,7 @@
                             <p>Tidak Ada Data</p>
                             @endif
                         </select>
-                        <label for="nasabah_id">Pilih NIK</label>
+                        <label for="user_id">Pilih Nasabah</label>
                     </div>
 
                     <div class="form-floating form-floating-custom mb-3">

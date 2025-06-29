@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AlamatController;
 use App\Http\Controllers\AnggsuranController;
+use App\Http\Controllers\Daftar;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\NasabahController;
 use App\Http\Controllers\PdfController;
@@ -27,8 +29,20 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::post('/notifications/{id}/mark-as-read', function ($id) {
+    $notification = auth()->user()->unreadNotifications()->findOrFail($id);
+    $notification->markAsRead();
+    return response()->json(['status' => 'success']);
+})->name('notifications.read');
+
+
+Route::get('/alamat', [AlamatController::class,"index"])->name("alamat.index");
+Route::post('/alamat',[AlamatController::class, "store"])->name("alamat.store");
+
 Route::get('/nasabah',[NasabahController::class,'create'])->name("create");
 Route::post('/nasabah',[NasabahController::class, 'addData'])->name('addNasabah');
+Route::get('/',[Daftar::class,'index']);
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
 Route::middleware(['auth', 'role:Admin'])->group(function () {
 
@@ -48,6 +62,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/pdf/pinjaman', [PdfController::class, 'pinjamanPdf'])->name('pdf.pinjaman');
     Route::get('/admin/pdf/angsuran', [PdfController::class, 'angsuranPdf'])->name('pdf.angsuran');
 
+    Route::post('/admin/nasabah/{id}',[NasabahController::class,'verify'])->name('nasabah.verify');
     Route::post('/angsuran/update-status/{id}', [AnggsuranController::class, 'updateStatus'])->name('angsuran.updateStatus');
     Route::get('/get-max-pinjaman/{nasabah_id}', [PinjamanController::class, 'getMaxPinjaman'])->name('pinjaman.getMaxPinjaman');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
@@ -70,5 +85,7 @@ Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(functio
 
 
 Route::middleware(['auth', 'role:User,Admin'])->prefix('admin')->group(function () {
+    Route::resource('/admin/pinjaman', PinjamanController::class);
     Route::resource('/admin/angsuran', AnggsuranController::class);
+    Route::resource('/admin/simpanan', SimpananController::class);
 });

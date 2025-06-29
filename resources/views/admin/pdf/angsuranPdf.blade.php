@@ -111,7 +111,7 @@
     <hr>
 
     <div class="header">
-        <h2 style="font-weight: bold;">Laporan Simpanan</h2>
+        <h2 style="font-weight: bold;">Laporan Angsuran</h2>
     </div>
 
     <table id="basic-datatables" class="display table table-striped table-hover">
@@ -119,10 +119,9 @@
             <tr>
                 <th>No</th>
                 <th>Nama</th>
-                <th>Tanggal Pinjaman</th>
-                <th>Jumlah Angsuran</th>
+                <th>Tanggal angsuran</th>
+                <th>Lama Angsuran</th>
                 <th>Total Pinjaman</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>

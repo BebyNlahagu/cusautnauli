@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>CU Saut Jaya Nauli</title>
+    <title>CU Saut Maut Nauli</title>
     <meta name="description" content="">
     <meta name="keywords" content="">
 
@@ -44,15 +44,15 @@
             <a href="index.html" class="logo d-flex align-items-center me-auto">
                 <!-- Uncomment the line below if you also wish to use an image logo -->
                 <img src="{{ asset('img/logo.png') }}" alt="">
-                <h1 class="sitename">CU Saut Jaya Nauli</h1>
+                <h1 class="sitename">CU Saut Maju Nauli</h1>
             </a>
 
             <nav id="navmenu" class="navmenu">
-                <ul>
+                {{-- <ul>
                     <li><a href="#hero" class="active">Home<br></a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#services">Services</a></li>
-                </ul>
+                </ul> --}}
                 <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>
 
@@ -63,15 +63,15 @@
     </header>
 
     <main class="main">
-    @if ($errors->any())
+        @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
-    @endif
+        @endif
 
         <div class="modal fade" id="add" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -93,7 +93,8 @@
                                 </div>
 
                                 <div class="form-floating form-floating-custom mb-3">
-                                    <input type="number" class="form-control @error('Nik') is-invalid @enderror" id="Nik" name="Nik" placeholder="Nomor NIK" value="{{ old('Nik') }}" />
+                                    <input type="number" class="form-control @error('Nik') is-invalid @enderror" id="Nik" name="Nik" min="0" oninput="if(this.value.length > 16) this.value = this.value.slice(0,16);" placeholder="Nomor NIK" value="{{ old('Nik') }}" />
+                                    <span id="hasil"></span>
                                     <label for="floatingInput">Nomor NIK</label>
                                     @error('Nik')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -121,25 +122,31 @@
                                 </div>
 
                                 <div class="form-floating form-floating-custom mb-3">
-                                    <input type="number" name="no_telp" class="form-control @error('no_telp') is-invalid @enderror" id="No_telp" placeholder="No. Hp/Wa" value="{{ old('no_telp') }}" />
+                                    <input type="number" name="no_telp" class="form-control  @error('no_telp') is-invalid @enderror" min="0" oninput="if(this.value.length > 12) this.value = this.value.slice(0,12);" id="No_telp" placeholder="No. Hp/Wa" value="{{ old('no_telp') }}" />
+                                    <span id="h"></span>
                                     <label for="floatingInput">No. Hp/Wa</label>
                                     @error('no_telp')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <div class="form-floating form-floating-custom mb-3">
-                                    <input type="date" name="tanggal_masuk" class="form-control @error('tanggal_masuk') is-invalid @enderror" id="tanggal_masuk" placeholder="No. Hp/Wa" value="{{ old('tanggal_masuk') }}" />
-                                    <label for="floatingInput">Tanggal Masuk</label>
-                                    @error('tanggal_masuk')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-floating form-floating-custom mb-3">
+                                {{-- <div class="form-floating form-floating-custom mb-3">
                                     <textarea name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror" cols="30" rows="3">{{ old('alamat') }}</textarea>
                                     <label for="floatingInput">Alamat</label>
                                     @error('alamat')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div> --}}
+
+                                <div class="form-floating form-floating-custom mb-3">
+                                    <select name="alamat_id" id="alamat_id" class="form-control @error('alamat_id') is-invalid @enderror">
+                                        <option value="">-pilih-</option>
+                                        @foreach ($alamat as $a)
+                                            <option value="{{ $a->id }}">{{ $a->alamat }}</option>
+                                        @endforeach
+                                    </select>
+                                    <label for="floatingInput">Alamat</label>
+                                    @error('alamat_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -160,7 +167,24 @@
                                     @enderror
                                 </div>
 
-                                <br>
+                                <hr>
+                                <h5>Email Dan Password</h5>
+                                <div class="form-floating form-floating-custom mb-3">
+                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" id="email" placeholder="email" value="{{ old('email') }}" />
+                                    <label for="floatingInput">Email</label>
+                                    @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="form-floating form-floating-custom mb-3">
+                                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="password" value="{{ old('password') }}" />
+                                    <label for="floatingInput">Password</label>
+                                    @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <hr>
+                                <h5>Dokumen Pendukung</h5>
                                 <hr>
 
                                 <div class="form-floating form-floating-custom mb-3">
@@ -193,14 +217,15 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-success">Save</button>
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-success">Daftar</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-
+        
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         @if(session('success'))
         <script>
             Swal.fire({
@@ -212,6 +237,62 @@
 
         </script>
         @endif
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $("#Nik").on("input", function() {
+                    var input = $(this).val();
+                    var regex = /^[0-9]{0,16}$/;
+
+                    if (regex.test(input)) {
+                        $('#hasil').text("");
+                    } else {
+                        $('#hasil').text("");
+                    }
+                })
+
+                $("#No_telp").on("input", function() {
+                    var input = $(this).val();
+                    var regex = /^08[0-9]{8,12}$/;
+
+                    if (regex.test(input)) {
+                        $("#h").text("");
+                    } else {
+                        $("#h").text("");
+                    }
+                })
+
+                $('form').on('submit', function(e) {
+                    var tanggalLahirVal = $('#tanggal_lahir').val();
+                    if (!tanggalLahirVal) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'warning'
+                            , title: 'Oops...'
+                            , text: 'Tanggal lahir harus diisi'
+                        , });
+                        return;
+                    }
+
+                    var tanggalLahir = new Date(tanggalLahirVal);
+                    var today = new Date();
+                    var ageDifMs = today - tanggalLahir;
+                    var ageDate = new Date(ageDifMs);
+                    var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+                    if (age < 17) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error'
+                            , title: 'Gagal'
+                            , text: 'Umur harus minimal 17 tahun'
+                        , });
+                    }
+                });
+            })
+
+        </script>
+
 
         <!-- Hero Section -->
         <section id="hero" class="hero section">
@@ -219,7 +300,7 @@
             <div class="container">
                 <div class="row gy-4">
                     <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center">
-                        <h1 data-aos="fade-up">Selamat Datang Di Cu Saut Jaya Nauli</h1>
+                        <h1 data-aos="fade-up">Selamat Datang Di CU Saut Maut Nauli</h1>
                         <p data-aos="fade-up" data-aos-delay="100">Kami Siap Melayani Kebutuhan Anda</p>
                         {{-- <div class="d-flex flex-column flex-md-row" data-aos="fade-up" data-aos-delay="200">
               <a href="#about" class="btn-get-started"> <i class="bi bi-arrow-right"></i></a>
@@ -234,10 +315,10 @@
 
         </section><!-- /Hero Section -->
 
-        <!-- About Section -->
+        <!-- About Section 
         <section id="about" class="about section">
 
-            <div class="container" data-aos="fade-up">
+            {{-- <div class="container" data-aos="fade-up">
                 <div class="row gx-0">
 
                     <div class="col-lg-6 d-flex flex-column justify-content-center" data-aos="fade-up" data-aos-delay="200">
@@ -251,7 +332,7 @@
                                 {{-- <a href="#" class="btn-read-more d-inline-flex align-items-center justify-content-center align-self-center">
                   <span>Read More</span>
                   <i class="bi bi-arrow-right"></i>
-                </a> --}}
+                </a>
                             </div>
                         </div>
                     </div>
@@ -261,21 +342,21 @@
                     </div>
 
                 </div>
-            </div>
+            </div> --}}
 
-        </section><!-- /About Section -->
+        </section>/About Section -->
 
 
-        <!-- Services Section -->
+        <!-- Services Section 
         <section id="services" class="services section">
 
-            <!-- Section Title -->
+            
             <div class="container section-title" data-aos="fade-up">
                 <h2>Layanan</h2>
                 <p>Lihat Layanan Kami<br></p>
-            </div><!-- End Section Title -->
+            </div><End Section Title -->
 
-            <div class="container">
+        {{-- <div class="container">
 
                 <div class="row gy-4">
 
@@ -307,14 +388,14 @@
                     </div><!-- End Service Item -->
                 </div>
 
-            </div>
+            </div> --}}
 
-        </section><!-- /Services Section -->
+        {{-- </section>/Services Section --> --}}
     </main>
 
-    <footer id="footer" class="footer">
+    {{-- <footer id="footer" class="footer">
 
-        <div class="container footer-top">
+        {{-- <div class="container footer-top">
             <div class="row gy-4">
                 <div class="col-lg-4 col-md-6 footer-about">
                     <a href="index.html" class="d-flex align-items-center">
@@ -338,9 +419,9 @@
                 </div>
 
             </div>
-        </div>
+        </div> --}}
 
-        <div class="container copyright text-center mt-4">
+    {{-- <div class="container copyright text-center mt-4">
             <p>© <span>Copyright</span> <strong class="px-1 sitename">CU Saut Jaya Nauli</strong> <span>All Rights Reserved</span></p>
             <div class="credits">
                 <!-- All the links in the footer should remain intact. -->
@@ -348,14 +429,16 @@
                 <!-- Licensing information: https://bootstrapmade.com/license/ -->
                 <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
             </div>
-        </div>
+        </div> --}}
 
-    </footer>
+    {{-- </footer> --}}
 
     <!-- Scroll Top -->
     <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
     <!-- Vendor JS Files -->
+
+
     <script src="{{asset('components/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('components/vendor/php-email-form/validate.js')}}"></script>
     <script src="{{asset('components/vendor/aos/aos.js')}}"></script>
@@ -368,9 +451,9 @@
     <!-- Main JS File -->
     <script src="{{asset('components/js/main.js')}}"></script>
     <script>
-        function validateImage(input,previewId,errorId){
+        function validateImage(input, previewId, errorId) {
             const file = files.input[0];
-            const tipe = ['image/jpeg','image/jpg','image/png','image/webp'];
+            const tipe = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
             const maxSize = 2 * 1024 * 1024;
 
             $(errorId).text('');
@@ -390,7 +473,7 @@
                 }
 
                 const reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     $(previewId).attr('src', e.target.result);
                 };
                 reader.readAsDataURL(file);
@@ -434,6 +517,7 @@
                 }
             });
         });
+
     </script>
 </body>
 

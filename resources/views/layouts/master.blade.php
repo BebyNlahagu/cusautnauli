@@ -13,20 +13,21 @@
         WebFont.load({
             google: {
                 families: ["Public Sans:300,400,500,600,700"]
-            },
-            custom: {
+            }
+            , custom: {
                 families: [
-                    "Font Awesome 5 Solid",
-                    "Font Awesome 5 Regular",
-                    "Font Awesome 5 Brands",
-                    "simple-line-icons",
-                ],
-                urls: ["{{ asset('assets/css/fonts.min.css') }}"],
-            },
-            active: function() {
+                    "Font Awesome 5 Solid"
+                    , "Font Awesome 5 Regular"
+                    , "Font Awesome 5 Brands"
+                    , "simple-line-icons"
+                , ]
+                , urls: ["{{ asset('assets/css/fonts.min.css') }}"]
+            , }
+            , active: function() {
                 sessionStorage.fonts = true;
-            },
-        });
+            }
+        , });
+
     </script>
 
     <!-- CSS Files -->
@@ -50,8 +51,7 @@
                     <!-- Logo Header -->
                     <div class="logo-header" data-background-color="dark">
                         <a href="index.html" class="logo">
-                            <img src="assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand"
-                                height="20" />
+                            <img src="assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20" />
                         </a>
                         <div class="nav-toggle">
                             <button class="btn btn-toggle toggle-sidebar">
@@ -68,14 +68,14 @@
                     <!-- End Logo Header -->
                 </div>
                 <!-- Navbar Header -->
-               @include('layouts.master.navbar')
+                @include('layouts.master.navbar')
                 <!-- End Navbar -->
             </div>
 
             <div class="container">
                 <div class="page-inner">
-                   @yield('bread')
-                   @yield('content')
+                    @yield('bread')
+                    @yield('content')
                 </div>
             </div>
 
@@ -145,7 +145,7 @@
                     </div>
                 </div>
             </div>
-            {{--  <div class="custom-toggle">
+            {{-- <div class="custom-toggle">
                 <i class="icon-settings"></i>
             </div>  --}}
         </div>
@@ -189,32 +189,87 @@
     <script src="{{ asset('assets/js/demo.js')}}"></script>
     <script>
         $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
-            type: "line",
-            height: "70",
-            width: "100%",
-            lineWidth: "2",
-            lineColor: "#177dff",
-            fillColor: "rgba(23, 125, 255, 0.14)",
-        });
+            type: "line"
+            , height: "70"
+            , width: "100%"
+            , lineWidth: "2"
+            , lineColor: "#177dff"
+            , fillColor: "rgba(23, 125, 255, 0.14)"
+        , });
 
         $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
-            type: "line",
-            height: "70",
-            width: "100%",
-            lineWidth: "2",
-            lineColor: "#f3545d",
-            fillColor: "rgba(243, 84, 93, .14)",
-        });
+            type: "line"
+            , height: "70"
+            , width: "100%"
+            , lineWidth: "2"
+            , lineColor: "#f3545d"
+            , fillColor: "rgba(243, 84, 93, .14)"
+        , });
 
         $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
-            type: "line",
-            height: "70",
-            width: "100%",
-            lineWidth: "2",
-            lineColor: "#ffa534",
-            fillColor: "rgba(255, 165, 52, .14)",
-        });
+            type: "line"
+            , height: "70"
+            , width: "100%"
+            , lineWidth: "2"
+            , lineColor: "#ffa534"
+            , fillColor: "rgba(255, 165, 52, .14)"
+        , });
+
     </script>
+
+    <script>
+        $(document).ready(function() {
+            // Logout alert
+            $("#Logout").click(function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: "Apa Kamu Yakin?"
+                    , text: "Kamu akan keluar dari akun ini!"
+                    , icon: "warning"
+                    , showCancelButton: true
+                    , cancelButtonText: "Batal"
+                    , confirmButtonText: "Ya, Logout!"
+                    , reverseButtons: true
+                    , customClass: {
+                        confirmButton: "btn btn-success"
+                        , cancelButton: "btn btn-danger"
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $("#logout-form").submit();
+                    }
+                });
+            });
+
+            $('.notification-item').on('click', function() {
+                var $this = $(this);
+                var notifId = $this.data('id');
+
+                $.ajax({
+                    url: '/notifications/' + notifId + '/mark-as-read'
+                    , type: 'POST'
+                    , headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    }
+                    , success: function(response) {
+                        if (response.status === 'success') {
+                            // Kurangi angka badge
+                            var badge = $('#notifDropdown .badge');
+                            var currentCount = parseInt(badge.text());
+
+                            if (currentCount > 1) {
+                                badge.text(currentCount - 1);
+                            } else {
+                                badge.remove();
+                            }
+                        }
+                    }
+                });
+            });
+        });
+
+    </script>
+
 </body>
 
 </html>

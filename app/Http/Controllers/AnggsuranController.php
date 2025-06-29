@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Anggsuran;
 use App\Models\Nasabah;
 use App\Models\Pinjaman;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -12,14 +13,14 @@ class AnggsuranController extends Controller
 {
     public function index()
     {
-        $angsuran = Anggsuran::with('nasabah', 'pinjaman')->get();
-        $nasabah = Nasabah::all();
+        $angsuran = Anggsuran::with('user', 'pinjaman')->get();
+        $nasabah = User::all();
         return view("admin.angsuran.index", compact('angsuran', 'nasabah'));
     }
 
-    public function getPinjaman($nasabah_id)
+    public function getPinjaman($user_id)
     {
-        $pinjaman = Pinjaman::where('nasabah_id', $nasabah_id)->latest()->first();
+        $pinjaman = Pinjaman::where('user_id', $user_id)->latest()->first();
 
         if (!$pinjaman) {
             return response()->json(['message' => 'Pinjaman tidak ditemukan.'], 404);
@@ -71,13 +72,13 @@ class AnggsuranController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nasabah_id' => 'required|exists:nasabahs,id',
+            'user_id' => 'required|exists:nasabahs,id',
             'pinjaman_id' => 'required|exists:pinjaman,id',
         ]);
 
         // Cari data pinjaman
         $pinjaman = Pinjaman::where('id', $request->pinjaman_id)
-            ->where('nasabah_id', $request->nasabah_id)
+            ->where('user_id', $request->user_id)
             ->first();
 
         if (!$pinjaman) {
@@ -91,7 +92,6 @@ class AnggsuranController extends Controller
         // Hitung pokok per bulan
         $pokok_per_bulan = $jumlah / $lama;
         $sisa_pokok = $jumlah;
-        $sisa_angsuran_total = 0;
 
         $jatuh_tempo = Carbon::parse($request->jatuh_tempo);
 
@@ -113,7 +113,7 @@ class AnggsuranController extends Controller
 
             $sisa_angsuran = $sisa_pokok - $pokok_per_bulan;
             Anggsuran::create([
-                'nasabah_id' => $request->nasabah_id,
+                'user_id' => $request->user_id,
                 'pinjaman_id' => $request->pinjaman_id,
                 'bulan_ke' => $bulan,
                 'sisa_pokok' => $sisa_pokok,

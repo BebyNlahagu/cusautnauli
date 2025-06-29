@@ -62,7 +62,7 @@
                         <tbody>
                             @php $no = 1; @endphp
                             @php
-                            $groupedAngsuran = $angsuran->groupBy('nasabah_id');
+                            $groupedAngsuran = $angsuran->groupBy('user_id');
                             $no = 1;
                             @endphp
 
@@ -210,13 +210,13 @@
                     <input type="hidden" name="tanggal_jatuh_tempo" id="jatuh_tempo_hidden">
 
                     <div class="form-floating form-floating-custom mb-3">
-                        <select class="form-control" id="nasabah_id" name="nasabah_id" required>
+                        <select class="form-control" id="user_id" name="user_id" required>
                             <option value="">--Pilih Nama Nasabah--</option>
                             @foreach ($nasabah as $n)
                             <option value="{{ $n->id }}">{{ $n->name }}</option>
                             @endforeach
                         </select>
-                        <label for="nasabah_id">Nama Nasabah</label>
+                        <label for="user_id">Nama Nasabah</label>
                     </div>
 
                     <div class="form-floating form-floating-custom mb-3">
@@ -320,7 +320,7 @@
         });
 
         // Saat nasabah dipilih
-        $('#nasabah_id').on('change', function() {
+        $('#user_id').on('change', function() {
             debugger;
             var nasabahId = $(this).val();
             if (nasabahId) {

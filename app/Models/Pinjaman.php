@@ -12,9 +12,9 @@ class Pinjaman extends Model
     protected $table = "pinjaman";
     protected $guarded = [];
 
-    public function nasabah()
+   public function user()
     {
-        return  $this->belongsTo(Nasabah::class, "nasabah_id");
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function angsuran()

@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('nasabahs', function (Blueprint $table) {
-            $table->enum('status',['Verify', 'Unverifyed'])->default('Unverifyed')->after('tanggal_masuk');
+        Schema::create('notifications', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('type');
+            $table->morphs('notifiable');
+            $table->text('data');
+            $table->timestamp('read_at')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -21,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('nasabahs', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
+        Schema::dropIfExists('notifications');
     }
 };
