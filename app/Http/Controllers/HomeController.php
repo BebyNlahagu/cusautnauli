@@ -32,7 +32,7 @@ class HomeController extends Controller
         $simpanan = Simpanan::sum('jumlah_simpanan');
         $pinjaman = Pinjaman::sum('jumlah_pinjaman');
         $angsuran = Anggsuran::sum('total_angsuran');
-        $nasabah = User::where('role', '=', 2)->count();
+        $nasabah = User::where('role', 'User')->count();
         $petugas = Petugas::first();
         $kapitalisasi = Simpanan::sum('Jumlah_kapitalisasi');
         return view('home', compact('simpanan','pinjaman','angsuran','nasabah','kapitalisasi','petugas'));

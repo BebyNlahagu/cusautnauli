@@ -181,7 +181,7 @@
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">Pilih Nomor Anggota</option>
                            @if (isset($nasabah) && $nasabah->isNotEmpty())
-                                @foreach ($nasabah as $n)
+                                @foreach ($nasabah->where('status','Verify') as $n)
                                     <option value="{{ $n->id }}" data-nik="{{ $n->nmr_anggota ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nmr_anggota }}</option>
                                 @endforeach
                             @else
@@ -402,9 +402,9 @@
                 <div class="modal-body">
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
-                            <option value="">Pilih NIK</option>
+                            <option value="">Pilih</option>
                             @if (isset($nasabah) && $nasabah->isNotEmpty())
-                            @foreach ($nasabah as $item)
+                            @foreach ($nasabah->where('status','Verify') as $item)
                             <option value="{{ $item->id }}" {{ $item->id == $n->user_id ? 'selected' : '' }} data-nik="{{ $item->Nik }}" data-nama="{{ $item->name }}">
                                 {{ $item->Nik }}
                             </option>
@@ -413,7 +413,7 @@
                             <p>Tidak Ada Data</p>
                             @endif
                         </select>
-                        <label for="user_id">Pilih NIK</label>
+                        <label for="user_id">Pilih Nasabah</label>
                     </div>
 
                     <div class="form-floating form-floating-custom mb-3">

@@ -12,8 +12,8 @@ class Alamat extends Model
     protected $table = "alamats";
     protected $guarded = [];
 
-    public function nasabahs()
+    public function user()
     {
-        return $this->hasMany(Nasabah::class, "alamat_id");
+        return $this->hasMany(User::class, "alamat_id");
     }
 }

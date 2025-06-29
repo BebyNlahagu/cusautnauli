@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Nasabah;
+use App\Notifications\DataVerify;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -21,11 +21,12 @@ class NasabahController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $nasabah = User::all();
+        $nasabah = User::with('alamat')->get();
 
-        $nasabahTerverifikasi = User::where("status","Verify")->get();
-        $nasabahTidakTerverifikasi = User::where("status","Unverifyed")->get();
-        return view('admin.nasabah.index', compact('nasabah','nasabahTerverifikasi','nasabahTidakTerverifikasi'));
+        $nasabahTerverifikasi = User::where('status', 'Verify')->where('role', 'User')->get();
+        $nasabahTidakTerverifikasi = User::where('status', 'Unverifyed')->where('role', 'User')->get();
+
+        return view('admin.nasabah.index', compact('nasabah', 'nasabahTerverifikasi', 'nasabahTidakTerverifikasi'));
     }
 
     public function addData(Request $request)
@@ -37,17 +38,22 @@ class NasabahController extends Controller
             'no_telp' => 'required|max_digits:12',
             'jenis_kelamin' => 'required',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'ktp'  => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'kk'   => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'ktp' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'kk' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'required',
-            'tanggal_lahir' => ['required', 'date', function ($attribute, $value, $fail) {
-                $minAge = 17;
-                $birthDate = Carbon::parse($value);
-                if ($birthDate->diffInYears(Carbon::now()) < $minAge) {
-                    $fail('Umur harus minimal 17 tahun.');
+            'tanggal_lahir' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) {
+                    $minAge = 17;
+                    $birthDate = Carbon::parse($value);
+                    if ($birthDate->diffInYears(Carbon::now()) < $minAge) {
+                        $fail('Umur harus minimal 17 tahun.');
+                    }
                 }
-            }],
+            ],
+
         ]);
 
         if ($request->hasFile('foto')) {
@@ -76,6 +82,8 @@ class NasabahController extends Controller
         $nmr_anggota = "NMR-{$tgl}{$bln}{$thn}-{$hariIni}";
 
         User::create([
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
             'alamat_id' => $request->alamat_id,
             'name' => $request->name,
             'nmr_anggota' => $nmr_anggota,
@@ -95,10 +103,13 @@ class NasabahController extends Controller
 
     public function verify($id)
     {
-        $nasabah = User::with('user')->findOrFail($id);
+        $nasabah = User::findOrFail($id);
 
         $nasabah->status = 'Verify';
         $nasabah->save();
+
+        $nasabah->notify(new DataVerify(Auth::user()->name));
+
         return redirect()->route('nasabah.index')->with("success", "Nasabah berhasil diverifikasi");
     }
 
@@ -119,7 +130,6 @@ class NasabahController extends Controller
             'foto' => 'nullable',
             'kk' => 'nullable',
             'ktp' => 'nullable',
-            // 'tanggal_masuk' => 'nullable',
             'alamat' => 'nullable',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'nullable',

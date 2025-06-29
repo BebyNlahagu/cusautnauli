@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('simpanans', function (Blueprint $table) {
             $table->id();
-            $table->foreign("user_id")->references('id')->on('nasabahs')->onDelete("cascade");
+            $table->foreign("user_id")->references('id')->on('users')->onDelete("cascade");
             $table->unsignedBigInteger("user_id");
             $table->enum("jenis_simpanan",["Simpanan Pokok","Simpanan Wajib", "Simpanan Dakesma", "Biaya Administrasi"]);
             $table->decimal("jumlah_simpanan",15, 2);

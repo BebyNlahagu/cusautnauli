@@ -80,7 +80,7 @@
                                 <td>{{ $n->no_telp }}</td>
                                 <td>{{ $n->kelurahan }}</td>
                                 <td>{{ $n->pekerjaan }}</td>
-                                <td>{{ $n->alamat }}</td>
+                                <td>{{ $n->alamat->alamat }}</td>
                                 <td>
                                     @if($n->foto)
                                     <a href="{{ Storage::url('images/' . $n->foto) }}" target="_blank">
@@ -161,7 +161,7 @@
 
             <div class="card-body" id="tidak-terverifikasi" style="display:none;">
                 <div class="table-responsive">
-                    <table id="basic-datatables data-tidak-terverifikasi" class="display table table-striped table-hover">
+                    <table id="basic-datatables" class="display table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -198,7 +198,7 @@
                                 <td>{{ $n->no_telp }}</td>
                                 <td>{{ $n->kelurahan }}</td>
                                 <td>{{ $n->pekerjaan }}</td>
-                                <td>{{ $n->alamat }}</td>
+                                <td>{{ $n->alamat->alamat }}</td>
                                 <td>
                                     @if($n->foto)
                                     <a href="{{ Storage::url('images/' . $n->foto) }}" target="_blank">
@@ -427,6 +427,8 @@
 </script>
 @endif
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
     function confirmUbahStatus(id) {
         Swal.fire({
@@ -527,16 +529,16 @@
         });
 
         $('#LihatdataBaru').on('click', function(){
-        $('#data-terverifikasi').toggle();
-        $('#tidak-terverifikasi').toggle();
+            $('#data-terverifikasi').toggle();
+            $('#tidak-terverifikasi').toggle();
 
-        // Ganti teks tombol sesuai kondisi
-        if ($('#tidak-terverifikasi').is(':visible')) {
-            $(this).text('Anggota Terverifikasi');
-        } else {
-            $(this).text('Anggota Baru');
-        }
-    });
+            if ($('#tidak-terverifikasi').is(':visible')) {
+                $(this).text('Anggota Terverifikasi');
+            } else {
+                $(this).text('Anggota Baru');
+            }
+        });
+
     });
 
 </script>

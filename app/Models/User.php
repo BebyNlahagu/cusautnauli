@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Anggsuran::class, 'user_id');
     }
+
+    public function alamat()
+    {
+        return $this->belongsTo(Alamat::class, 'alamat_id');
+    }
 }

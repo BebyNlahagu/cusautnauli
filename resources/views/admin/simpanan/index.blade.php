@@ -55,7 +55,7 @@
                             @foreach ($simpanan as $s)
                             <tr>
                                 <td>{{ $no++ }}</td>
-                                <td>{{ $s->nasabah->name }}</td>
+                                <td>{{ $s->user->name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
                                 <td>{{ $s->jenis_simpanan}}</td>
                                 <td class="text-end bold">Rp {{ number_format($s->jumlah_simpanan, 0, ',', '.') }}</td>
@@ -100,8 +100,8 @@
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">--Pilih Nomor Registrasi--</option>
-                            @foreach ($nasabah as $n)
-                            <option value="{{ $n->id}}">{{ $n->nmr_anggota}}</option>
+                            @foreach ($nasabah->where("status","Verify") as $n)
+                                <option value="{{ $n->id}}">{{ $n->nmr_anggota}}</option>
                             @endforeach
                         </select>
                         <label for="user_id">Pilih Nomor Registrasi</label>

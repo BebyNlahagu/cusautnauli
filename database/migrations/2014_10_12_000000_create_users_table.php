@@ -20,9 +20,9 @@ return new class extends Migration
             $table->string('password');
 
             #Data Nasabah
-            $table->string('Nik');
-            $table->string('nmr_anggota');
-            $table->string('no_telp');
+            $table->string('Nik')->nullable();
+            $table->string('nmr_anggota')->nullable();
+            $table->string('no_telp')->nullable();
             $table->string('kelurahan')->nullable();
             $table->string('foto')->nullable();
             $table->string('ktp')->nullable();

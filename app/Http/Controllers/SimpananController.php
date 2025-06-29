@@ -20,12 +20,14 @@ class SimpananController extends Controller
             $nasabah = User::where('status', 'Verify')->get();
             $kapitalisasi = Simpanan::sum('jumlah_kapitalisasi');
         } else {
-            $simpanan = Simpanan::with('user')->where('user_id', $user->user_id)->get();
-            $nasabah = User::where('id', $user->user_id)->get();
-            $kapitalisasi = Simpanan::where('user_id', $user->user_id)->sum('jumlah_kapitalisasi');
+            $simpanan = Simpanan::with('user')->where('user_id', $user->id)->get();
+            $nasabah = User::where('id', $user->id)->get();
+            $kapitalisasi = Simpanan::where('user_id', $user->id)->sum('jumlah_kapitalisasi');
         }
+
         return view("admin.simpanan.index", compact('simpanan', 'nasabah', 'kapitalisasi'));
     }
+
 
     public function store(Request $request)
     {

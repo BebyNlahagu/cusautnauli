@@ -29,6 +29,13 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::post('/notifications/{id}/mark-as-read', function ($id) {
+    $notification = auth()->user()->unreadNotifications()->findOrFail($id);
+    $notification->markAsRead();
+    return response()->json(['status' => 'success']);
+})->name('notifications.read');
+
+
 Route::get('/alamat', [AlamatController::class,"index"])->name("alamat.index");
 Route::post('/alamat',[AlamatController::class, "store"])->name("alamat.store");
 

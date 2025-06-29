@@ -1,37 +1,59 @@
 <nav class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom">
     <div class="container-fluid">
+
+        {{-- Left side (search) --}}
         <nav class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
             <div class="input-group">
                 <div class="input-group-prepend">
-                    {{-- <button type="submit" class="btn btn-search pe-1">
-                        <i class="fa fa-search search-icon"></i>
-                    </button> --}}
+                    {{-- Search button (optional) --}}
                 </div>
-
             </div>
         </nav>
 
+        {{-- Right side --}}
         <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
-            <li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
-                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-expanded="false" aria-haspopup="true">
-                    <i class="fa fa-search"></i>
-                </a>
-                <ul class="dropdown-menu dropdown-search animated fadeIn">
-                    <form class="navbar-left navbar-form nav-search">
-                        <div class="input-group">
-                            {{-- <input type="text" placeholder="Search ..." class="form-control" /> --}}
-                        </div>
-                    </form>
-                </ul>
-            </li>
 
+            {{-- Notifikasi khusus untuk User --}}
+            @if(Auth::user()->role === 'User')
+            @php
+            $unreadNotifications = Auth::user()->unreadNotifications;
+            $unreadCount = $unreadNotifications->count();
+            @endphp
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle position-relative" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-bell"></i>
+                    @if($unreadCount > 0)
+                    <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">
+                        {{ $unreadCount }}
+                    </span>
+                    @endif
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end animated fadeIn" aria-labelledby="notifDropdown" style="width: 300px;">
+                    <li class="dropdown-header">Notifikasi</li>
+
+                    @forelse ($unreadNotifications as $notification)
+                    <li class="dropdown-item notification-item" data-id="{{ $notification->id }}" style="cursor: pointer;">
+                        <small class="text-muted">{{ \Carbon\Carbon::parse($notification->data['time'])->diffForHumans() }}</small><br>
+                        {{ $notification->data['message'] }}
+                    </li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    @empty
+                    <li class="dropdown-item text-center text-muted">Tidak ada notifikasi baru</li>
+                    @endforelse
+                </ul>
+
+            </li>
+            @endif
+
+            {{-- User dropdown --}}
             <li class="nav-item topbar-user dropdown hidden-caret">
                 <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
                     <div class="avatar-sm">
-                        {{-- @if ($petugas)
-                        <img src="{{ asset('images/' . optional($petugas)->img) }}" alt=""
-                        class="avatar-img rounded" />
-                        @endif --}}
+                        {{-- Avatar user --}}
                     </div>
                     <span class="profile-username">
                         <span class="op-7">Hi,</span>
@@ -43,10 +65,7 @@
                         <div class="dropdown-user-scroll scrollbar-outer">
                             <div class="user-box">
                                 <div class="avatar-lg">
-                                    {{-- @if ($petugas)
-          <img src="{{ asset('storage/images/' . optional($petugas)->img) }}" alt="image profile"
-                                    class="avatar-img rounded" />
-                                    @endif --}}
+                                    {{-- Avatar --}}
                                 </div>
                                 <div class="u-text">
                                     <h4>{{ Auth::user()->name }}</h4>
@@ -59,9 +78,7 @@
                     <li>
                         <div class="dropdown-divider"></div>
                     </li>
-                    <li>
-                        <a class="dropdown-item" href="{{ route('petugas.index') }}">My Profile</a>
-                    </li>
+                    <li><a class="dropdown-item" href="{{ route('petugas.index') }}">My Profile</a></li>
                     <li>
                         <div class="dropdown-divider"></div>
                     </li>
@@ -72,36 +89,8 @@
                         </form>
                     </li>
                 </ul>
-
             </li>
+
         </ul>
     </div>
 </nav>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    $(document).ready(function() {
-        $("#Logout").click(function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: "Apa Kamu Yakin?"
-                , text: "Kamu akan keluar dari akun ini!"
-                , icon: "warning"
-                , showCancelButton: true
-                , cancelButtonText: "Batal"
-                , confirmButtonText: "Ya, Logout!"
-                , reverseButtons: true
-                , customClass: {
-                    confirmButton: "btn btn-success"
-                    , cancelButton: "btn btn-danger"
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $("#logout-form").submit();
-                }
-            });
-        });
-    });
-
-</script>
