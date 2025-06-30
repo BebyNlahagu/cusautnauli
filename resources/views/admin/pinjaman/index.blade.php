@@ -41,7 +41,7 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">@yield('title')</h4>
                 @if (auth()->user()->role == "Admin")
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
                 @endif
             </div>
             <div class="card-body">
@@ -180,10 +180,10 @@
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">Pilih Nomor Anggota</option>
-                           @if (isset($nasabah) && $nasabah->isNotEmpty())
-                                @foreach ($nasabah->where('status','Verify') as $n)
-                                    <option value="{{ $n->id }}" data-nik="{{ $n->nmr_anggota ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nmr_anggota }}</option>
-                                @endforeach
+                            @if (isset($nasabah) && $nasabah->isNotEmpty())
+                            @foreach ($nasabah->where('status','Verify') as $n)
+                            <option value="{{ $n->id }}" data-nik="{{ $n->nmr_anggota ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nmr_anggota }}</option>
+                            @endforeach
                             @else
                             <p>Tidak ada Data</p>
                             @endif
@@ -259,133 +259,6 @@
         </div>
     </div>
 </div>
-
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function confirmDelete(id) {
-        Swal.fire({
-            title: "Apakah Anda Yakin?"
-            , text: "Data yang dihapus tidak bisa dikembalikan!"
-            , icon: "warning"
-            , showCancelButton: true
-            , confirmButtonColor: "#d33"
-            , cancelButtonColor: "#3085d6"
-            , confirmButtonText: "Ya, Hapus!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + id).submit();
-            }
-        });
-    }
-    $(document).ready(function() {
-        $("#basic-datatables").DataTable({});
-
-        let maxLoan = 0;
-
-        // Format angka jadi Rupiah
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency'
-                , currency: 'IDR'
-                , minimumFractionDigits: 0
-            , }).format(angka);
-        }
-
-        function parseRupiah(rupiahStr) {
-            return parseInt(rupiahStr.replace(/[Rp. ]/g, '')) || 0;
-        }
-
-        $('#jumlah_pinjaman_display').on('input', function() {
-            const inputStr = $(this).val();
-            let value = parseRupiah(inputStr);
-
-            if (maxLoan && value > maxLoan) {
-                $('#maxInfo').text('Jumlah pinjaman tidak boleh melebihi ' + formatRupiah(maxLoan)).show();
-                value = maxLoan;
-            } else {
-                $('#maxInfo').hide();
-            }
-
-            $('#jumlah_pinjaman').val(value);
-            $(this).val(formatRupiah(value));
-
-            const kapitalisasi = value * 0.02;
-            const proposi = value * 0.005;
-            const total_terima = value - proposi;
-
-            $('#jumlah_kapitalisasi').val(kapitalisasi);
-            $('#jumlah_adm').val(proposi);
-            $('#jumlah_terima').val(total_terima);
-        });
-
-        // Saat nasabah dipilih
-       $('#user_id').on('change', function () {
-    var user_id = $(this).val();
-
-    if (user_id) {
-        $.ajax({
-            url: '/pinjaman/check-eligibility/' + user_id,
-            type: 'GET',
-            success: function (response) {
-                if (response.status === 'not_eligible') {
-                    // Tambahan: jika respons ada alasan
-                    let alasan = response.message ?? 'Nasabah tidak memenuhi syarat.';
-
-                    // Tampilkan modal
-                    $('#nasabahBergabungModal').modal('show');
-
-                    // Optional: update isi modal jika perlu
-                    $('#nasabahBergabungModal .modal-body').html(`<p>${alasan}</p>`);
-
-                    // Reset semua inputan
-                    $('#nama_nasabah').val('');
-                    $('#jumlah_pinjaman_display').val('');
-                    $('#jumlah_pinjaman').val('');
-                    $('#bunga_pinjaman').val('');
-                    $('#jumlah_kapitalisasi').val('');
-                    $('#jumlah_adm').val('');
-                    $('#jumlah_terima').val('');
-                    $('#maxInfo').hide();
-                    $('#infoTambahan').hide();
-                } else if (response.status === 'eligible') {
-                    $('#nama_nasabah').val(response.nama_nasabah);
-                    maxLoan = response.jumlah_pinjaman;
-
-                    // Reset input nilai
-                    $('#jumlah_pinjaman_display').val('');
-                    $('#jumlah_pinjaman').val('');
-                    $('#jumlah_kapitalisasi').val('');
-                    $('#jumlah_adm').val('');
-                    $('#jumlah_terima').val('');
-
-                    // Set bunga default
-                    $('#bunga_pinjaman').val(response.bunga_pinjaman);
-
-                    // Tampilkan maksimal pinjaman
-                    $('#maxInfo').text('Maksimal pinjaman: ' + formatRupiah(maxLoan)).show();
-
-                    // 🆕 Tambahan: info umur & lama gabung
-                    debugger;
-                    let info = '';
-                    if (response.umur && response.lama_gabung_bulan && response.angsuran !== undefined) {
-                        info = `Umur nasabah: ${response.umur} tahun<br>Lama bergabung: ${response.lama_gabung_bulan} bulan`;
-                    }
-
-                    $('#infoTambahan').html(info).show();
-                }
-            },
-            error: function (xhr) {
-                alert('Terjadi kesalahan: ' + (xhr.responseJSON?.error ?? 'Unknown Error'));
-            }
-        });
-    }
-});
-
-});
-
-</script>
 
 {{-- Modal Edit --}}
 @foreach ($pinjaman as $n)
@@ -484,7 +357,6 @@
 </div>
 @endforeach
 
-
 @if (session('success'))
 <script>
     Swal.fire({
@@ -509,7 +381,125 @@
 </script>
 @endif
 
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: "Apakah Anda Yakin?"
+            , text: "Data yang dihapus tidak bisa dikembalikan!"
+            , icon: "warning"
+            , showCancelButton: true
+            , confirmButtonColor: "#d33"
+            , cancelButtonColor: "#3085d6"
+            , confirmButtonText: "Ya, Hapus!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+    $(document).ready(function() {
+        $("#basic-datatables").DataTable({});
+
+        let maxLoan = 0;
+
+        // Format angka jadi Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency'
+                , currency: 'IDR'
+                , minimumFractionDigits: 0
+            , }).format(angka);
+        }
+
+        function parseRupiah(rupiahStr) {
+            return parseInt(rupiahStr.replace(/[Rp. ]/g, '')) || 0;
+        }
+
+        $('#jumlah_pinjaman_display').on('input', function() {
+            const inputStr = $(this).val();
+            let value = parseRupiah(inputStr);
+
+            if (maxLoan && value > maxLoan) {
+                $('#maxInfo').text('Jumlah pinjaman tidak boleh melebihi ' + formatRupiah(maxLoan)).show();
+                value = maxLoan;
+            } else {
+                $('#maxInfo').hide();
+            }
+
+            $('#jumlah_pinjaman').val(value);
+            $(this).val(formatRupiah(value));
+
+            const kapitalisasi = value * 0.02;
+            const proposi = value * 0.005;
+            const total_terima = value - proposi;
+
+            $('#jumlah_kapitalisasi').val(kapitalisasi);
+            $('#jumlah_adm').val(proposi);
+            $('#jumlah_terima').val(total_terima);
+        });
+
+        // Saat nasabah dipilih
+        $('#user_id').on('change', function() {
+            var user_id = $(this).val();
+
+            if (user_id) {
+                $.ajax({
+                    url: '/pinjaman/check-eligibility/' + user_id
+                    , type: 'GET'
+                    , success: function(response) {
+                        if (response.status === 'not_eligible') {
+                            // Tambahan: jika respons ada alasan
+                            let alasan = response.message ?? 'Nasabah tidak memenuhi syarat.';
+
+                            // Tampilkan modal
+                            $('#nasabahBergabungModal').modal('show');
+
+                            // Optional: update isi modal jika perlu
+                            $('#nasabahBergabungModal .modal-body').html(`<p>${alasan}</p>`);
+
+                            // Reset semua inputan
+                            $('#nama_nasabah').val('');
+                            $('#jumlah_pinjaman_display').val('');
+                            $('#jumlah_pinjaman').val('');
+                            $('#bunga_pinjaman').val('');
+                            $('#jumlah_kapitalisasi').val('');
+                            $('#jumlah_adm').val('');
+                            $('#jumlah_terima').val('');
+                            $('#maxInfo').hide();
+                            $('#infoTambahan').hide();
+                        } else if (response.status === 'eligible') {
+                            $('#nama_nasabah').val(response.nama_nasabah);
+                            maxLoan = response.jumlah_pinjaman;
+
+                            // Reset input nilai
+                            $('#jumlah_pinjaman_display').val('');
+                            $('#jumlah_pinjaman').val('');
+                            $('#jumlah_kapitalisasi').val('');
+                            $('#jumlah_adm').val('');
+                            $('#jumlah_terima').val('');
+
+                            // Set bunga default
+                            $('#bunga_pinjaman').val(response.bunga_pinjaman);
+
+                            // Tampilkan maksimal pinjaman
+                            $('#maxInfo').text('Maksimal pinjaman: ' + formatRupiah(maxLoan)).show();
+                            let info = '';
+                            if (response.umur && response.lama_gabung_bulan && response.angsuran !== undefined) {
+                                info = `Umur nasabah: ${response.umur} tahun<br>Lama bergabung: ${response.lama_gabung_bulan} bulan`;
+                            }
+
+                            $('#infoTambahan').html(info).show();
+                        }
+                    }
+                    , error: function(xhr) {
+                        alert('Terjadi kesalahan: ' + (xhr.responseJSON?.error ?? 'Unknown Error'));
+                    }
+                });
+            }
+        });
+    });
+</script>
 @endsection

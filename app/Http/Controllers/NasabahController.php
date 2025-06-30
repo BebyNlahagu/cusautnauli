@@ -32,6 +32,7 @@ class NasabahController extends Controller
     public function addData(Request $request)
     {
         $request->validate([
+            "username" => "required",
             'alamat_id' => 'required|exists:alamats,id',
             'name' => 'required',
             'Nik' => 'required|max_digits:16',
@@ -82,6 +83,7 @@ class NasabahController extends Controller
         $nmr_anggota = "NMR-{$tgl}{$bln}{$thn}-{$hariIni}";
 
         User::create([
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'alamat_id' => $request->alamat_id,

@@ -517,9 +517,58 @@
                     reader.readAsDataURL(file);
                 }
             });
+
+            $("#Logout").click(function(e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: "Apa Kamu Yakin?"
+                    , text: "Kamu akan keluar dari akun ini!"
+                    , icon: "warning"
+                    , showCancelButton: true
+                    , cancelButtonText: "Batal"
+                    , confirmButtonText: "Ya, Logout!"
+                    , reverseButtons: true
+                    , customClass: {
+                        confirmButton: "btn btn-success"
+                        , cancelButton: "btn btn-danger"
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $("#logout-form").submit();
+                    }
+                });
+            });
+
+            $('.notification-item').on('click', function() {
+                var $this = $(this);
+                var notifId = $this.data('id');
+
+                $.ajax({
+                    url: '/notifications/' + notifId + '/mark-as-read'
+                    , type: 'POST'
+                    , headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    }
+                    , success: function(response) {
+                        if (response.status === 'success') {
+                            // Kurangi angka badge
+                            var badge = $('#notifDropdown .badge');
+                            var currentCount = parseInt(badge.text());
+
+                            if (currentCount > 1) {
+                                badge.text(currentCount - 1);
+                            } else {
+                                badge.remove();
+                            }
+                        }
+                    }
+                });
+            });
         });
 
     </script>
+
+
 </body>
 
 </html>
