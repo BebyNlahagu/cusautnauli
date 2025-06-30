@@ -177,6 +177,13 @@
                                     @enderror
                                 </div>
                                 <div class="form-floating form-floating-custom mb-3">
+                                    <input type="text" name="username" class="form-control @error('username') is-invalid @enderror" id="username" placeholder="username" value="{{ old('username') }}" />
+                                    <label for="floatingInput">Username</label>
+                                    @error('username')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="form-floating form-floating-custom mb-3">
                                     <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" id="password" placeholder="password" value="{{ old('password') }}" />
                                     <label for="floatingInput">Password</label>
                                     @error('password')
