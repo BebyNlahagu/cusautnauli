@@ -41,16 +41,16 @@ class LoginController extends Controller
 
     protected function sendFailedLoginResponse(Request $request)
     {
-        $user = \App\Models\User::where('username', $request->username)->first();
+        $user = \App\Models\User::where('email', $request->email)->first();
 
         if (!$user) {
             return back()->withErrors([
-                'username' => 'Username tidak ditemukan.',
-            ])->withInput($request->only('username'));
+                'email' => 'Email tidak ditemukan.',
+            ])->withInput($request->only('email'));
         }
 
         return back()->withErrors([
             'password' => 'Password salah.',
-        ])->withInput($request->only('username'));
+        ])->withInput($request->only('email'));
     }
 }

@@ -22,9 +22,9 @@
                 <form id="loginForm" action="{{ route('login') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mb-2">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" name="username" id="username" class="form-control" autocomplete="off">
-                        @error('username')
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" id="email" class="form-control" autocomplete="off">
+                        @error('email')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
