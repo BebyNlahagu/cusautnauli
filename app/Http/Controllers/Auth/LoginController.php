@@ -41,7 +41,7 @@ class LoginController extends Controller
 
     protected function sendFailedLoginResponse(Request $request)
     {
-        $user = \App\Models\User::where('username', $request->email)->first();
+        $user = \App\Models\User::where('username', $request->username)->first();
 
         if (!$user) {
             return back()->withErrors([
