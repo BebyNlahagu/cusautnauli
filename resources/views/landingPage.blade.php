@@ -63,7 +63,7 @@
     </header>
 
     <main class="main">
-        @if ($errors->any())
+        {{-- @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
@@ -71,7 +71,7 @@
                 @endforeach
             </ul>
         </div>
-        @endif
+        @endif --}}
 
         <div class="modal fade" id="add" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -236,6 +236,17 @@
                 , confirmButtonText: "OK"
             });
 
+        </script>
+        @endif
+
+        @if(session('swal_error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Validasi NIK Gagal',
+                text: '{{ session('swal_error') }}',
+                confirmButtonColor: '#d33'
+            });
         </script>
         @endif
         
