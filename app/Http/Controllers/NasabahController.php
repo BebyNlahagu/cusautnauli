@@ -40,49 +40,18 @@ class NasabahController extends Controller
 
 
         $request->validate([
-            // "username" => "required",
+            "username" => "required",
             'alamat_id' => 'required|exists:alamats,id',
             'name' => 'required',
+            "email" => "nullable",
             'Nik' => [
                 'required',
                 'digits:16',
                 'numeric',
                 function ($attribute, $value, $fail) use ($request, $validKodeProvinsi) {
-                    $kodeProvinsi = substr($value, 0, 2);
-                    if (!in_array($kodeProvinsi, $validKodeProvinsi)) {
-                        session()->flash('swal_error', 'Kode provinsi pada NIK tidak valid.');
-                        return $fail("Kode provinsi pada NIK tidak valid.");
-                    }
-
                     if (preg_match('/^(\d)\1{15}$/', $value)) {
                         session()->flash('swal_error', 'NIK tidak boleh terdiri dari angka yang sama.');
                         return $fail('NIK tidak boleh terdiri dari angka yang sama.');
-                    }
-
-                    $tanggalLahirInput = $request->tanggal_lahir;
-                    if (!$tanggalLahirInput) return;
-
-                    $tglLahir = Carbon::parse($tanggalLahirInput);
-                    $gender = strtolower($request->jenis_kelamin);
-                    $tgl = (int) $tglLahir->format('d');
-                    if ($gender === 'perempuan') {
-                        $tgl += 40;
-                    }
-
-                    $tglNIK = substr($value, 6, 2);
-                    $blnNIK = substr($value, 8, 2);
-                    $thnNIK = substr($value, 10, 2);
-
-                    $tglNIKint = (int) $tglNIK;
-                    $blnNIKint = (int) $blnNIK;
-                    $thnNIKint = (int) $thnNIK;
-
-                    $thnInput = (int) $tglLahir->format('y');
-                    $blnInput = (int) $tglLahir->format('m');
-
-                    if ($tglNIKint !== $tgl || $blnNIKint !== $blnInput || $thnNIKint !== $thnInput) {
-                        session()->flash('swal_error', 'Tanggal lahir di NIK tidak cocok dengan input.');
-                        return $fail('Tanggal lahir di NIK tidak cocok dengan input.');
                     }
                 },
             ],
@@ -133,7 +102,7 @@ class NasabahController extends Controller
         $nmr_anggota = "NMR-{$tgl}{$bln}{$thn}-{$hariIni}";
 
         User::create([
-            // 'username' => $request->username,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'alamat_id' => $request->alamat_id,
@@ -157,7 +126,14 @@ class NasabahController extends Controller
     {
         $nasabah = User::findOrFail($id);
 
+        
+        $jumlah = User::where('created_at')->count();
+        $hariIni = str_pad($jumlah + 1, 3, '0', STR_PAD_LEFT);
+
+        $nmr_anggota = "AGT-{$hariIni}";
+
         $nasabah->status = 'Verify';
+        $nasabah->nm_koperasi = $nmr_anggota;
         $nasabah->save();
 
         $nasabah->notify(new DataVerify(Auth::user()->name));

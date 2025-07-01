@@ -47,7 +47,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>No.Reg</th>
+                                <th>No.Anggota</th>
                                 <th>No. NIK</th>
                                 <th>Nama</th>
                                 <th>Jenis Kelamin</th>
@@ -71,7 +71,7 @@
                             @foreach ($nasabahTerverifikasi as $n)
                             <tr>
                                 <td>{{ $no++ }}</td>
-                                <td>{{ $n->nmr_anggota }}</td>
+                                <td>{{ $n->nm_koperasi }}</td>
                                 <td>{{ $n->Nik }}</td>
                                 <td>{{ $n->name }}</td>
                                 <td>{{ $n->jenis_kelamin }}</td>
@@ -118,7 +118,7 @@
                                     <div class="form-button-action">
                                         {{-- <button type="button" class="btn btn-link btn-info btn-lg" title="Email dan Password" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $n->id }}"><i class="fa fa-eye"></i></button> --}}
 
-                                        <a href="{{ route('nasabah.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
+                                        {{-- <a href="{{ route('nasabah.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a> --}}
                                         <form id="delete-form-{{ $n->id }}" action="{{ route('nasabah.destroy', $n->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
@@ -132,22 +132,6 @@
                                                 <i class="fa fa-angle-left"></i>
                                             </button>
                                         </form>
-                                        @else
-                                        {{-- <button type="button" class="btn btn-link btn-info btn-lg" title="Email dan Password" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $n->id }}"><i class="fa fa-eye"></i></button> --}}
-                                        <div class="modal fade" id="DetailModal{{ $n->id }}" tabindex="-1" aria-labelledby="DetailModalLabel{{ $n->id }}" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="DetailModalLabel{{ $n->id }}">Detail Akun Nasabah</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Email:</strong> {{ $n->user->email ?? 'Tidak tersedia' }}</p>
-                                                        <p><strong>Password:</strong> {{ $n->user->plain_password ?? 'Tidak tersedia' }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                         @endif
                                     </div>
                                 </td>
@@ -183,93 +167,77 @@
                         </thead>
                         <tbody>
                             @php
-                            $no = 1;
+                                $no = 1;
                             @endphp
 
                             @foreach ($nasabahTidakTerverifikasi as $n)
-                            <tr>
-                                <td>{{ $no++ }}</td>
-                                <td>{{ $n->nmr_anggota }}</td>
-                                <td>{{ $n->Nik }}</td>
-                                <td>{{ $n->name }}</td>
-                                <td>{{ $n->jenis_kelamin }}</td>
-                                <td>{{ \Carbon\Carbon::parse($n->tanggal_lahir)->translatedFormat('l, d F Y') }}
-                                </td>
-                                <td>{{ $n->no_telp }}</td>
-                                <td>{{ $n->kelurahan }}</td>
-                                <td>{{ $n->pekerjaan }}</td>
-                                <td>{{ $n->alamat->alamat }}</td>
-                                <td>
-                                    @if($n->foto)
-                                    <a href="{{ Storage::url('images/' . $n->foto) }}" target="_blank">
-                                        Lihat Foto
-                                    </a>
-                                    @else
-                                    <span>Data Foto Tidak Ada</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($n->ktp)
-                                    <a href="{{ Storage::url('images/' . $n->ktp) }}" target="_blank">
-                                        lihat ktp
-                                    </a>
-                                    @else
-                                    <span>Data Foto Tidak Ada</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($n->kk)
-                                    <a href="{{ Storage::url('images/' . $n->kk) }}" target="_blank">
-                                        lihat KK
-                                    </a>
-                                    @else
-                                    <span>Data Foto Tidak Ada</span>
-                                    @endif
-                                </td>
-
-                                <td>@if($n->status == "Verify")
-                                    <span class="badge text-bg-success">Terverifikasi</span>
-                                    @else
-                                    <span class="badge text-bg-danger">Tidak Terverifikasi</span>
-                                    @endif</td>
-                                <td>
-                                    <div class="form-button-action">
-                                        {{-- <button type="button" class="btn btn-link btn-info btn-lg" title="Email dan Password" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $n->id }}"><i class="fa fa-eye"></i></button> --}}
-
-                                        <a href="{{ route('nasabah.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
-                                        <form id="delete-form-{{ $n->id }}" action="{{ route('nasabah.destroy', $n->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $n->id }})" style="display: inline;"><i class="fa fa-times"></i></button>
-                                        </form>
-
-                                        @if ($n->status != "Verify")
-                                        <form id="ubahStatusForm{{ $n->id }}" action="{{ route('nasabah.verify', $n->id) }}" method="POST" style="display: inline;">
-                                            @csrf
-                                            <button type="button" class="btn btn-warning btn-link" title="Ubah Status" onclick="confirmUbahStatus({{ $n->id }})">
-                                                <i class="fa fa-angle-left"></i>
-                                            </button>
-                                        </form>
+                                <tr>
+                                    <td>{{ $no++ }}</td>
+                                    <td>{{ $n->nmr_anggota }}</td>
+                                    <td>{{ $n->Nik }}</td>
+                                    <td>{{ $n->name }}</td>
+                                    <td>{{ $n->jenis_kelamin }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($n->tanggal_lahir)->translatedFormat('l, d F Y') }}
+                                    </td>
+                                    <td>{{ $n->no_telp }}</td>
+                                    <td>{{ $n->kelurahan }}</td>
+                                    <td>{{ $n->pekerjaan }}</td>
+                                    <td>{{ $n->alamat->alamat }}</td>
+                                    <td>
+                                        @if($n->foto)
+                                        <a href="{{ Storage::url('images/' . $n->foto) }}" target="_blank">
+                                            Lihat Foto
+                                        </a>
                                         @else
-                                        {{-- <button type="button" class="btn btn-link btn-info btn-lg" title="Email dan Password" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $n->id }}"><i class="fa fa-eye"></i></button> --}}
-                                        <div class="modal fade" id="DetailModal{{ $n->id }}" tabindex="-1" aria-labelledby="DetailModalLabel{{ $n->id }}" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="DetailModalLabel{{ $n->id }}">Detail Akun Nasabah</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Email:</strong> {{ $n->user->email ?? 'Tidak tersedia' }}</p>
-                                                        <p><strong>Password:</strong> {{ $n->user->plain_password ?? 'Tidak tersedia' }}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <span>Data Foto Tidak Ada</span>
                                         @endif
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        @if($n->ktp)
+                                        <a href="{{ Storage::url('images/' . $n->ktp) }}" target="_blank">
+                                            lihat ktp
+                                        </a>
+                                        @else
+                                        <span>Data Foto Tidak Ada</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($n->kk)
+                                        <a href="{{ Storage::url('images/' . $n->kk) }}" target="_blank">
+                                            lihat KK
+                                        </a>
+                                        @else
+                                        <span>Data Foto Tidak Ada</span>
+                                        @endif
+                                    </td>
+
+                                    <td>@if($n->status == "Verify")
+                                        <span class="badge text-bg-success">Terverifikasi</span>
+                                        @else
+                                        <span class="badge text-bg-danger">Tidak Terverifikasi</span>
+                                        @endif</td>
+                                    <td>
+                                        <div class="form-button-action">
+                                            {{-- <button type="button" class="btn btn-link btn-info btn-lg" title="Email dan Password" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $n->id }}"><i class="fa fa-eye"></i></button> --}}
+
+                                            {{-- <a href="{{ route('nasabah.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a> --}}
+                                            <form id="delete-form-{{ $n->id }}" action="{{ route('nasabah.destroy', $n->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $n->id }})" style="display: inline;"><i class="fa fa-times"></i></button>
+                                            </form>
+
+                                            @if ($n->status != "Verify")
+                                            <form id="ubahStatusForm{{ $n->id }}" action="{{ route('nasabah.verify', $n->id) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                <button type="button" class="btn btn-warning btn-link" title="Ubah Status" onclick="confirmUbahStatus({{ $n->id }})">
+                                                    <i class="fa fa-angle-left"></i>
+                                                </button>
+                                            </form>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -282,7 +250,7 @@
 
 
 {{-- Modal Edit  --}}
-@foreach ($nasabah as $n)
+{{-- @foreach ($nasabah as $n)
 <div class="modal fade" id="edit{{ $n->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -401,7 +369,7 @@
         </div>
     </div>
 </div>
-@endforeach
+@endforeach --}}
 
 @if (session('success'))
 <script>

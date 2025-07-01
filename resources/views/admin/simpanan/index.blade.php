@@ -100,8 +100,8 @@
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">--Pilih Nomor Registrasi--</option>
-                            @foreach ($nasabah->where("status","Verify") as $n)
-                                <option value="{{ $n->id}}">{{ $n->nmr_anggota}}</option>
+                            @foreach ($nasabah->whereNotNull("nm_koperasi") as $n)
+                                <option value="{{ $n->id}}">{{ $n->nm_koperasi}}</option>
                             @endforeach
                         </select>
                         <label for="user_id">Pilih Nomor Registrasi</label>
@@ -110,9 +110,9 @@
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" onchange="setJumlahSimpanan()" id="jenis_simpanan" name="jenis_simpanan">
                             <option value="">Pilih Jenis Simpanan</option>
                             <option value="Simpanan Wajib">Simpanan Wajib</option>
-                            <option value="Simpanan Pokok">Simpanan Pokok</option>
+                            {{-- <option value="Simpanan Pokok">Simpanan Pokok</option> --}}
                             <option value="Simpanan Dakesma">Simpanan Dakesma</option>
-                            <option value="Biaya Administrasi">Biaya Administrasi</option>
+                            {{-- <option value="Biaya Administrasi">Biaya Administrasi</option> --}}
                         </select>
                         <label for="jenis_simpanan">Jenis Simpanan</label>
                     </div>
@@ -150,8 +150,8 @@
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">--Pilih Nomor Registrasi--</option>
-                            @foreach ($nasabah->where('status', 'Verify') as $n)
-                                <option value="{{ $n->id }}" {{ $n->id == $s->user_id ? 'selected' : '' }}>{{ $n->nmr_anggota }}</option>
+                            @foreach ($nasabah->whereNotNull("nm_koperasi") as $n)
+                                <option value="{{ $n->id }}" {{ $n->id == $s->user_id ? 'selected' : '' }}>{{ $n->nm_koperasi }}</option>
                             @endforeach
                         </select>
                         <label for="user_id">Pilih Nomor Registrasi</label>
@@ -160,8 +160,8 @@
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" id="jenis_simpanan" name="jenis_simpanan">
                             <option value="">Pilih Jenis Simpanan</option>
                             <option value="Simpanan Wajib" {{ $s->jenis_simpanan == 'Simpanan Wajib' ? 'selected' : ''}}>Simpanan Wajib</option>
-                            <option value="Simpanan Pokok" {{ $s->jenis_simpanan == 'Simpanan Pokok' ? 'selected' : ''}}>Simpanan Pokok</option>
-                            <option value="Simpanan Dakesma" {{ $s->jenis_simpanan == 'Simpanan Dakesma' ? 'selected' : ''}}>Simpanan Dakesma</option>
+                            {{-- <option value="Simpanan Pokok" {{ $s->jenis_simpanan == 'Simpanan Pokok' ? 'selected' : ''}}>Simpanan Pokok</option> --}}
+                            {{-- <option value="Simpanan Dakesma" {{ $s->jenis_simpanan == 'Simpanan Dakesma' ? 'selected' : ''}}>Simpanan Dakesma</option> --}}
                             <option value="Biaya Administrasi" {{ $s->jenis_simpanan == 'Biaya Administrasi' ? 'selected' : ''}}>Biaya Administrasi</option>
                         </select>
                         <label for="jenis_simpanan">Jenis Simpanan</label>
@@ -241,31 +241,6 @@
         });
     }
 
-    // function formatUang(input) {
-    //     let value = input.value.replace(/\D+/g, '');
-    //     if (value.length > 14) value = value.slice(0, 14);
-    //     let formatted = 'Rp ' + value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    //     input.value = formatted;
-    //     document.getElementById('jumlah_simpanan').value = value;
-    // }
-
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     const displayInput = document.getElementById('jumlah_simpanan_display');
-    //     const hiddenInput = document.getElementById('jumlah_simpanan');
-
-    //     if (hiddenInput.value) {
-    //         displayInput.value = 'Rp ' + Number(hiddenInput.value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    //     }
-    // });
-
-    // function formatUangEdit(input, id) {
-    //     let value = input.value.replace(/\D+/g, '');
-    //     if (value.length > 14) value = value.slice(0, 14);
-    //     let formatted = 'Rp ' + value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-    //     input.value = formatted;
-    //     document.getElementById('jumlah_simpanan_edit_' + id).value = value;
-    // }
 
     function formatUang(input) {
         let value = input.value.replace(/\D+/g, '');

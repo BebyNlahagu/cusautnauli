@@ -22,9 +22,9 @@
                 <form id="loginForm" action="{{ route('login') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mb-2">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" name="email" id="email" class="form-control" autocomplete="off">
-                        @error('email')
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" name="username" id="username" class="form-control" autocomplete="off">
+                        @error('username')
                         <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
@@ -55,6 +55,18 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('swal'))
+<script>
+    Swal.fire({
+        title: "{{ session('swal.title') }}",
+        text: "{{ session('swal.text') }}",
+        icon: "{{ session('swal.icon') }}",
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
 <script>
     $(document).ready(function() {
         $('#icon_click').click(function() {

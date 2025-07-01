@@ -168,11 +168,11 @@
                                 </div>
 
                                 <hr>
-                                <h5>Email Dan Password</h5>
+                                <h5>Username Dan Password</h5>
                                 <div class="form-floating form-floating-custom mb-3">
-                                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" id="email" placeholder="email" value="{{ old('email') }}" />
-                                    <label for="floatingInput">Email</label>
-                                    @error('email')
+                                    <input type="text" name="username" class="form-control @error('username') is-invalid @enderror" id="username" placeholder="username" value="{{ old('username') }}" />
+                                    <label for="floatingInput">Username</label>
+                                    @error('username')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
