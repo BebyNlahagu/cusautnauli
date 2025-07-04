@@ -99,12 +99,12 @@
                 <div class="modal-body">
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
-                            <option value="">--Pilih Nomor Registrasi--</option>
+                            <option value="">--Pilih Nomor Anggota--</option>
                             @foreach ($nasabah->whereNotNull("nm_koperasi") as $n)
-                                <option value="{{ $n->id}}">{{ $n->nm_koperasi}}</option>
+                            <option value="{{ $n->id}}">{{ $n->nm_koperasi}}</option>
                             @endforeach
                         </select>
-                        <label for="user_id">Pilih Nomor Registrasi</label>
+                        <label for="user_id">Pilih Nomor Anggota</label>
                     </div>
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" onchange="setJumlahSimpanan()" id="jenis_simpanan" name="jenis_simpanan">
@@ -149,12 +149,12 @@
                 <div class="modal-body">
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
-                            <option value="">--Pilih Nomor Registrasi--</option>
+                            <option value="">--Pilih Nomor Anggota--</option>
                             @foreach ($nasabah->whereNotNull("nm_koperasi") as $n)
                                 <option value="{{ $n->id }}" {{ $n->id == $s->user_id ? 'selected' : '' }}>{{ $n->nm_koperasi }}</option>
                             @endforeach
                         </select>
-                        <label for="user_id">Pilih Nomor Registrasi</label>
+                        <label for="user_id">Pilih Nomor Anggota</label>
                     </div>
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" id="jenis_simpanan" name="jenis_simpanan">
