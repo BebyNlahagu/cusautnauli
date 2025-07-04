@@ -28,7 +28,6 @@ class NasabahController extends Controller
 
         return view('admin.nasabah.index', compact('nasabah', 'nasabahTerverifikasi', 'nasabahTidakTerverifikasi'));
     }
-
     public function addData(Request $request)
     {
         $validKodeProvinsi = [
@@ -122,12 +121,22 @@ class NasabahController extends Controller
         return redirect()->back()->with('success', 'Nasabah berhasil didaftarkan!');
     }
 
+    public function updateCheckbox(Request $request, $id)
+    {
+        $nasabah = User::findOrFail($id);
+        $nasabah->simpanan_wajib = $request->has('simpanan_wajib');
+        $nasabah->administrasi = $request->has('administrasi');
+        $nasabah->save();
+
+        return redirect()->back()->with('success', 'Status berhasil diperbarui.');
+    }
+
     public function verify($id)
     {
         $nasabah = User::findOrFail($id);
 
         
-        $jumlah = User::where('created_at')->count();
+        $jumlah = User::where('id')->count();
         $hariIni = str_pad($jumlah + 1, 3, '0', STR_PAD_LEFT);
 
         $nmr_anggota = "AGT-{$hariIni}";
@@ -205,7 +214,6 @@ class NasabahController extends Controller
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
-            // 'tanggal_masuk' => $request->tanggal_masuk,
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,

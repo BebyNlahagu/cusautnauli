@@ -52,6 +52,8 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::resource('/admin/simpanan', SimpananController::class);
     Route::resource('/admin/petugas', PetugasController::class);
 
+    Route::put('/nasabah/update-checkbox/{id}', [NasabahController::class, 'updateCheckbox'])->name('nasabah.updateCheckbox');
+
     Route::get('/get-pinjaman/{nasabah_id}', [AnggsuranController::class, 'getPinjaman']);
 
     Route::get('/admin/laporan/simpanan', [LaporanController::class, 'LaporanSimpanan'])->name('laporan.simpanan');
@@ -83,9 +85,12 @@ Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(functio
     });
 });
 
-
 Route::middleware(['auth', 'role:User,Admin'])->prefix('admin')->group(function () {
     Route::resource('/admin/pinjaman', PinjamanController::class);
     Route::resource('/admin/angsuran', AnggsuranController::class);
     Route::resource('/admin/simpanan', SimpananController::class);
+    Route::resource('/admin/petugas', PetugasController::class);
+    Route::get("/profil",[Daftar::class,'profil'])->name("user.profil");
+    Route::get("/profil/edit",[Daftar::class,'edit'])->name('user.edit');
+    Route::Put('/profil/{id}',[Daftar::class,'update'])->name('user.update');
 });

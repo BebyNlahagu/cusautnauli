@@ -26,7 +26,15 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected function redirectTo()
+    {
+        if (auth()->user()->role == 'Admin'  || auth()->user()->role == 'Kepala') {
+            return route('home');
+        } else {
+            return route('user.edit');
+        }
+    }
+
 
     /**
      * Create a new controller instance.
@@ -74,11 +82,11 @@ class LoginController extends Controller
         }
 
         return redirect()->back()->with([
-           'swal' => [
-                    'title' => 'Login Gagal!',
-                    'text' => 'Password Salah.',
-                    'icon' => 'error'
-                ]
+            'swal' => [
+                'title' => 'Login Gagal!',
+                'text' => 'Password Salah.',
+                'icon' => 'error'
+            ]
         ])->withInput($request->only('username'));
     }
 }

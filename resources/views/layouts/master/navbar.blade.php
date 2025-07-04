@@ -78,7 +78,11 @@
                     <li>
                         <div class="dropdown-divider"></div>
                     </li>
-                    <li><a class="dropdown-item" href="{{ route('petugas.index') }}">My Profile</a></li>
+                    @if (auth()->user()->role == "Admin")
+                        <li><a class="dropdown-item" href="{{ route('petugas.index') }}">My Profile</a></li>
+                    @elseif (auth()->user()->role == "User")
+                        <li><a class="dropdown-item" href="{{ route('user.edit') }}">My Profile</a></li>
+                    @endif
                     <li>
                         <div class="dropdown-divider"></div>
                     </li>

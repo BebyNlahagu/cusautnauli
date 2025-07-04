@@ -22,12 +22,22 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
+                @if(Auth::user()->role == 'Admin')
                 <li class="nav-item {{ \Route::is('home') ? 'active' : '' }}">
                     <a href="{{ route('home') }}">
                         <i class="fas fa-home"></i>
                         <p>Dashboard</p>
                     </a>
                 </li>
+                @elseif(Auth::user()->role == 'User')
+                <li class="nav-item {{ \Route::is('user.edit') ? 'active' : '' }}">
+                    <a href="{{ route('user.edit') }}">
+                        <i class="fas fa-user"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                @endif
+
                 @if (auth()->user()->role == "Admin")
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -64,7 +74,7 @@
                                     <span class="sub-item">Angsuran</span>
                                 </a>
                             </li>
-                            
+
                         </ul>
                     </div>
                 </li>
@@ -130,7 +140,7 @@
                     </a>
                     <div class="collapse" id="base">
                         <ul class="nav nav-collapse">
-                             <li class="nav-item{{ \Route::is('simpanan.index') ? 'active' : '' }}">
+                            <li class="nav-item{{ \Route::is('simpanan.index') ? 'active' : '' }}">
                                 <a href="{{ route('simpanan.index')}}">
                                     <span class="sub-item">Simpanan</span>
                                 </a>
@@ -145,7 +155,7 @@
                                     <span class="sub-item">Angsuran</span>
                                 </a>
                             </li>
-                            
+
                         </ul>
                     </div>
                 </li>
