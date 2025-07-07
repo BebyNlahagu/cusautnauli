@@ -52,11 +52,15 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama</th>
+                                @if (auth()->user()->role === "Admin")
+                                    <th>Nama</th>
+                                @endif
                                 <th>Tanggal Pinjaman</th>
                                 <th>Jumlah Angsuran</th>
                                 <th>Terima Total Pinjaman</th>
-                                <th>Action</th>
+                                @if (auth()->user()->role === "Admin")
+                                    <th style="width: 10%">Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -69,7 +73,9 @@
                             @foreach ($groupedAngsuran as $nasabahId => $angsurans)
                             <tr>
                                 <td>{{ $no++ }}</td>
-                                <td>{{ $angsurans->first()->nasabah->name }}</td>
+                                @if (auth()->user()->role === "Admin")
+                                    <td>{{ $angsurans->first()->nasabah->name }}</td>   
+                                @endif
                                 <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F
                                     Y') }}
                                 </td>

@@ -51,12 +51,16 @@
                             <tr>
                                 <th>No</th>
                                 <th>Tanggal</th>
-                                <th>No. NIK</th>
-                                <th>Nama</th>
+                                @if (auth()->user()->role === "Admin")
+                                    <th>No. NIK</th>
+                                    <th>Nama</th>
+                                @endif
                                 <th>Jumlah Pinjaman</th>
                                 <th>Tenor</th>
                                 <th>Bunga</th>
-                                <th style="width: 10%">Action</th>
+                                @if (auth()->user()->role === "Admin")
+                                    <th style="width: 10%">Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -68,20 +72,24 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 <td>{{ \Carbon\Carbon::parse($n->created_at)->translatedFormat('l, d F Y') }}</td>
-                                <td>{{ $n->nasabah->Nik }}</td>
-                                <td>{{ $n->nasabah->name }}</td>
+                                @if (auth()->user()->role === "Admin")
+                                    <td>{{ $n->nasabah->Nik }}</td>
+                                    <td>{{ $n->nasabah->name }}</td>
+                                @endif
                                 <td>Rp {{ number_format((float) $n->jumlah_pinjaman, 0, ',', '.') }}</td>
                                 <td>{{ $n->lama_pinjaman }}</td>
                                 <td>{{ $n->bunga_pinjaman }} %</td>
                                 <td>
-                                    <div class="form-button-action">
-                                        <a href="{{ route('pinjaman.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
-                                        <form id="delete-form-{{ $n->id }}" action="{{ route('pinjaman.destroy', $n->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $n->id }})"><i class="fa fa-times"></i></button>
-                                        </form>
-                                    </div>
+                                    @if (auth()->user()->role === "Admin")
+                                        <div class="form-button-action">
+                                            <a href="{{ route('pinjaman.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
+                                            <form id="delete-form-{{ $n->id }}" action="{{ route('pinjaman.destroy', $n->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $n->id }})"><i class="fa fa-times"></i></button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -92,79 +100,6 @@
         </div>
     </div>
 </div>
-
-<!-- Modal Tambah-->
-{{-- <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">Tambah Data pinjaman</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="{{ route('pinjaman.store') }}" method="post" enctype="multipart/form-data">
-@csrf
-<div class="modal-body">
-    <div class="form-floating form-floating-custom mb-3">
-        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
-            <option value="">Pilih NIK</option>
-            @if ($nasabah ?? $nasabah->isNotEmpty())
-            @foreach ($nasabah as $n)
-            <option value="{{ $n->id }}" data-nik="{{ $n->Nik ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->Nik }}</option>
-            @endforeach
-            @else
-            <p>Tidak ada Data</p>
-            @endif
-        </select>
-        <label for="user_id">Pilih NIK</label>
-    </div>
-
-    <div class="form-floating form-floating-custom mb-3">
-        <input type="text" class="form-control" id="nama_nasabah" name="nama_nasabah" placeholder="Nama Nasabah" readonly />
-        <label for="nama_nasabah">Nama Nasabah</label>
-    </div>
-
-    <div class="form-floating form-floating-custom mb-3">
-        <select name="lama_pinjaman" id="lama_pinjaman" class="form-control form-select @error('lama_pinjaman') is-invalid @enderror">
-            <option value="">--pilih--</option>
-            <option value="5 Bulan">5 Bulan</option>
-            <option value="10 Bulan">10 Bulan</option>
-            <option value="15 Bulan">15 Bulan</option>
-            <option value="20 Bulan">20 Bulan</option>
-            <option value="25 Bulan">25 Bulan</option>
-            <option value="30 Bulan">30 Bulan</option>
-        </select>
-        <label for="lama_pinjaman">Lama Pinjaman</label>
-        @error('lama_pinjaman')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-    <div class="form-floating form-floating-custom mb-3">
-        <input type="text" id="jumlah_pinjaman_display" class="form-control @error('jumlah_pinjaman') is-invalid @enderror" placeholder="Jumlah Pinjaman" value="{{ old('jumlah_pinjaman') }}" readonly />
-        <input type="hidden" name="jumlah_pinjaman" id="jumlah_pinjaman" value="{{ old('jumlah_pinjaman') }}" />
-        <label for="floatingInput">Jumlah Pinjaman</label>
-        @error('jumlah_pinjaman')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-
-    <div class="form-floating form-floating-custom mb-3">
-        <input type="number" name="bunga_pinjaman" class="form-control" id="bunga_pinjaman" placeholder="Bunga" readonly />
-        <label for="floatingInput">Bunga Pinjaman</label>
-    </div>
-    <input type="hidden" name="kapitalisasi" id="jumlah_kapitalisasi">
-    <input type="hidden" name="proposi" id="jumlah_adm">
-    <input type="hidden" name="terima_total" id="jumlah_terima">
-</div>
-<div class="modal-footer">
-    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-    <button type="submit" class="btn btn-success">Save</button>
-</div>
-</form>
-</div>
-</div>
-</div> --}}
-
 
 <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">

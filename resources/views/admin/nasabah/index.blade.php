@@ -59,8 +59,8 @@
                                 <th>Foto Diri</th>
                                 <th>Foto KTP</th>
                                 <th>Foto KK</th>
-                                <th>Simpanan Wajib</th>
-                                <th>Adm</th>
+                                <th>Simpanan Pokok</th>
+                                <th>Biaya Administrasi</th>
                                 <th>Status</th>
                                 <th style="width: 10%">Edit</th>
                             </tr>
@@ -115,16 +115,12 @@
                                 <td><input type="checkbox" disabled {{ $n->administrasi ? 'checked' : '' }}></td>
 
                                 <td>@if($n->status == "Verify")
-                                    <span class="badge text-bg-success">Terverifikasi</span>
+                                        <span class="badge text-bg-success">Terverifikasi</span>
                                     @else
-                                    <span class="badge text-bg-danger">Tidak Terverifikasi</span>
+                                        <span class="badge text-bg-danger">Tidak Terverifikasi</span>
                                     @endif</td>
                                 <td>
                                     <div class="form-button-action">
-
-                                        {{-- <button type="button" class="btn btn-link btn-info btn-lg" title="Email dan Password" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $n->id }}"><i class="fa fa-eye"></i></button> --}}
-
-                                        {{-- <a href="{{ route('nasabah.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a> --}}
                                         <form id="delete-form-{{ $n->id }}" action="{{ route('nasabah.destroy', $n->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
@@ -229,18 +225,15 @@
                                             @method('PUT')
 
                                             <label style="margin-right: 5px;">
-                                                <input type="checkbox" name="simpanan_wajib" value="1" {{ $n->simpanan_wajib ? 'checked' : '' }} onchange="this.form.submit()">
-                                                Simpanan Wajib
+                                                <input type="checkbox" class="checkbox-update" data-id="{{ $n->id }}" data-field="simpanan_wajib" {{ $n->simpanan_wajib ? 'checked' : '' }}>
+                                                Simpanan Pokok
                                             </label>
 
                                             <label style="margin-right: 5px;">
-                                                <input type="checkbox" name="administrasi" value="1" {{ $n->administrasi ? 'checked' : '' }} onchange="this.form.submit()">
-                                                Admin
+                                                <input type="checkbox" class="checkbox-update" data-id="{{ $n->id }}" data-field="administrasi" {{ $n->administrasi ? 'checked' : '' }}>
+                                                Biaya Administrasi
                                             </label>
                                         </form>
-                                        {{-- <button type="button" class="btn btn-link btn-info btn-lg" title="Email dan Password" data-bs-toggle="modal" data-bs-target="#DetailModal{{ $n->id }}"><i class="fa fa-eye"></i></button> --}}
-
-                                        {{-- <a href="{{ route('nasabah.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a> --}}
                                         <form id="delete-form-{{ $n->id }}" action="{{ route('nasabah.destroy', $n->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
@@ -267,136 +260,24 @@
     </div>
 </div>
 
-
-
-{{-- Modal Edit  --}}
-{{-- @foreach ($nasabah as $n)
-<div class="modal fade" id="edit{{ $n->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-<div class="modal-dialog modal-lg">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">Tambah Data Nasabah</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form action="{{ route('nasabah.update', $n->id) }}" method="post" enctype="multipart/form-data">
-            @method('PUT')
-            @csrf
-            <div class="modal-body">
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" placeholder="Nama Lengkap" value="{{ $n->name }}" />
-                    <label for="floatingInput">Nama Lengkap</label>
-                    @error('name')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="number" class="form-control @error('Nik') is-invalid @enderror" id="Nik" name="Nik" placeholder="Nomor NIK" value="{{ $n->Nik }}" />
-                    <label for="floatingInput">Nomor NIK</label>
-                    @error('Nik')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <select name="jenis_kelamin" id="jenis_kelamin" class="form-control @error('jenis_kelamin') is-invalid @enderror">
-                        <option value="">-pilih-</option>
-                        <option value="Laki-laki" {{ $n->jenis_kelamin == 'Laki-laki' ? 'selected' : '' }}>
-                            Laki-Laki</option>
-                        <option value="Perempuan" {{ $n->jenis_kelamin == 'Perempuan' ? 'selected' : '' }}>
-                            Perempuan</option>
-                    </select>
-                    <label for="floatingInput">Jenis Kelamin</label>
-                    @error('jenis_kelamin')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="date" class="form-control @error('tanggal_lahir') is-invalid @enderror" id="tanggal_lahir" name="tanggal_lahir" placeholder="Tanggal Lahir" value="{{ old('tanggal_lahir') }}" />
-                    <label for="tanggal_lahir">Tanggal Lahir</label>
-                    @error('tanggal_lahir')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="number" name="no_telp" class="form-control @error('no_telp') is-invalid @enderror" id="No_telp" placeholder="No. Hp/Wa" value="{{ $n->no_telp }}" />
-                    <label for="floatingInput">No. Hp/Wa</label>
-                    @error('no_telp')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <textarea name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror" cols="30" rows="3">{{ $n->alamat }}</textarea>
-                    <label for="floatingInput">Alamat</label>
-                    @error('alamat')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="text" name="kelurahan" class="form-control @error('kelurahan') is-invalid @enderror" id="kelurahan" placeholder="Kelurahan" value="{{ $n->kelurahan }}" />
-                    <label for="floatingInput">Kelurahan</label>
-                    @error('kelurahan')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="text" name="pekerjaan" class="form-control @error('pekerjaan') is-invalid @enderror" id="pekerjaan" placeholder="Jenis Usaha" value="{{ $n->pekerjaan }}" />
-                    <label for="floatingInput">Pekerjaan</label>
-                    @error('pekerjaan')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <br>
-                <hr>
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="file" name="foto" class="form-control @error('foto') is-invalid @enderror" id="foto" />
-                    <label for="floatingInput">Foto Diri</label>
-                    <img id="fotoPreview" src="{{ old('foto', isset($n->foto) ? asset('images/' . $n->foto) : '#') }}" alt="Foto Preview" style="max-width: 200px; margin-top: 10px; display: {{ isset($n->foto) ? 'block' : 'none' }};" />
-                    @error('foto')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="file" name="ktp" class="form-control @error('ktp') is-invalid @enderror" id="ktp" />
-                    <label for="floatingInput">KTP</label>
-                    <img id="ktpPreview" src="{{ old('ktp', isset($n->ktp) ? asset('images/' . $n->ktp) : '#') }}" alt="KTP Preview" style="max-width: 200px; margin-top: 10px; display: {{ isset($n->ktp) ? 'block' : 'none' }};" />
-                    @error('ktp')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-floating form-floating-custom mb-3">
-                    <input type="file" name="kk" class="form-control @error('kk') is-invalid @enderror" id="kk" />
-                    <label for="floatingInput">Kartu Keluarga</label>
-                    <img id="kkPreview" src="{{ old('kk', isset($n->kk) ? asset('images/' . $n->kk) : '#') }}" alt="KK Preview" style="max-width: 200px; margin-top: 10px; display: {{ isset($n->kk) ? 'block' : 'none' }};" />
-                    @error('kk')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                <button type="submit" class="btn btn-success">Save</button>
-            </div>
-        </form>
-    </div>
-</div>
-</div>
-@endforeach --}}
-
 @if (session('success'))
 <script>
     Swal.fire({
         title: "Berhasil!"
         , text: "{{ session('success') }}"
         , icon: "success"
+        , confirmButtonText: "OK"
+    });
+
+</script>
+@endif
+
+@if (session('error'))
+<script>
+    Swal.fire({
+        title: "Gagal!"
+        , text: "{{ session('error') }}"
+        , icon: "error"
         , confirmButtonText: "OK"
     });
 
@@ -527,6 +408,30 @@
             }
         });
 
+    });
+
+    $('.checkbox-update').on('change', function () {
+        const checkbox = $(this);
+        const id = checkbox.data('id');
+        const field = checkbox.data('field');
+        const isChecked = checkbox.is(':checked') ? 1 : 0;
+
+        $.ajax({
+            url: `/nasabah/update-checkbox/${id}`,
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                _method: 'PUT',
+                [field]: isChecked
+            },
+            success: function (res) {
+                console.log('Berhasil update:', res);
+            },
+            error: function (err) {
+                alert('Gagal update checkbox!');
+                checkbox.prop('checked', !isChecked);
+            }
+        });
     });
 
 </script>

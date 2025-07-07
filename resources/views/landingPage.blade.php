@@ -130,13 +130,18 @@
                                     @enderror
                                 </div>
 
-                                {{-- <div class="form-floating form-floating-custom mb-3">
-                                    <textarea name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror" cols="30" rows="3">{{ old('alamat') }}</textarea>
-                                    <label for="floatingInput">Alamat</label>
-                                    @error('alamat')
+                                <div class="form-floating form-floating-custom mb-3">
+                                    <select name="kecamatan" id="kecamatan" class="form-control @error('kecamatan') is-invalid @enderror" cols="30" rows="3">
+                                        <option value="">--Pilih--</option>
+                                        <option value="Kecamatan Siborong Borong">Kecamatan Siborong Borong</option>
+                                        <option value="Kecamatan Paranginan">Kecamatan Paranginan</option>
+                                        <option value="Kecamatan Lintong Nihuta">Kecamatan Lintong Nihuta</option>
+                                    </select>
+                                    <label for="floatingInput">Kecamatan</label>
+                                    @error('kecamatan')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </div> --}}
+                                </div>
 
                                 <div class="form-floating form-floating-custom mb-3">
                                     <select name="alamat_id" id="alamat_id" class="form-control @error('alamat_id') is-invalid @enderror">
@@ -145,7 +150,7 @@
                                             <option value="{{ $a->id }}">{{ $a->alamat }}</option>
                                         @endforeach
                                     </select>
-                                    <label for="floatingInput">Alamat</label>
+                                    <label for="floatingInput">Kelurahan</label>
                                     @error('alamat_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -153,7 +158,7 @@
 
                                 <div class="form-floating form-floating-custom mb-3">
                                     <input type="text" name="kelurahan" class="form-control @error('kelurahan') is-invalid @enderror" id="kelurahan" placeholder="Kelurahan" value="{{ old('kelurahan') }}" />
-                                    <label for="floatingInput">Kelurahan</label>
+                                    <label for="floatingInput">Alamat</label>
                                     @error('kelurahan')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -314,10 +319,6 @@
                     <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center">
                         <h1 data-aos="fade-up">Selamat Datang Di Cu Saut Maju Nauli</h1>
                         <p data-aos="fade-up" data-aos-delay="100">Kami Siap Melayani Kebutuhan Anda</p>
-                        {{-- <div class="d-flex flex-column flex-md-row" data-aos="fade-up" data-aos-delay="200">
-              <a href="#about" class="btn-get-started"> <i class="bi bi-arrow-right"></i></a>
-              <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox btn-watch-video d-flex align-items-center justify-content-center ms-0 ms-md-4 mt-4 mt-md-0"><i class="bi bi-play-circle"></i><span>Watch Video</span></a>
-            </div> --}}
                     </div>
                     <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-out">
                         <img src="components/img/hero-img.png" class="img-fluid animated" alt="">
@@ -326,122 +327,8 @@
             </div>
 
         </section><!-- /Hero Section -->
-
-        <!-- About Section 
-        <section id="about" class="about section">
-
-            {{-- <div class="container" data-aos="fade-up">
-                <div class="row gx-0">
-
-                    <div class="col-lg-6 d-flex flex-column justify-content-center" data-aos="fade-up" data-aos-delay="200">
-                        <div class="content">
-                            <h3>Cu Saut Jaya Nauli</h3>
-                            <h2>Expedita voluptas omnis cupiditate totam eveniet nobis sint iste. Dolores est repellat corrupti reprehenderit.</h2>
-                            <p>
-                                Quisquam vel ut sint cum eos hic dolores aperiam. Sed deserunt et. Inventore et et dolor consequatur itaque ut voluptate sed et. Magnam nam ipsum tenetur suscipit voluptatum nam et est corrupti.
-                            </p>
-                            <div class="text-center text-lg-start">
-                                {{-- <a href="#" class="btn-read-more d-inline-flex align-items-center justify-content-center align-self-center">
-                  <span>Read More</span>
-                  <i class="bi bi-arrow-right"></i>
-                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6 d-flex align-items-center" data-aos="zoom-out" data-aos-delay="200">
-                        <img src="components/img/about.jpg" class="img-fluid" alt="">
-                    </div>
-
-                </div>
-            </div> --}}
-
-        </section>/About Section -->
-
-
-        <!-- Services Section 
-        <section id="services" class="services section">
-
-            
-            <div class="container section-title" data-aos="fade-up">
-                <h2>Layanan</h2>
-                <p>Lihat Layanan Kami<br></p>
-            </div><End Section Title -->
-
-        {{-- <div class="container">
-
-                <div class="row gy-4">
-
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                        <div class="service-item item-cyan position-relative">
-                            <i class="bi bi-activity icon"></i>
-                            <h3>Simpan Uang</h3>
-                            <p>Provident nihil minus qui consequatur non omnis maiores. Eos accusantium minus dolores iure perferendis tempore et consequatur.</p>
-                            <a href="#" class="read-more stretched-link"><span>Read More</span> <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div><!-- End Service Item -->
-
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                        <div class="service-item item-orange position-relative">
-                            <i class="bi bi-broadcast icon"></i>
-                            <h3>Pinjam Uang</h3>
-                            <p>Ut autem aut autem non a. Sint sint sit facilis nam iusto sint. Libero corrupti neque eum hic non ut nesciunt dolorem.</p>
-                            <a href="#" class="read-more stretched-link"><span>Read More</span> <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div><!-- End Service Item -->
-
-                    <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                        <div class="service-item item-teal position-relative">
-                            <i class="bi bi-easel icon"></i>
-                            <h3>Angsuran</h3>
-                            <p>Ut excepturi voluptatem nisi sed. Quidem fuga consequatur. Minus ea aut. Vel qui id voluptas adipisci eos earum corrupti.</p>
-                            <a href="#" class="read-more stretched-link"><span>Read More</span> <i class="bi bi-arrow-right"></i></a>
-                        </div>
-                    </div><!-- End Service Item -->
-                </div>
-
-            </div> --}}
-
-        {{-- </section>/Services Section --> --}}
     </main>
 
-    {{-- <footer id="footer" class="footer">
-
-        {{-- <div class="container footer-top">
-            <div class="row gy-4">
-                <div class="col-lg-4 col-md-6 footer-about">
-                    <a href="index.html" class="d-flex align-items-center">
-                        <span class="sitename">FlexStart</span>
-                    </a>
-                    <div class="footer-contact pt-3">
-                        <p>A108 Adam Street</p>
-                        <p>New York, NY 535022</p>
-                        <p class="mt-3"><strong>Phone:</strong> <span>+1 5589 55488 55</span></p>
-                        <p><strong>Email:</strong> <span>info@example.com</span></p>
-                    </div>
-                </div>
-
-                <div class="col-lg-2 col-md-3 footer-links">
-                    <h4>Useful Links</h4>
-                    <ul>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Home</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">About us</a></li>
-                        <li><i class="bi bi-chevron-right"></i> <a href="#">Services</a></li>
-                    </ul>
-                </div>
-
-            </div>
-        </div> --}}
-
-    {{-- <div class="container copyright text-center mt-4">
-            <p>© <span>Copyright</span> <strong class="px-1 sitename">CU Saut Jaya Nauli</strong> <span>All Rights Reserved</span></p>
-            <div class="credits">
-                <!-- All the links in the footer should remain intact. -->
-                <!-- You can delete the links only if you've purchased the pro version. -->
-                <!-- Licensing information: https://bootstrapmade.com/license/ -->
-                <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
-            </div>
-        </div> --}}
 
     {{-- </footer> --}}
 

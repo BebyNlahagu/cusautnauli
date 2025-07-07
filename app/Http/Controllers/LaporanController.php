@@ -21,7 +21,7 @@ class LaporanController extends Controller
         if ($request->filled('hari')) {
             $query->whereDate('created_at', $request->hari);
         }
-        $simpanan = $query->with('user')->get();
+        $simpanan = $query->with('user')->orderBy('created_at', 'desc')->get();
         return view('admin.laporan.simpanan', compact('simpanan'));
     }
 
@@ -37,7 +37,7 @@ class LaporanController extends Controller
         if ($request->filled('hari')) {
             $query->whereDate('created_at', $request->hari);
         }
-        $pinjaman = $query->with('user')->get();
+        $pinjaman = $query->with('user')->orderBy('created_at', 'desc')->get();
         return view('admin.laporan.pinjaman',compact('pinjaman'));
     }
 
@@ -53,7 +53,7 @@ class LaporanController extends Controller
         if ($request->filled('hari')) {
             $query->whereDate('created_at', $request->hari);
         }
-        $angsuran = $query->with('user')->get();
+        $angsuran = $query->with('user')->orderBy('created_at', 'desc')->get();
         return view('admin.laporan.angsuran', compact('angsuran'));
     }
 }

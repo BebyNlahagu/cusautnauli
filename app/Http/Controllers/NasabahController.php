@@ -30,15 +30,8 @@ class NasabahController extends Controller
     }
     public function addData(Request $request)
     {
-        $validKodeProvinsi = [
-            '11', '12', '13', '14', '15', '16', '17', '18', '19',
-            '21', '31', '32', '33', '34', '35', '36',
-            '51', '52', '53', '61', '62', '63', '64', '65',
-            '71', '72', '73', '74', '75', '76', '81', '82', '91', '92'
-        ];
-
-
         $request->validate([
+            "kecamatan" => "required",
             "username" => "required",
             'alamat_id' => 'required|exists:alamats,id',
             'name' => 'required',
@@ -47,7 +40,7 @@ class NasabahController extends Controller
                 'required',
                 'digits:16',
                 'numeric',
-                function ($attribute, $value, $fail) use ($request, $validKodeProvinsi) {
+                function ($attribute, $value, $fail) {
                     if (preg_match('/^(\d)\1{15}$/', $value)) {
                         session()->flash('swal_error', 'NIK tidak boleh terdiri dari angka yang sama.');
                         return $fail('NIK tidak boleh terdiri dari angka yang sama.');
@@ -111,6 +104,7 @@ class NasabahController extends Controller
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
+            'kecamatan' => $request->kecamatan,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
             'foto' => $foto ?? null,
@@ -118,24 +112,35 @@ class NasabahController extends Controller
             'kk' => $kk ?? null,
         ]);
 
-        return redirect()->back()->with('success', 'Nasabah berhasil didaftarkan!');
+        return redirect()->back()->with('success', 'pendaftaran anda berhasil, lengkapi pendaftaran selanjutnya di kantor cu saut maju nauli');
     }
 
     public function updateCheckbox(Request $request, $id)
     {
         $nasabah = User::findOrFail($id);
-        $nasabah->simpanan_wajib = $request->has('simpanan_wajib');
-        $nasabah->administrasi = $request->has('administrasi');
+
+        if ($request->has('simpanan_wajib')) {
+            $nasabah->simpanan_wajib = $request->simpanan_wajib;
+        }
+
+        if ($request->has('administrasi')) {
+            $nasabah->administrasi = $request->administrasi;
+        }
+
         $nasabah->save();
 
-        return redirect()->back()->with('success', 'Status berhasil diperbarui.');
+        return response()->json(['status' => 'success']);
     }
+
 
     public function verify($id)
     {
         $nasabah = User::findOrFail($id);
 
-        
+        if (!$nasabah->simpanan_wajib || !$nasabah->administrasi) {
+            return redirect()->back()->with('error', 'Tidak bisa verifikasi sebelum semua checkbox dicentang.');
+        }
+
         $jumlah = User::where('id')->count();
         $hariIni = str_pad($jumlah + 1, 3, '0', STR_PAD_LEFT);
 

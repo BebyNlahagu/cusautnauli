@@ -54,6 +54,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 
     Route::put('/nasabah/update-checkbox/{id}', [NasabahController::class, 'updateCheckbox'])->name('nasabah.updateCheckbox');
 
+
     Route::get('/get-pinjaman/{nasabah_id}', [AnggsuranController::class, 'getPinjaman']);
 
     Route::get('/admin/laporan/simpanan', [LaporanController::class, 'LaporanSimpanan'])->name('laporan.simpanan');

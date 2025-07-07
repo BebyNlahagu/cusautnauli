@@ -40,11 +40,15 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama</th>
+                                @if (auth()->user()->role === "Admin")
+                                    <th>Nama</th>
+                                @endif
                                 <th>Tanggal Simpanan</th>
                                 <th>Jenis Simpanan</th>
                                 <th>Jumlah Simpanan</th>
-                                <th style="width: 10%">Action</th>
+                                @if (auth()->user()->role === "Admin")
+                                    <th style="width: 10%">Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -55,25 +59,29 @@
                             @foreach ($simpanan as $s)
                             <tr>
                                 <td>{{ $no++ }}</td>
-                                <td>{{ $s->user->name }}</td>
+                                @if (auth()->user()->role === "Admin")
+                                    <td>{{ $s->user->name }}</td>
+                                @endif
                                 <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
                                 <td>{{ $s->jenis_simpanan}}</td>
                                 <td class="text-end bold">Rp {{ number_format($s->jumlah_simpanan, 0, ',', '.') }}</td>
                                 <td>
-                                    <div class="form-button-action">
-                                        <a href="{{ route('simpanan.edit', $s->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $s->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
-                                        <form id="delete-form-{{ $s->id }}" action="{{ route('simpanan.destroy', $s->id) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $s->id }})"><i class="fa fa-times"></i></button>
-                                        </form>
-                                    </div>
+                                    @if (auth()->user()->role === "Admin")
+                                        <div class="form-button-action">
+                                            <a href="{{ route('simpanan.edit', $s->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $s->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
+                                            <form id="delete-form-{{ $s->id }}" action="{{ route('simpanan.destroy', $s->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $s->id }})"><i class="fa fa-times"></i></button>
+                                            </form>
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
                         <tfoot>
                             <tr>
-                                <td colspan="4" class="text-center">Jumlah Kapitalisasi</td>
+                               <td colspan="{{ Auth::user()->role === 'Admin' ? 4 : 3 }}" class="text-center">Jumlah Kapitalisasi</td>
                                 <td class="text-end">Rp {{ number_format($kapitalisasi, 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
