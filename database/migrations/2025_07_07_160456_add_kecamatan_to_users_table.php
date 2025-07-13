@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum("kecamatan",["Kecamatan Siborong Borong","Kecamatan Paranginan","Kecamatan Lintong Nihuta"])->after("pekerjaan");
+            $table->enum("kecamatan",["Kecamatan Siborong Borong","Kecamatan Paranginan","Kecamatan Lintong Nihuta"])->nullable()->after("pekerjaan");
         });
     }
 
