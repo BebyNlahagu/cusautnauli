@@ -2,7 +2,10 @@
 @section('title', 'Data Simpanan')
 @section('bread')
 <div class="page-header">
-    <h3 class="fw-bold mb-3">@yield('title')</h3>
+    <h3 class="fw-bold mb-3"> @if(Auth::check() && Auth::user()->role === 'User')
+        {{ Auth::user()->nm_koperasi }}
+        @endif
+    </h3>
     <ul class="breadcrumbs mb-3">
         <li class="nav-home">
             <a href="{{ route('home') }}">
@@ -43,7 +46,7 @@
                                 @if (auth()->user()->role === "Admin")
                                     <th>Nama</th>
                                 @endif
-                                <th>Tanggal Simpanan</th>
+                                <th>Tanggal Transaksi</th>
                                 <th>Jenis Simpanan</th>
                                 <th>Jumlah Simpanan</th>
                                 @if (auth()->user()->role === "Admin")

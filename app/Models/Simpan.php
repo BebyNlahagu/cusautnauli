@@ -11,4 +11,11 @@ class Simpan extends Model
 
     protected $table = 'simpans';
     protected $guarded = [];
+
+    public $timestamps = true;
+
+    public function user()
+    {
+        return $this->belongsTo(Simpan::class,'user_id');
+    }
 }

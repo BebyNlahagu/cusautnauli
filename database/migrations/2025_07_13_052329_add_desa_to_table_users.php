@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alamats', function (Blueprint $table) {
-            $table->id();
-            $table->string("alamat")->nullable();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->string("desa")->after('kecamatan');
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alamats');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn("desa");
+        });
     }
 };

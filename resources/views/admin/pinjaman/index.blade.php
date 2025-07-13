@@ -40,7 +40,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">@yield('title')</h4>
-                @if (auth()->user()->role == "Admin")
+                @if (auth()->user()->role == "User")
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
                 @endif
             </div>
@@ -52,14 +52,14 @@
                                 <th>No</th>
                                 <th>Tanggal</th>
                                 @if (auth()->user()->role === "Admin")
-                                    <th>No. NIK</th>
-                                    <th>Nama</th>
+                                <th>No. NIK</th>
+                                <th>Nama</th>
                                 @endif
                                 <th>Jumlah Pinjaman</th>
                                 <th>Tenor</th>
                                 <th>Bunga</th>
                                 @if (auth()->user()->role === "Admin")
-                                    <th style="width: 10%">Action</th>
+                                <th style="width: 10%">Action</th>
                                 @endif
                             </tr>
                         </thead>
@@ -73,22 +73,42 @@
                                 <td>{{ $no++ }}</td>
                                 <td>{{ \Carbon\Carbon::parse($n->created_at)->translatedFormat('l, d F Y') }}</td>
                                 @if (auth()->user()->role === "Admin")
-                                    <td>{{ $n->nasabah->Nik }}</td>
-                                    <td>{{ $n->nasabah->name }}</td>
+                                <td>{{ $n->nasabah->Nik }}</td>
+                                <td>{{ $n->nasabah->name }}</td>
                                 @endif
                                 <td>Rp {{ number_format((float) $n->jumlah_pinjaman, 0, ',', '.') }}</td>
                                 <td>{{ $n->lama_pinjaman }}</td>
                                 <td>{{ $n->bunga_pinjaman }} %</td>
                                 <td>
                                     @if (auth()->user()->role === "Admin")
-                                        <div class="form-button-action">
-                                            <a href="{{ route('pinjaman.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
-                                            <form id="delete-form-{{ $n->id }}" action="{{ route('pinjaman.destroy', $n->id) }}" method="POST">
+                                    <div class="form-button-action">
+                                        <a href="{{ route('pinjaman.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
+                                        @if ($status === 'Pending')
+                                            <form action="{{ route('pengajuan.status', $pinjaman->id) }}" method="POST" style="display: inline;">
                                                 @csrf
-                                                @method('DELETE')
-                                                <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $n->id }})"><i class="fa fa-times"></i></button>
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="disetujui">
+                                                <button type="submit" class="btn btn-sm btn-success">✅ Approve</button>
                                             </form>
-                                        </div>
+
+                                            <form action="{{ route('pengajuan.status', $pinjaman->id) }}" method="POST" style="display: inline;">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="status" value="ditolak">
+                                                <button type="submit" class="btn btn-sm btn-danger">❌ Reject</button>
+                                            </form>
+                                        @else
+                                            <span class="badge 
+                                                {{ $status === 'Disetujui' ? 'bg-success' : ($status === 'Ditolak' ? 'bg-danger' : 'bg-secondary') }}">
+                                                {{ ucfirst($status) }}
+                                            </span>
+                                        @endif
+                                        <form id="delete-form-{{ $n->id }}" action="{{ route('pinjaman.destroy', $n->id) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $n->id }})"><i class="fa fa-times"></i></button>
+                                        </form>
+                                    </div>
                                     @endif
                                 </td>
                             </tr>
@@ -112,19 +132,32 @@
                 @csrf
                 <div class="modal-body">
                     <!-- NIK Nasabah -->
+                    @php
+                        $user = auth()->user();
+                        $isAdmin = $user->role === 'Admin'; // sesuaikan sesuai sistem role kamu
+                    @endphp
+
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">Pilih Nomor Anggota</option>
+                            
                             @if (isset($nasabah) && $nasabah->isNotEmpty())
-                            @foreach ($nasabah->where('status','Verify') as $n)
-                            <option value="{{ $n->id }}" data-nik="{{ $n->nmr_anggota ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nmr_anggota }}</option>
-                            @endforeach
+                                @foreach ($nasabah->where('status','Verify') as $n)
+                                    @if ($isAdmin)
+                                        <option value="{{ $n->id }}" data-nik="{{ $n->nm_koperasi ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nm_koperasi }}</option>
+                                    @else
+                                        @if ($n->id == $user->id)
+                                            <option value="{{ $n->id }}" data-nik="{{ $n->nm_koperasi ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nm_koperasi }}</option>
+                                        @endif
+                                    @endif
+                                @endforeach
                             @else
-                            <p>Tidak ada Data</p>
+                                <option disabled>Tidak ada Data</option>
                             @endif
                         </select>
                         <label for="user_id">Pilih Nomor Anggota</label>
                     </div>
+
 
                     <!-- Nama Nasabah -->
                     <div class="form-floating form-floating-custom mb-3">
@@ -272,23 +305,14 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-
-                    {{-- <div class="form-floating form-floating-custom mb-3">
-                        <input type="number" name="adm" class="form-control @error('adm') is-invalid @enderror" id="adm"
-                            placeholder="Administrasi" value="{{ old('adm', $n->adm) }}" />
-                    <label for="adm">Administrasi</label>
-                    @error('adm')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div> --}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success">Save Changes</button>
-        </div>
-        </form>
     </div>
-</div>
 </div>
 @endforeach
 

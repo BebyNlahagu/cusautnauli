@@ -63,15 +63,15 @@
     </header>
 
     <main class="main">
-        {{-- @if ($errors->any())
+        @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
                 @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        @endforeach
+        </ul>
         </div>
-        @endif --}}
+        @endif
 
         <div class="modal fade" id="add" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -144,14 +144,11 @@
                                 </div>
 
                                 <div class="form-floating form-floating-custom mb-3">
-                                    <select name="alamat_id" id="alamat_id" class="form-control @error('alamat_id') is-invalid @enderror">
-                                        <option value="">-pilih-</option>
-                                        @foreach ($alamat as $a)
-                                            <option value="{{ $a->id }}">{{ $a->alamat }}</option>
-                                        @endforeach
+                                    <select name="desa" id="desa" class="form-control @error('desa') is-invalid @enderror">
+                                        {{-- <option value="">-- Pilih Desa --</option> --}}
                                     </select>
                                     <label for="floatingInput">Kelurahan</label>
-                                    @error('alamat_id')
+                                    @error('desa')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
@@ -229,7 +226,7 @@
                 </div>
             </div>
         </div>
-        
+
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         @if(session('success'))
@@ -247,14 +244,16 @@
         @if(session('swal_error'))
         <script>
             Swal.fire({
-                icon: 'error',
-                title: 'Validasi NIK Gagal',
-                text: '{{ session('swal_error') }}',
-                confirmButtonColor: '#d33'
+                icon: 'error'
+                , title: 'Validasi NIK Gagal'
+                , text: '{{ session('
+                swal_error ') }}'
+                , confirmButtonColor: '#d33'
             });
+
         </script>
         @endif
-        
+
         <script>
             $(document).ready(function() {
                 $("#Nik").on("input", function() {
@@ -305,6 +304,47 @@
                             , text: 'Umur harus minimal 17 tahun'
                         , });
                     }
+                });
+
+                const desaMap = {
+                    "Kecamatan Paranginan": [
+                        "Desa Paranginan Selatan"
+                        , "Desa Siborutorop"
+                        , "Desa Lumban Sialaman"
+                        , "Desa Lumban Barat"
+                        , "Desa Lobu Tolong"
+                        , "Desa Sihonongan"
+                        , "Desa Paranginan Utara"
+                        , "Desa Pearung"
+                        , "Desa Paerung Silali"
+                        , "Desa Lumban Sianturi"
+                        , "Desa Lobutolong Habinsaran"
+                    ]
+                    , "Kecamatan Lintong Nihuta": [
+                        "Desa Nagasaribu I"
+                        , "Desa Nagasaribu II"
+                        , "Desa Nagasaribu III"
+                        , "Desa Nagasaribu IV"
+                        , "Desa Nagasaribu V"
+                        , "Desa Sigompul"
+                        , "Desa Pargaulan"
+                    ]
+                    , "Kecamatan Siborong Borong": [
+                        "Desa Siborong Borong"
+                        , "Desa Sitampurung"
+                        , "Desa Sigalingging"
+                    ]
+                };
+
+
+                $('#kecamatan').on('change', function() {
+                    const selectedKec = $(this).val();
+                    const desaList = desaMap[selectedKec] || [];
+
+                    $('#desa').html('<option value="">-- Pilih Desa --</option>');
+                    desaList.forEach(function(desa) {
+                        $('#desa').append(`<option value="${desa}">${desa}</option>`);
+                    });
                 });
             })
 
@@ -416,7 +456,7 @@
                 }
             });
 
-            
+
         });
 
     </script>

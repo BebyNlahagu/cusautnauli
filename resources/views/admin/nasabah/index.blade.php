@@ -53,8 +53,9 @@
                                 <th>Jenis Kelamin</th>
                                 <th>Tanggal Lahir</th>
                                 <th>No. HP/Wa</th>
-                                <th>Kelurahan</th>
                                 <th>Pekerjaan</th>
+                                <th>Kecamatan</th>
+                                <th>Kelurahan</th>
                                 <th>Alamat</th>
                                 <th>Foto Diri</th>
                                 <th>Foto KTP</th>
@@ -80,9 +81,10 @@
                                 <td>{{ \Carbon\Carbon::parse($n->tanggal_lahir)->translatedFormat('l, d F Y') }}
                                 </td>
                                 <td>{{ $n->no_telp }}</td>
-                                <td>{{ $n->kelurahan }}</td>
                                 <td>{{ $n->pekerjaan }}</td>
-                                <td>{{ $n->alamat->alamat }}</td>
+                                <td>{{ $n->kecamatan }}</td>
+                                <td>{{ $n->desa }}</td>
+                                <td>{{ $n->kelurahan }}</td>
                                 <td>
                                     @if($n->foto)
                                     <a href="{{ Storage::url('images/' . $n->foto) }}" target="_blank">
@@ -157,8 +159,9 @@
                                 <th>Jenis Kelamin</th>
                                 <th>Tanggal Lahir</th>
                                 <th>No. HP/Wa</th>
-                                <th>Kelurahan</th>
                                 <th>Pekerjaan</th>
+                                <th>Kecamatan</th>
+                                <th>Kelurahan</th>
                                 <th>Alamat</th>
                                 <th>Foto Diri</th>
                                 <th>Foto KTP</th>
@@ -182,9 +185,10 @@
                                 <td>{{ \Carbon\Carbon::parse($n->tanggal_lahir)->translatedFormat('l, d F Y') }}
                                 </td>
                                 <td>{{ $n->no_telp }}</td>
-                                <td>{{ $n->kelurahan }}</td>
                                 <td>{{ $n->pekerjaan }}</td>
-                                <td>{{ $n->alamat->alamat }}</td>
+                                <td>{{ $n->kecamatan }}</td>
+                                <td>{{ $n->desa }}</td>
+                                <td>{{ $n->kelurahan }}</td>
                                 <td>
                                     @if($n->foto)
                                     <a href="{{ Storage::url('images/' . $n->foto) }}" target="_blank">

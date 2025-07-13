@@ -9,6 +9,7 @@ use App\Http\Controllers\PdfController;
 use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PinjamanController;
 use App\Http\Controllers\SimpananController;
+use App\Http\Controllers\SimpanController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,12 +37,12 @@ Route::post('/notifications/{id}/mark-as-read', function ($id) {
 })->name('notifications.read');
 
 
-Route::get('/alamat', [AlamatController::class,"index"])->name("alamat.index");
-Route::post('/alamat',[AlamatController::class, "store"])->name("alamat.store");
+Route::get('/alamat', [AlamatController::class, "index"])->name("alamat.index");
+Route::post('/alamat', [AlamatController::class, "store"])->name("alamat.store");
 
-Route::get('/nasabah',[NasabahController::class,'create'])->name("create");
-Route::post('/nasabah',[NasabahController::class, 'addData'])->name('addNasabah');
-Route::get('/',[Daftar::class,'index']);
+Route::get('/nasabah', [NasabahController::class, 'create'])->name("create");
+Route::post('/nasabah', [NasabahController::class, 'addData'])->name('addNasabah');
+Route::get('/', [Daftar::class, 'index']);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
 Route::middleware(['auth', 'role:Admin'])->group(function () {
@@ -53,7 +54,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::resource('/admin/petugas', PetugasController::class);
 
     Route::put('/nasabah/update-checkbox/{id}', [NasabahController::class, 'updateCheckbox'])->name('nasabah.updateCheckbox');
-
+    Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
 
     Route::get('/get-pinjaman/{nasabah_id}', [AnggsuranController::class, 'getPinjaman']);
 
@@ -65,11 +66,10 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/pdf/pinjaman', [PdfController::class, 'pinjamanPdf'])->name('pdf.pinjaman');
     Route::get('/admin/pdf/angsuran', [PdfController::class, 'angsuranPdf'])->name('pdf.angsuran');
 
-    Route::post('/admin/nasabah/{id}',[NasabahController::class,'verify'])->name('nasabah.verify');
+    Route::post('/admin/nasabah/{id}', [NasabahController::class, 'verify'])->name('nasabah.verify');
     Route::post('/angsuran/update-status/{id}', [AnggsuranController::class, 'updateStatus'])->name('angsuran.updateStatus');
     Route::get('/get-max-pinjaman/{nasabah_id}', [PinjamanController::class, 'getMaxPinjaman'])->name('pinjaman.getMaxPinjaman');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
-
 });
 
 Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(function () {
@@ -91,7 +91,8 @@ Route::middleware(['auth', 'role:User,Admin'])->prefix('admin')->group(function 
     Route::resource('/admin/angsuran', AnggsuranController::class);
     Route::resource('/admin/simpanan', SimpananController::class);
     Route::resource('/admin/petugas', PetugasController::class);
-    Route::get("/profil",[Daftar::class,'profil'])->name("user.profil");
-    Route::get("/profil/edit",[Daftar::class,'edit'])->name('user.edit');
-    Route::Put('/profil/{id}',[Daftar::class,'update'])->name('user.update');
+    Route::get("/profil", [Daftar::class, 'profil'])->name("user.profil");
+    Route::get("/profil/edit", [Daftar::class, 'edit'])->name('user.edit');
+    Route::Put('/profil/{id}', [Daftar::class, 'update'])->name('user.update');
+    Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
 });

@@ -16,8 +16,8 @@
             {{-- Notifikasi khusus untuk User --}}
             @if(Auth::user()->role === 'User')
             @php
-            $unreadNotifications = Auth::user()->unreadNotifications;
-            $unreadCount = $unreadNotifications->count();
+                $unreadNotifications = Auth::user()->unreadNotifications;
+                $unreadCount = $unreadNotifications->count();
             @endphp
 
             <li class="nav-item dropdown">
@@ -35,8 +35,10 @@
 
                     @forelse ($unreadNotifications as $notification)
                     <li class="dropdown-item notification-item" data-id="{{ $notification->id }}" style="cursor: pointer;">
-                        <small class="text-muted">{{ \Carbon\Carbon::parse($notification->data['time'])->diffForHumans() }}</small><br>
+                        <div class="text-box">
+                            <small class="text-muted">{{ \Carbon\Carbon::parse($notification->data['time'])->diffForHumans() }}</small><br>
                         {{ $notification->data['message'] }}
+                        </div>
                     </li>
                     <li>
                         <hr class="dropdown-divider">

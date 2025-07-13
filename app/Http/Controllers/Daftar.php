@@ -24,7 +24,6 @@ class Daftar extends Controller
    public function update(Request $request, $id)
     {
         $request->validate([
-            'alamat_id' => 'nullable|exists:alamats,id',
             'name' => 'nullable|string|max:255',
             'Nik' => 'nullable',
             'no_telp' => 'nullable',
@@ -33,14 +32,13 @@ class Daftar extends Controller
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'kk' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'alamat' => 'nullable',
+            'kecamatan' => 'nullable',
+            'desa' => 'nullable',
             'kelurahan' => 'nullable',
             'pekerjaan' => 'nullable',
         ]);
 
         $nasabah = User::findOrFail($id);
-
-        // Proses foto
         if ($request->hasFile('foto')) {
             if ($nasabah->foto && file_exists(public_path('images/' . $nasabah->foto))) {
                 unlink(public_path('images/' . $nasabah->foto));
@@ -51,7 +49,6 @@ class Daftar extends Controller
             $foto = $nasabah->foto;
         }
 
-        // Proses ktp
         if ($request->hasFile('ktp')) {
             if ($nasabah->ktp && file_exists(public_path('images/' . $nasabah->ktp))) {
                 unlink(public_path('images/' . $nasabah->ktp));
@@ -62,7 +59,6 @@ class Daftar extends Controller
             $ktp = $nasabah->ktp;
         }
 
-        // Proses kk
         if ($request->hasFile('kk')) {
             if ($nasabah->kk && file_exists(public_path('images/' . $nasabah->kk))) {
                 unlink(public_path('images/' . $nasabah->kk));
@@ -79,7 +75,8 @@ class Daftar extends Controller
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->filled('jenis_kelamin') ? $request->jenis_kelamin : $nasabah->jenis_kelamin,
             'tanggal_lahir' => $request->filled('tanggal_lahir') ? $request->tanggal_lahir : $nasabah->tanggal_lahir,
-            'alamat_id' => $request->alamat_id,
+            'kecamatan' => $request->kecamatan,
+            'desa' => $request->desa,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
             'foto' => $foto,

@@ -16,71 +16,76 @@ class PinjamanController extends Controller
 {
    public function index()
    {
-   
+
       $nasabah = User::all();
 
-      if(auth()->user()->role == "Admin")
-      {
+      if (auth()->user()->role == "Admin") {
          $pinjaman = Pinjaman::all();
-      }else
-      {
-        $pinjaman = Pinjaman::where('user_id', auth()->user()->user_id)->get();
+      } else {
+         $pinjaman = Pinjaman::where('user_id', auth()->user()->user_id)->get();
       }
       return view('admin.pinjaman.index', compact('pinjaman', 'nasabah'));
    }
 
    public function checkEligibility($user_id)
    {
-      $nasabah = User::find($user_id);
+      try {
+         $nasabah = User::find($user_id);
 
-      if (!$nasabah) {
-         return response()->json(['error' => 'Nasabah tidak ditemukan.'], 404);
-      }
+         if (!$nasabah) {
+            return response()->json(['error' => 'Nasabah tidak ditemukan.'], 404);
+         }
 
-      $selisih_bulan = Carbon::parse($nasabah->created_at)->diffInMonths(now());
+         $selisih_bulan = Carbon::parse($nasabah->created_at)->diffInMonths(now());
 
-      if ($selisih_bulan < 6) {
+         if ($selisih_bulan < 6) {
+            return response()->json([
+               'status' => 'not_eligible',
+               'message' => 'Nasabah belum bergabung minimal 6 bulan.',
+            ]);
+         }
+
+         if (!$nasabah->tanggal_lahir) {
+            return response()->json(['error' => 'Data tanggal lahir tidak tersedia.'], 422);
+         }
+
+         $umur = Carbon::parse($nasabah->tanggal_lahir)->diffInYears(now());
+         if ($umur < 17) {
+            return response()->json([
+               'status' => 'not_eligible',
+               'message' => 'Nasabah belum berumur 17 tahun.',
+            ]);
+         }
+
+         $adaAngsuranBelumLunas = DB::table('angsuran')
+            ->join('pinjaman', 'angsuran.pinjaman_id', '=', 'pinjaman.id')
+            ->where('pinjaman.user_id', $nasabah->id)
+            ->where('angsuran.status', '!=', 'Lunas')
+            ->exists();
+
+         if ($adaAngsuranBelumLunas) {
+            return response()->json([
+               'status' => 'not_eligible',
+               'message' => 'Nasabah masih memiliki angsuran yang belum lunas.'
+            ]);
+         }
+
+         $total_simpanan = Simpanan::where('user_id', $nasabah->id)->sum('jumlah_simpanan');
+         $jumlah_pinjaman = $total_simpanan * 5;
+         $bunga_pinjaman = 3;
+
          return response()->json([
-            'status' => 'not_eligible',
-            'message' => 'Nasabah belum bergabung minimal 6 bulan.',
+            'status' => 'eligible',
+            'nama_nasabah' => $nasabah->name,
+            'jumlah_pinjaman' => $jumlah_pinjaman,
+            'bunga_pinjaman' => $bunga_pinjaman,
+            'umur' => $umur,
+            'lama_gabung_bulan' => $selisih_bulan,
+            'angsuran' => $adaAngsuranBelumLunas,
          ]);
+      } catch (\Exception $e) {
+         return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
       }
-
-      $umur = Carbon::parse($nasabah->tanggal_lahir)->diffInYears(now());
-      if ($umur < 17) {
-         return response()->json([
-            'status' => 'not_eligible',
-            'message' => 'Nasabah belum berumur 17 tahun.',
-         ]);
-      }
-
-      $adaAngsuranBelumLunas = DB::table('angsuran')
-         ->join('pinjaman', 'angsuran.pinjaman_id', '=', 'pinjaman.id')
-         ->where('pinjaman.user_id', $nasabah->id)
-         ->where('angsuran.status', '!=', 'Lunas')
-         ->exists();
-
-      if ($adaAngsuranBelumLunas) {
-         return response()->json([
-            'status' => 'not_eligible',
-            'message' => 'Nasabah masih memiliki angsuran yang belum lunas.'
-         ]);
-      }
-
-
-      $total_simpanan = Simpanan::where('user_id', $nasabah->id)->sum('jumlah_simpanan');
-      $jumlah_pinjaman = $total_simpanan * 5;
-      $bunga_pinjaman = 3;
-
-      return response()->json([
-         'status' => 'eligible',
-         'nama_nasabah' => $nasabah->name,
-         'jumlah_pinjaman' => $jumlah_pinjaman,
-         'bunga_pinjaman' => $bunga_pinjaman,
-         'umur' => $umur,
-         'lama_gabung_bulan' => $selisih_bulan,
-         'angsuran' => $adaAngsuranBelumLunas,
-      ]);
    }
 
    public function store(Request $request)

@@ -29,6 +29,22 @@ class SimpananController extends Controller
     }
 
 
+    public function getUserSimpanan($id)
+    {
+        $simpans = Simpan::where('user_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($simpan) {
+                return [
+                    'nama_simpanan' => $simpan->nama_simpanan,
+                    'besar_simpanan' => number_format($simpan->besar_simpanan, 0, ',', '.'),
+                    'tanggal' => $simpan->created_at->translatedFormat('d F Y'),
+                ];
+            });
+
+        return response()->json(['simpans' => $simpans]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

@@ -32,8 +32,9 @@ class NasabahController extends Controller
     {
         $request->validate([
             "kecamatan" => "required",
+            'desa' => 'required',
             "username" => "required",
-            'alamat_id' => 'required|exists:alamats,id',
+            // 'alamat_id' => 'required|exists:alamats,id',
             'name' => 'required',
             "email" => "nullable",
             'Nik' => [
@@ -95,9 +96,10 @@ class NasabahController extends Controller
 
         User::create([
             'username' => $request->username,
+            'desa' => $request->desa,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'alamat_id' => $request->alamat_id,
+            // 'alamat_id' => $request->alamat_id,
             'name' => $request->name,
             'nmr_anggota' => $nmr_anggota,
             'Nik' => $request->Nik,
@@ -141,10 +143,20 @@ class NasabahController extends Controller
             return redirect()->back()->with('error', 'Tidak bisa verifikasi sebelum semua checkbox dicentang.');
         }
 
-        $jumlah = User::where('id')->count();
-        $hariIni = str_pad($jumlah + 1, 3, '0', STR_PAD_LEFT);
+        $lastUser = User::whereNotNull('nm_koperasi')
+            ->where('nm_koperasi', 'like', 'AGT-%')
+            ->orderByDesc('nm_koperasi')
+            ->first();
 
-        $nmr_anggota = "AGT-{$hariIni}";
+        if ($lastUser && preg_match('/AGT-(\d+)/', $lastUser->nm_koperasi, $match)) {
+            $lastNumber = (int) $match[1];
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $next = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $nmr_anggota = "AGT-{$next}";
 
         $nasabah->status = 'Verify';
         $nasabah->nm_koperasi = $nmr_anggota;

@@ -98,24 +98,44 @@
                                 {{-- <div class="invalid-feedback">{{ $message }}</div> --}}
                             @enderror
                         </div>
-                        
+
                         <div class="form-floating form-floating-custom mb-3">
-                            <select name="alamat_id" id="alamat_id" class="form-control @error('alamat_id') is-invalid @enderror">
-                                <option value="">-pilih-</option>
-                                @foreach ($alamat as $a)
-                                    <option value="{{ $a->id }}"
-                                        {{ (old('alamat_id', $user->alamat_id ?? '') == $a->id) ? 'selected' : '' }}>
-                                        {{ $a->alamat }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <label for="floatingInput">Alamat</label>
-                            @error('alamat_id')
-                                {{-- <div class="invalid-feedback">{{ $message }}</div> --}}
+                            <input type="text" disabled name="pekerjaan" class="form-control @error('pekerjaan') is-invalid @enderror"
+                                id="pekerjaan" placeholder="Jenis Usaha" value="{{ $user->pekerjaan }}" />
+                            <label for="floatingInput">Pekerjaan</label>
+                            @error('pekerjaan')
                             @enderror
                         </div>
 
-            
+
+                        <div class="form-floating form-floating-custom mb-3">
+                            @php
+                                $selectedKecamatan = old('kecamatan', $data->kecamatan ?? '');
+                                $selectedDesa = old('desa', $data->desa ?? '');
+                            @endphp
+                            <select name="kecamatan" id="kecamatan" class="form-control @error('kecamatan') is-invalid @enderror">
+                                <option value="">--Pilih--</option>
+                                <option value="Kecamatan Siborong Borong" {{ $selectedKecamatan == 'Kecamatan Siborong Borong' ? 'selected' : '' }}>Kecamatan Siborong Borong</option>
+                                <option value="Kecamatan Paranginan" {{ $selectedKecamatan == 'Kecamatan Paranginan' ? 'selected' : '' }}>Kecamatan Paranginan</option>
+                                <option value="Kecamatan Lintong Nihuta" {{ $selectedKecamatan == 'Kecamatan Lintong Nihuta' ? 'selected' : '' }}>Kecamatan Lintong Nihuta</option>
+                            </select>
+                            <label for="kecamatan">Kecamatan</label>
+                            @error('kecamatan')
+                            {{-- <div class="invalid-feedback">{{ $message }}</div> --}}
+                            @enderror
+                        </div>
+
+                        <div class="form-floating form-floating-custom mb-3">
+                            <select name="desa" id="desa" class="form-control @error('desa') is-invalid @enderror">
+                                {{-- Ajax --}}
+                            </select>
+                            <label for="desa">Desa</label>
+                            @error('desa')
+                            {{-- <div class="invalid-feedback">{{ $message }}</div> --}}
+                            @enderror
+                        </div>
+
+
                         <div class="form-floating form-floating-custom mb-3">
                             <input type="text" name="kelurahan" class="form-control @error('kelurahan') is-invalid @enderror"
                                 id="kelurahan" placeholder="Kelurahan" value="{{ $user->kelurahan }}" />
@@ -123,56 +143,10 @@
                             @error('kelurahan')
                                 {{-- <div class="invalid-feedback">{{ $message }}</div> --}}
                             @enderror
-                        </div>
-            
-                        <div class="form-floating form-floating-custom mb-3">
-                            <input type="text" disabled name="pekerjaan" class="form-control @error('pekerjaan') is-invalid @enderror"
-                                id="pekerjaan" placeholder="Jenis Usaha" value="{{ $user->pekerjaan }}" />
-                            <label for="floatingInput">Pekerjaan</label>
-                            @error('pekerjaan')
-                                {{-- <div class="invalid-feedback">{{ $message }}</div> --}}
-                            @enderror
-                        </div>
-                    
-                        {{-- <div class="form-floating form-floating-custom mb-3">
-                            <input type="file" name="foto" disabled class="form-control @error('foto') is-invalid @enderror"
-                                id="foto" />
-                            <label for="floatingInput">Foto Diri</label>
-                            <img id="fotoPreview" src="{{ old('foto', isset($user->foto) ? asset('images/' . $user->foto) : '#') }}"
-                                alt="Foto Preview"
-                                style="max-width: 200px; margin-top: 10px; display: {{ isset($user->foto) ? 'block' : 'none' }};" />
-                            @error('foto')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-            
-                        <div class="form-floating form-floating-custom mb-3">
-                            <input type="file" disabled name="ktp" class="form-control @error('ktp') is-invalid @enderror"
-                                id="ktp" />
-                            <label for="floatingInput">KTP</label>
-                            <img id="ktpPreview" src="{{ old('ktp', isset($user->ktp) ? asset('images/' . $user->ktp) : '#') }}"
-                                alt="KTP Preview"
-                                style="max-width: 200px; margin-top: 10px; display: {{ isset($user->ktp) ? 'block' : 'none' }};" />
-                            @error('ktp')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-            
-                        <div class="form-floating form-floating-custom mb-3">
-                            <input type="file" disabled name="kk" class="form-control @error('kk') is-invalid @enderror"
-                                id="kk" />
-                            <label for="floatingInput">Kartu Keluarga</label>
-                            <img id="kkPreview" src="{{ old('kk', isset($user->kk) ? asset('images/' . $user->kk) : '#') }}"
-                                alt="KK Preview"
-                                style="max-width: 200px; margin-top: 10px; display: {{ isset($user->kk) ? 'block' : 'none' }};" />
-                            @error('kk')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div> --}}
-
+                        </div>                    
                     </div>
                     <div class="card-footer">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        {{-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button> --}}
                         <button type="submit" class="btn btn-success">Save</button>
                     </div>
                     </div>
@@ -180,4 +154,49 @@
             </div>
         @endif
     </div>
+
+    <script>
+        const desaMap = {
+            "Kecamatan Paranginan": [
+                "Desa Paranginan Selatan", "Desa Siborutorop", "Desa Lumban Sialaman", "Desa Lumban Barat",
+                "Desa Lobu Tolong", "Desa Sihonongan", "Desa Paranginan Utara", "Desa Pearung",
+                "Desa Paerung Silali", "Desa Lumban Sianturi", "Desa Lobutolong Habinsaran"
+            ],
+            "Kecamatan Lintong Nihuta": [
+                "Desa Nagasaribu I", "Desa Nagasaribu II", "Desa Nagasaribu III", "Desa Nagasaribu IV",
+                "Desa Nagasaribu V", "Desa Sigompul", "Desa Pargaulan"
+            ],
+            "Kecamatan Siborong Borong": [
+                "Desa Siborong Borong", "Desa Sitampurung", "Desa Sigalingging"
+            ]
+        };
+
+        $(document).ready(function(){
+            const kecamatanSelect = $('#kecamatan');
+            const desaSelect = $('#desa');
+
+            const selectedKecamatan = "{{ $selectedKecamatan }}";
+            const selectedDesa = "{{ $selectedDesa }}";
+
+            function populateDesa(kecamatan, selected = '') {
+                desaSelect.empty().append('<option value="">-- Pilih Desa --</option>');
+                if (desaMap[kecamatan]) {
+                    desaMap[kecamatan].forEach(function(desa) {
+                        const isSelected = desa === selected ? 'selected' : '';
+                        desaSelect.append(`<option value="${desa}" ${isSelected}>${desa}</option>`);
+                    });
+                }
+            }
+
+            if (selectedKecamatan) {
+                kecamatanSelect.val(selectedKecamatan);
+                populateDesa(selectedKecamatan, selectedDesa);
+            }
+
+            kecamatanSelect.on('change', function () {
+                const selected = $(this).val();
+                populateDesa(selected);
+            });
+        });
+    </script>
 @endsection
