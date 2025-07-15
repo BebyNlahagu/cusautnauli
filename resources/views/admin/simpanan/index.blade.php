@@ -66,8 +66,8 @@
                                 @endif
                                 <td>{{ $s['tanggal_transaksi'] }}</td>
                                 <td>Rp {{ number_format($s['total_simpanan'], 0, ',', '.') }}</td>
+                                @if (auth()->user()->role === "Admin")
                                 <td>
-                                    @if (auth()->user()->role === "Admin")
                                     <div class="form-button-action">
                                         {{-- <a href="{{ route('simpanan.edit', $s['user']->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $s['user']->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a> --}}
                                         <form id="delete-form-{{ $s['user']->id }}" action="{{ route('simpanan.destroyByUser', ['user_id' => $s['user']->id]) }}" method="POST" style="display:inline;">
@@ -78,13 +78,15 @@
                                             </button>
                                         </form>
                                     </div>
-                                    @endif
                                 </td>
+                                @endif
                             </tr>
                             @endforeach
                         <tfoot>
                             <tr>
-                                <td colspan="{{ Auth::user()->role === 'Admin' ? 3 : 2 }}" class="text-center">Jumlah Kapitalisasi</td>
+                                <td colspan="{{ auth()->check() && auth()->user()->role === 'Admin' ? 3 : 2 }}" class="text-center">
+                                    Jumlah Kapitalisasi
+                                </td>
                                 <td class="text-end">Rp {{ number_format($kapitalisasi, 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
