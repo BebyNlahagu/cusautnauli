@@ -33,12 +33,13 @@ class LaporanController extends Controller
                 'jumlah_transaksi' => $items->count(),
             ];
         });
-        return view('admin.laporan.simpanan', compact('simpanan','groupedSimpanan'));
+        return view('admin.laporan.simpanan', compact('simpanan', 'groupedSimpanan'));
     }
 
     public function LaporanPinjaman(Request $request)
     {
         $query = Pinjaman::query();
+
         if ($request->filled('bulan')) {
             $query->whereMonth('created_at', $request->bulan);
         }
@@ -48,9 +49,20 @@ class LaporanController extends Controller
         if ($request->filled('hari')) {
             $query->whereDate('created_at', $request->hari);
         }
+
         $pinjaman = $query->with('user')->orderBy('created_at', 'desc')->get();
-        return view('admin.laporan.pinjaman', compact('pinjaman'));
+
+        // Ambil pinjaman terakhir per user
+        $pinjaman_terakhir = $pinjaman->groupBy('user_id')->map(function ($items) {
+            return $items->first();
+        })->values();
+
+        return view('admin.laporan.pinjaman', [
+            'pinjaman' => $pinjaman_terakhir,
+            'semua_pinjaman' => $pinjaman,
+        ]);
     }
+
 
     public function LaporanAngsuran(Request $request)
     {
@@ -64,7 +76,7 @@ class LaporanController extends Controller
         if ($request->filled('hari')) {
             $query->whereDate('created_at', $request->hari);
         }
-        $angsuran = $query->with('user')->orderBy('created_at', 'desc')->get();
+        $angsuran = $query->with(['user', 'pinjaman'])->orderBy('created_at', 'desc')->get();
         return view('admin.laporan.angsuran', compact('angsuran'));
     }
 
