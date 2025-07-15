@@ -44,13 +44,12 @@
                             <tr>
                                 <th>No</th>
                                 @if (auth()->user()->role === "Admin")
-                                    <th>Nama</th>
+                                <th>Nama</th>
                                 @endif
                                 <th>Tanggal Transaksi</th>
-                                <th>Jenis Simpanan</th>
                                 <th>Jumlah Simpanan</th>
                                 @if (auth()->user()->role === "Admin")
-                                    <th style="width: 10%">Action</th>
+                                <th style="width: 10%">Action</th>
                                 @endif
                             </tr>
                         </thead>
@@ -59,32 +58,34 @@
                             $no = 1;
                             @endphp
 
-                            @foreach ($simpanan as $s)
+                            @foreach ($simpananGrouped as $index => $s)
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 @if (auth()->user()->role === "Admin")
-                                    <td>{{ $s->user->name }}</td>
+                                <td>{{ $s['user']->name }}</td>
                                 @endif
-                                <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
-                                <td>{{ $s->jenis_simpanan}}</td>
-                                <td class="text-end bold">Rp {{ number_format($s->jumlah_simpanan, 0, ',', '.') }}</td>
+                                <td>{{ $s['tanggal_transaksi'] }}</td>
+                                {{-- <td>{{ $s['jenis_simpanan'] }}</td> --}}
+                                <td>Rp {{ number_format($s['total_simpanan'], 0, ',', '.') }}</td>
                                 <td>
                                     @if (auth()->user()->role === "Admin")
-                                        <div class="form-button-action">
-                                            <a href="{{ route('simpanan.edit', $s->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $s->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
-                                            <form id="delete-form-{{ $s->id }}" action="{{ route('simpanan.destroy', $s->id) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $s->id }})"><i class="fa fa-times"></i></button>
-                                            </form>
-                                        </div>
+                                    <div class="form-button-action">
+                                        {{-- <a href="{{ route('simpanan.edit', $s['user']->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $s['user']->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a> --}}
+                                        <form id="delete-form-{{ $s['user']->id }}" action="{{ route('simpanan.destroyByUser', ['user_id' => $s['user']->id]) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button" class="btn btn-link btn-danger delete-btn" data-form-id="{{ $s['user']->id }}">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                     @endif
                                 </td>
                             </tr>
                             @endforeach
                         <tfoot>
                             <tr>
-                               <td colspan="{{ Auth::user()->role === 'Admin' ? 4 : 3 }}" class="text-center">Jumlah Kapitalisasi</td>
+                                <td colspan="{{ Auth::user()->role === 'Admin' ? 4 : 3 }}" class="text-center">Jumlah Kapitalisasi</td>
                                 <td class="text-end">Rp {{ number_format($kapitalisasi, 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
@@ -144,57 +145,6 @@
         </div>
     </div>
 </div>
-
-{{-- update --}}
-@foreach ($simpanan as $s)
-<div class="modal fade" id="Edit{{ $s->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">Tambah Data Simpanan</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="{{ route('simpanan.update', $s->id) }}" method="post" enctype="multipart/form-data">
-                @method('PUT')
-                @csrf
-                <div class="modal-body">
-                    <div class="form-floating form-floating-custom mb-3">
-                        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
-                            <option value="">--Pilih Nomor Anggota--</option>
-                            @foreach ($nasabah->whereNotNull("nm_koperasi") as $n)
-                                <option value="{{ $n->id }}" {{ $n->id == $s->user_id ? 'selected' : '' }}>{{ $n->nm_koperasi }}</option>
-                            @endforeach
-                        </select>
-                        <label for="user_id">Pilih Nomor Anggota</label>
-                    </div>
-                    <div class="form-floating form-floating-custom mb-3">
-                        <select class="form-control @error('jenis_simpanan') is-invalid @enderror" id="jenis_simpanan" name="jenis_simpanan">
-                            <option value="">Pilih Jenis Simpanan</option>
-                            <option value="Simpanan Wajib" {{ $s->jenis_simpanan == 'Simpanan Wajib' ? 'selected' : ''}}>Simpanan Wajib</option>
-                            {{-- <option value="Simpanan Pokok" {{ $s->jenis_simpanan == 'Simpanan Pokok' ? 'selected' : ''}}>Simpanan Pokok</option> --}}
-                            {{-- <option value="Simpanan Dakesma" {{ $s->jenis_simpanan == 'Simpanan Dakesma' ? 'selected' : ''}}>Simpanan Dakesma</option> --}}
-                            <option value="Biaya Administrasi" {{ $s->jenis_simpanan == 'Biaya Administrasi' ? 'selected' : ''}}>Biaya Administrasi</option>
-                        </select>
-                        <label for="jenis_simpanan">Jenis Simpanan</label>
-                    </div>
-                    <div class="form-floating form-floating-custom mb-3">
-                        <input type="text" id="jumlah_simpanan_display" oninput="formatUang(this)" class="form-control @error('jumlah_simpanan') is-invalid @enderror" placeholder="Jumlah Simpanan" value="{{ old('jumlah_simpanan') ? 'Rp ' . number_format(old('jumlah_simpanan'), 0, ',', '.') : (isset($simpanan) ? 'Rp ' . number_format($s->jumlah_simpanan, 0, ',', '.') : '') }}" />
-                        <input type="hidden" name="jumlah_simpanan" class="form-control @error('jumlah_simpanan') is-invalid @enderror" id="jumlah_simpanan" placeholder="Jumlah Simpanan" value="{{ old('jumlah_simpanan', $s->jumlah_simpanan ?? '') }}" />
-                        <label for="floatingInput">Jumlah Simpanan</label>
-                        @error('jumlah_simpanan')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@endforeach
 
 @if (session('success'))
 <script>
@@ -281,6 +231,13 @@
 
     $(document).ready(function() {
         $("#basic-datatables").DataTable({});
+        $('.delete-btn').on('click', function() {
+            var formId = $(this).data('form-id');
+
+            if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+                $('#delete-form-' + formId).submit();
+            }
+        });
     });
 
 </script>

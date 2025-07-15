@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Anggsuran;
 use App\Models\Pinjaman;
 use App\Models\Simpanan;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,5 +74,26 @@ class PdfController extends Controller
             'user' => $user
         ]);
         return $pdf->download('Laporan-Angsuran.pdf');
+    }
+
+    public function anggotaPdf(Request $request)
+    {
+        $query = User::where('role', 'User');
+        if ($request->filled('bulan')) {
+            $query->whereMonth('tanggal_main', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal_main', $request->tahun);
+        }
+        if ($request->filled('hari')) {
+            $query->whereDate('tanggal_main', $request->hari);
+        }
+        $user = $query->get();
+        $admin = User::where('role', 'Admin')->first();
+        $pdf = Pdf::loadView('admin.pdf.anggotaPdf',[
+            'user' => $user,
+            'admin' => $admin
+        ]);
+        return $pdf->download('Laporan-Anggota.pdf');
     }
 }

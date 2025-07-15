@@ -38,7 +38,7 @@
                         <i class="fa fa-filter"></i>
                     </button>
                     <div class="dropdown-menu p-4" style="min-width: 300px;">
-                        <form action="{{ route('laporan.simpanan') }}" method="GET">
+                        <form action="{{ route('laporan.anggota') }}" method="GET">
                             <!-- Bulan Filter -->
                             <div class="mb-3">
                                 <label for="bulan" class="form-label">Pilih Bulan</label>
@@ -73,14 +73,13 @@
                             <!-- Submit & Reset Button -->
                             <div class="d-flex justify-content-between">
                                 <button type="submit" class="btn btn-primary">Terapkan</button>
-                                <a href="{{ route('laporan.simpanan') }}" class="btn btn-secondary">Reset</a>
+                                <a href="{{ route('laporan.anggota') }}" class="btn btn-secondary">Reset</a>
                             </div>
                         </form>
                     </div>
                 </div>
 
-
-                <a class="btn btn-label-info btn-round btn-sm" href="{{ route('pdf.simpanan') }}">
+                <a class="btn btn-label-info btn-round btn-sm" href="{{ route('pdf.anggota') }}">
                     <i class="fa fa-download"></i>
                 </a>
                 @endif
@@ -92,12 +91,9 @@
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Nama</th>
                                 <th>Nomor Anggota</th>
-                                <th>Tanggal Simpanan</th>
-                                <th>Jenis Simpanan</th>
-                                <th>Jumlah Simpanan</th>
-                                <th>Action</th>
+                                <th>Nama</th>
+                                <th>Tanggal Bergabung</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,20 +101,15 @@
                             $no = 1;
                             @endphp
 
-                            @foreach ($groupedSimpanan as $item)
-                            <tr>
-                                <td>{{ $no++ }}</td>
-                                <td>{{ $item['user']->nm_koperasi }}</td>
-                                <td>{{ $item['user']->name }}</td>
-                                <td>{{ $item['tanggal_terakhir'] }}</td>
-                                <td>-</td>
-                                <td class="text-end bold">Rp {{ number_format($item['total_simpanan'], 0, ',', '.') }}</td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-primary view-simpanan-btn" data-user="{{ $item['user']->name }}" data-id="{{ $item['user']->id }}">
-                                        Lihat Semua
-                                    </button>
-                                </td>
-                            </tr>
+                            @foreach ($user as $s)
+                                @if ($s->role == 'User')
+                                    <tr>
+                                        <td>{{ $no++ }}</td>
+                                        <td>{{ $s->nm_koperasi }}</td>
+                                        <td>{{ $s->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
+                                    </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>
@@ -128,71 +119,12 @@
     </div>
 </div>
 
-<div class="modal fade" id="simpananModal" tabindex="-1" aria-labelledby="simpananModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="simpananModalLabel">Daftar Simpanan <span id="userName"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Jenis Simpanan</th>
-                            <th>Jumlah</th>
-                        </tr>
-                    </thead>
-                    <tbody id="simpananTableBody">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+
 <script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const allSimpanan = @json($simpanan);
     $(document).ready(function() {
         $("#basic-datatables").DataTable({});
-        $(document).on('click', '.view-simpanan-btn', function() {
-            const userId = $(this).data('id');
-            const userName = $(this).data('user');
-
-            $('#userName').text(userName);
-            $('#simpananTableBody').html('<tr><td colspan="4" class="text-center">Loading...</td></tr>');
-
-            $.ajax({
-                url: `/simpanan/user/${userId}`
-                , method: 'GET'
-                , success: function(data) {
-                    let rows = '';
-                    data.simpans.forEach((simpan, index) => {
-                        rows += `<tr>
-                    <td>${index + 1}</td>
-                    <td>${simpan.tanggal}</td>
-                    <td>${simpan.nama_simpanan}</td>
-                    <td class="text-end">Rp ${simpan.besar_simpanan}</td>
-                </tr>`;
-                    });
-
-                    if (data.simpans.length === 0) {
-                        rows = `<tr><td colspan="4" class="text-center">Tidak ada data simpanan</td></tr>`;
-                    }
-
-                    $('#simpananTableBody').html(rows);
-
-                    const modal = new bootstrap.Modal(document.getElementById('simpananModal'));
-                    modal.show();
-                }
-                , error: function() {
-                    alert('Gagal mengambil data.');
-                }
-            });
-        });
     });
 
 </script>

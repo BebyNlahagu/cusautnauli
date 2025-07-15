@@ -91,6 +91,7 @@
                         <thead>
                             <tr>
                                 <th>No</th>
+                                <th>Nomor Anggota</th>
                                 <th>Nama</th>
                                 <th>Tanggal Pinjaman</th>
                                 <th>Jumlah Angsuran</th>
@@ -104,14 +105,15 @@
                                 $no = 1;
                             @endphp
 
-                            @foreach ($groupedAngsuran as $nasabahId => $angsurans)
+                            @foreach ($groupedAngsuran as $nasabahId => $ang)
                                 <tr>
                                     <td>{{ $no++ }}</td>
-                                    <td>{{ $angsurans->first()->user->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F Y') }}
+                                    <td>{{ $ang->first()->user->nm_koperasi }}</td>
+                                    <td>{{ $ang->first()->user->name }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($ang->first()->created_at)->translatedFormat('l, d F Y') }}
                                     </td>
-                                    <td>{{ $angsurans->first()->pinjaman->lama_pinjaman }}</td>
-                                    <td>Rp {{ number_format($angsurans->first()->pinjaman->terima_total, 0, ',', '.') }}
+                                    <td>{{ $ang->first()->pinjaman->lama_pinjaman }}</td>
+                                    <td>Rp {{ number_format($ang->first()->pinjaman->terima_total, 0, ',', '.') }}
                                     </td>
                                 </tr>
                             @endforeach

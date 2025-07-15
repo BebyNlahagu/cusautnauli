@@ -87,6 +87,11 @@
                     <div class="collapse" id="sidebarLayouts">
                         <ul class="nav nav-collapse">
                             <li>
+                                <a href="{{ route('laporan.anggota') }}">
+                                    <span class="sub-item">Laporan Anggota</span>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ route('laporan.simpanan') }}">
                                     <span class="sub-item">Laporan Simpanan</span>
                                 </a>
@@ -113,6 +118,11 @@
                     </a>
                     <div class="collapse" id="sidebarLayouts">
                         <ul class="nav nav-collapse">
+                            <li>
+                                <a href="{{ route('laporan.anggota') }}">
+                                    <span class="sub-item">Laporan Anggota</span>
+                                </a>
+                            </li>
                             <li>
                                 <a href="{{ route('laporan.simpanan') }}">
                                     <span class="sub-item">Laporan Simpanan</span>

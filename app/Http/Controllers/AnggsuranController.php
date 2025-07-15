@@ -72,7 +72,7 @@ class AnggsuranController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:nasabahs,id',
+            'user_id' => 'required|exists:users,id',
             'pinjaman_id' => 'required|exists:pinjaman,id',
         ]);
 

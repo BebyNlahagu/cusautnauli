@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Anggsuran;
 use App\Models\Pinjaman;
 use App\Models\Simpanan;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class LaporanController extends Controller
@@ -22,7 +23,17 @@ class LaporanController extends Controller
             $query->whereDate('created_at', $request->hari);
         }
         $simpanan = $query->with('user')->orderBy('created_at', 'desc')->get();
-        return view('admin.laporan.simpanan', compact('simpanan'));
+
+        $groupedSimpanan = $simpanan->groupBy('user_id')->map(function ($items) {
+            return [
+                'user' => $items->first()->user,
+                'total_simpanan' => $items->sum('jumlah_simpanan'),
+                'total_kapitalisasi' => $items->sum('jumlah_kapitalisasi'),
+                'tanggal_terakhir' => $items->max('created_at')->translatedFormat('d F Y'),
+                'jumlah_transaksi' => $items->count(),
+            ];
+        });
+        return view('admin.laporan.simpanan', compact('simpanan','groupedSimpanan'));
     }
 
     public function LaporanPinjaman(Request $request)
@@ -38,7 +49,7 @@ class LaporanController extends Controller
             $query->whereDate('created_at', $request->hari);
         }
         $pinjaman = $query->with('user')->orderBy('created_at', 'desc')->get();
-        return view('admin.laporan.pinjaman',compact('pinjaman'));
+        return view('admin.laporan.pinjaman', compact('pinjaman'));
     }
 
     public function LaporanAngsuran(Request $request)
@@ -55,5 +66,21 @@ class LaporanController extends Controller
         }
         $angsuran = $query->with('user')->orderBy('created_at', 'desc')->get();
         return view('admin.laporan.angsuran', compact('angsuran'));
+    }
+
+    public function LaporanAnggota(Request $request)
+    {
+        $query = User::query();
+        if ($request->filled('bulan')) {
+            $query->whereMonth('created_at', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('created_at', $request->tahun);
+        }
+        if ($request->filled('hari')) {
+            $query->whereDate('created_at', $request->hari);
+        }
+        $user = $query->orderBy('created_at', 'desc')->get();
+        return view('admin.laporan.anggota', compact('user'));
     }
 }

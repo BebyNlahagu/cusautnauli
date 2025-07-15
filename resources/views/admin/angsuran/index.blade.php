@@ -74,7 +74,7 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 @if (auth()->user()->role === "Admin")
-                                    <td>{{ $angsurans->first()->nasabah->name }}</td>   
+                                    <td>{{ $angsurans->first()->user->name }}</td>   
                                 @endif
                                 <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F
                                     Y') }}
@@ -104,7 +104,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="DetailModalLabel{{ $nasabahId }}">
-                    Detail Angsuran: {{ $angsurans->first()->nasabah->name }}
+                    Detail Angsuran: {{ $angsurans->first()->user->name }}
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
@@ -219,7 +219,7 @@
                         <select class="form-control" id="user_id" name="user_id" required>
                             <option value="">--Pilih Nama Nasabah--</option>
                             @foreach ($nasabah as $n)
-                            <option value="{{ $n->id }}">{{ $n->name }}</option>
+                                <option value="{{ $n->id }}">{{ $n->name }}</option>
                             @endforeach
                         </select>
                         <label for="user_id">Nama Nasabah</label>

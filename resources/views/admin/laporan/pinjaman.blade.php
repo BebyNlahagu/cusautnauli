@@ -92,7 +92,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Tanggal</th>
-                                <th>No. NIK</th>
+                                <th>Nomor Anggota</th>
                                 <th>Nama</th>
                                 <th>Jumlah Pinjaman</th>
                                 <th>Tenor</th>
@@ -108,7 +108,7 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 <td>{{ \Carbon\Carbon::parse($n->created_at)->translatedFormat('l, d F Y') }}</td>
-                                <td>{{ $n->user->Nik }}</td>
+                                <td>{{ $n->user->nm_koperasi }}</td>
                                 <td>{{ $n->user->name }}</td>
                                 <td>Rp {{ number_format((float)$n->jumlah_pinjaman, 0, ',', '.') }}</td>
                                 <td>{{ $n->lama_pinjaman }}</td>
