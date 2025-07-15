@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Laporan Simpanan')
+@section('title', 'Laporan Anggota')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 @section('bread')
 <div class="page-header">

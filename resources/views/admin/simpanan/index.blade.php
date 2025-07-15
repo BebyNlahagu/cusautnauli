@@ -65,7 +65,6 @@
                                 <td>{{ $s['user']->name }}</td>
                                 @endif
                                 <td>{{ $s['tanggal_transaksi'] }}</td>
-                                {{-- <td>{{ $s['jenis_simpanan'] }}</td> --}}
                                 <td>Rp {{ number_format($s['total_simpanan'], 0, ',', '.') }}</td>
                                 <td>
                                     @if (auth()->user()->role === "Admin")
@@ -85,7 +84,7 @@
                             @endforeach
                         <tfoot>
                             <tr>
-                                <td colspan="{{ Auth::user()->role === 'Admin' ? 4 : 3 }}" class="text-center">Jumlah Kapitalisasi</td>
+                                <td colspan="{{ Auth::user()->role === 'Admin' ? 3 : 2 }}" class="text-center">Jumlah Kapitalisasi</td>
                                 <td class="text-end">Rp {{ number_format($kapitalisasi, 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
