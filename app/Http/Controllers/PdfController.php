@@ -37,6 +37,7 @@ class PdfController extends Controller
     public function pinjamanPdf(Request $request)
     {
         $pinjaman = Pinjaman::with('user')->get();
+        $jumlah_pinjaman = Pinjaman::sum('jumlah_pinjaman');
         $query = Pinjaman::query();
         if ($request->filled('bulan')) {
             $query->whereMonth('created_at', $request->bulan);
@@ -50,7 +51,8 @@ class PdfController extends Controller
         $user = Auth::user();
         $pdf = Pdf::loadView('admin.pdf.pinjamanPdf', [
             'pinjaman' => $pinjaman,
-            'user' => $user
+            'user' => $user,
+            'jumlah_pinjaman' => $jumlah_pinjaman
         ]);
         return $pdf->download('Laporan-Pinjaman.pdf');
     }

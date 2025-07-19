@@ -145,6 +145,13 @@
                 <td>{{ $n->bunga_pinjaman }} %</td>
             </tr>
             @endforeach
+
+            <tfoot>
+                <tr>
+                    <td colspan="6">Jumlah Pinjaman</td>
+                    <td class="text-end">Rp.{{ number_format($jumlah_pinjaman) }}</td>
+                </tr>
+            </tfoot>
         </tbody>
     </table>>
 

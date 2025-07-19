@@ -62,20 +62,20 @@
                         <label>Lama Pinjaman</label>
                         <select name="lama_pinjaman" class="form-control" required>
                             <option value="">-- Pilih Lama Pinjaman --</option>
-                            <option value="5 Bulan">5 Bulan</option>
-                            <option value="10 Bulan">10 Bulan</option>
-                            <option value="15 Bulan">15 Bulan</option>
-                            <option value="20 Bulan">20 Bulan</option>
-                            <option value="25 Bulan">25 Bulan</option>
-                            <option value="30 Bulan">30 Bulan</option>
+                            <option value="6 Bulan">6 Bulan</option>
                         </select>
                     </div>
 
                     <div class="form-group mb-3">
                         <label>Jumlah Pinjaman</label>
-                        <input type="number" name="jumlah_pinjaman" id="jumlah_pinjaman" class="form-control" min="10000" required>
-                        <small id="error-message" class="text-danger" style="display: none;">Jumlah pinjaman tidak boleh melebihi batas maksimal.</small>
+                        <input type="text" id="jumlah_pinjaman_display" class="form-control" required>
+                        <input type="hidden" name="jumlah_pinjaman" id="jumlah_pinjaman" value="{{ $jumlahMinimal }}" min="{{ $jumlahMinimal }}">
+
+                        <small id="error-message" class="text-danger" style="display: none;">
+                            Jumlah pinjaman tidak boleh melebihi batas maksimal.
+                        </small>
                     </div>
+
 
                     <div class="form-group mb-3">
                         <label>Nama Penjamin</label>
@@ -97,18 +97,20 @@
     </div>
 </div>
 <script>
-    @if (session('success'))
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil',
-            text: '{{ session('success') }}',
-        });
-    @elseif (session('error'))
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal',
-            text: '{{ session('error') }}',
-        });
+    @if(session('success'))
+    Swal.fire({
+        icon: 'success'
+        , title: 'Berhasil'
+        , text: '{{ session('
+        success ') }}'
+    , });
+
+    @elseif(session('error'))
+    Swal.fire({
+        icon: 'error'
+        , title: 'Gagal'
+        , text: '{{ session('error') }}'
+    , });
     @endif
 </script>
 
@@ -116,6 +118,21 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function() {
+        const formatRupiah = function(angka) {
+            return 'Rp. ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        };
+
+        // Ambil nilai minimal dari hidden input, default ke 0 kalau kosong
+        let rawInitial = $('#jumlah_pinjaman').val() || '0';
+
+        // Hapus leading zero kalau ada
+        rawInitial = rawInitial.replace(/^0+/, '');
+        if (rawInitial === '') rawInitial = '0';
+
+        // Set nilai display dengan format rupiah
+        $('#jumlah_pinjaman_display').val(formatRupiah(rawInitial));
+
+        // Saat form disubmit
         $('form').on('submit', function(e) {
             const maksimalPinjaman = parseFloat($('#maksimal_pinjaman').val());
             const jumlahPinjaman = parseFloat($('#jumlah_pinjaman').val());
@@ -129,25 +146,36 @@
 
             if (jumlahPinjaman > maksimalPinjaman) {
                 e.preventDefault();
-                errorEl.show();
+                errorEl.text('Jumlah pinjaman melebihi batas maksimal.').show();
+                return false;
             } else {
                 errorEl.hide();
             }
         });
 
-        // Tampilkan pesan error saat input diubah (opsional)
-        $('#jumlah_pinjaman').on('input', function() {
+        $('#jumlah_pinjaman_display').on('input', function() {
+            let raw = $(this).val().replace(/[^0-9]/g, '') || '0';
+
+            // Hapus leading zero
+            raw = raw.replace(/^0+/, '');
+            if (raw === '') raw = '0';
+
+            const formatted = formatRupiah(raw);
+            const jumlahPinjaman = parseFloat(raw);
             const maksimalPinjaman = parseFloat($('#maksimal_pinjaman').val());
-            const jumlahPinjaman = parseFloat($(this).val());
             const errorEl = $('#error-message');
 
+            $(this).val(formatted);
+            $('#jumlah_pinjaman').val(jumlahPinjaman);
+
             if (jumlahPinjaman > maksimalPinjaman) {
-                errorEl.show();
+                errorEl.text('Jumlah pinjaman melebihi batas maksimal.').show();
+                $(this).addClass('is-invalid');
             } else {
                 errorEl.hide();
+                $(this).removeClass('is-invalid');
             }
         });
     });
-
 </script>
 @endsection

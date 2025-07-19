@@ -39,9 +39,10 @@ class PinjamanController extends Controller
          return redirect()->route('pinjaman.index')->with('error', 'Anda belum memenuhi syarat pengajuan pinjaman.');
       }
 
+      $jumlahMinimal = Simpanan::where('user_id', $user->id)->where('jenis_simpanan', 'Simpanan Wajib')->sum('jumlah_simpanan');
       $total_simpanan = Simpanan::where('user_id', $user->id)->sum('jumlah_simpanan');
 
-      return view('admin.pinjaman.create', compact('user', 'total_simpanan'));
+      return view('admin.pinjaman.create', compact('user', 'total_simpanan', 'jumlahMinimal'));
    }
 
    public function ubahStatus(Request $request, $id)
@@ -64,10 +65,11 @@ class PinjamanController extends Controller
 
    public function store(Request $request)
    {
+
       $request->validate([
          'user_id' => 'required|exists:users,id',
-         'lama_pinjaman' => 'required|in:5 Bulan,10 Bulan,15 Bulan,20 Bulan,25 Bulan,30 Bulan',
-         'jumlah_pinjaman' => 'required|numeric|min:10000',
+         'lama_pinjaman' => 'required|in:6 Bulan',
+         'jumlah_pinjaman' => 'required',
          'nama_penjamin' => 'required|string',
          'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
       ]);
@@ -75,6 +77,7 @@ class PinjamanController extends Controller
       DB::beginTransaction();
 
       try {
+
          $user = User::findOrFail($request->user_id);
 
          $selisih_bulan = Carbon::parse($user->created_at)->diffInMonths(now());
@@ -100,14 +103,14 @@ class PinjamanController extends Controller
             return back()->withInput()->with('error', "Jumlah pinjaman melebihi batas maksimal (" . number_format($maksimal_pinjaman, 0, ',', '.') . ").");
          }
 
-         // Upload foto
+
          $foto = null;
          if ($request->hasFile('foto')) {
             $foto = time() . '.' . $request->foto->extension();
             $request->foto->storeAs('images', $foto, 'public');
          }
 
-         $bunga = 3; // Bunga tetap 3%
+         $bunga = 3;
          $proposi = $request->jumlah_pinjaman * 0.005;
          $terima_total = $request->jumlah_pinjaman - $proposi;
 
@@ -124,7 +127,7 @@ class PinjamanController extends Controller
 
          DB::commit();
 
-         return redirect()->route('pinjaman.index')->with('success', 'Pengajuan berhasil diajukan!');
+         return redirect()->route('pinjaman.index')->with('success', 'pengajuan anda berhasil, untuk pencairan agar datang ke kantor cu saut maju nauli');
       } catch (\Exception $e) {
          DB::rollBack();
          return back()->withInput()->with('error', $e->getMessage());

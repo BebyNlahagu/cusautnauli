@@ -95,7 +95,6 @@
                                 <th>Nama</th>
                                 <th>Nomor Anggota</th>
                                 <th>Tanggal Simpanan</th>
-                                <th>Jenis Simpanan</th>
                                 <th>Jumlah Simpanan</th>
                                 <th>Action</th>
                             </tr>
@@ -111,7 +110,6 @@
                                 <td>{{ $item['user']->nm_koperasi }}</td>
                                 <td>{{ $item['user']->name }}</td>
                                 <td>{{ $item['tanggal_terakhir'] }}</td>
-                                <td>-</td>
                                 <td class="text-end bold">Rp {{ number_format($item['total_simpanan'], 0, ',', '.') }}</td>
                                 <td>
                                     <button type="button" class="btn btn-sm btn-primary view-simpanan-btn" data-user="{{ $item['user']->name }}" data-id="{{ $item['user']->id }}">
@@ -121,6 +119,14 @@
                             </tr>
                             @endforeach
                         </tbody>
+                        @if (auth()->user()->role == "Admin")
+                        <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-center fw-bolder">Jumlah Keselurahn</th>
+                                <th class="text-end fw-bold">Rp. {{ number_format($jumlah,0,',','.') }}</th>
+                            </tr>
+                        </tfoot>
+                        @endif
                     </table>
                 </div>
             </div>

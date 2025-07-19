@@ -33,7 +33,10 @@ class LaporanController extends Controller
                 'jumlah_transaksi' => $items->count(),
             ];
         });
-        return view('admin.laporan.simpanan', compact('simpanan', 'groupedSimpanan'));
+
+        $jumlah = Simpanan::sum('jumlah_simpanan');
+
+        return view('admin.laporan.simpanan', compact('simpanan', 'groupedSimpanan','jumlah'));
     }
 
     public function LaporanPinjaman(Request $request)

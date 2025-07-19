@@ -38,8 +38,9 @@ class SimpananController extends Controller
             $nasabah = User::where('id', $user->id)->get();
         }
 
+        $jumlah = Simpanan::sum("jumlah_simpanan");
 
-        return view("admin.simpanan.index", compact('simpananGrouped', 'kapitalisasi', 'nasabah', 'simpanan'));
+        return view("admin.simpanan.index", compact('simpananGrouped', 'kapitalisasi', 'nasabah', 'simpanan','jumlah'));
     }
 
     public function getUserSimpanan($id)

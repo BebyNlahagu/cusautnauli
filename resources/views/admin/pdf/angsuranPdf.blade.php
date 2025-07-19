@@ -135,8 +135,8 @@
                 <tr>
                     <td>{{ $no++ }}</td>
                     <td>{{ $angsurans->first()->user->name }}</td>
-                    <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F Y') }}
-                    </td>
+                    <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F Y') }}</td>
+                    <td>{{ $angsurans->first()->total_anguran }}</td>
                     <td>{{ $angsurans->first()->pinjaman->lama_pinjaman }}</td>
                     <td>Rp {{ number_format($angsurans->first()->pinjaman->terima_total, 0, ',', '.') }}
                     </td>

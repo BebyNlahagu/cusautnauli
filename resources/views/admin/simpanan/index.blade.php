@@ -89,6 +89,12 @@
                                 </td>
                                 <td class="text-end">Rp {{ number_format($kapitalisasi, 0, ',', '.') }}</td>
                             </tr>
+                            <tr>
+                                @if (auth()->user()->role == "Admin")
+                                    <td colspan="3" class="text-center fw-bolder">Jumlah Simpanan</td>
+                                    <td class="text-end fw-bold">Rp. {{ number_format($jumlah, 0, ',' , '.') }}</td> 
+                                @endif
+                            </tr>
                         </tfoot>
                         </tbody>
                     </table>

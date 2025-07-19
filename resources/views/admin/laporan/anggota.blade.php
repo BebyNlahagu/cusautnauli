@@ -94,6 +94,8 @@
                                 <th>Nomor Anggota</th>
                                 <th>Nama</th>
                                 <th>Tanggal Bergabung</th>
+                                <th>Kecamatan</th>
+                                <th>Kelurahan</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -102,12 +104,14 @@
                             @endphp
 
                             @foreach ($user as $s)
-                                @if ($s->role == 'User')
+                                @if ($s->role == 'User' && !empty($s->nm_koperasi))
                                     <tr>
                                         <td>{{ $no++ }}</td>
                                         <td>{{ $s->nm_koperasi }}</td>
                                         <td>{{ $s->name }}</td>
                                         <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
+                                        <td>{{ $s->kecamatan }}</td>
+                                        <td>{{ $s->desa }}</td>
                                     </tr>
                                 @endif
                             @endforeach
