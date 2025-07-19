@@ -26,7 +26,15 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected function redirectTo()
+    {
+        if (auth()->user()->role == 'Admin'  || auth()->user()->role == 'Kepala') {
+            return route('home');
+        } else {
+            return route('user.edit');
+        }
+    }
+
 
     /**
      * Create a new controller instance.
@@ -39,18 +47,46 @@ class LoginController extends Controller
         $this->middleware('auth')->only('logout');
     }
 
+    protected function username()
+    {
+        return 'username';
+    }
+
+    protected function authenticated(Request $request, $user)
+    {
+        if ($user->status !== 'Verify') {
+            auth()->logout();
+
+            return redirect()->back()->with([
+                'swal' => [
+                    'title' => 'Login Gagal!',
+                    'text' => 'Akun Anda belum aktif atau belum diverifikasi.',
+                    'icon' => 'error'
+                ]
+            ])->withInput($request->only('username'));
+        }
+    }
+
     protected function sendFailedLoginResponse(Request $request)
     {
-        $user = \App\Models\User::where('email', $request->email)->first();
+        $user = \App\Models\User::where('username', $request->username)->first();
 
         if (!$user) {
-            return back()->withErrors([
-                'email' => 'Email tidak ditemukan.',
-            ])->withInput($request->only('email'));
+            return redirect()->back()->with([
+                'swal' => [
+                    'title' => 'Login Gagal!',
+                    'text' => 'Username Tidak Ditemukan .',
+                    'icon' => 'error'
+                ]
+            ])->withInput($request->only('username'));
         }
 
-        return back()->withErrors([
-            'password' => 'Password salah.',
-        ])->withInput($request->only('email'));
+        return redirect()->back()->with([
+            'swal' => [
+                'title' => 'Login Gagal!',
+                'text' => 'Password Salah.',
+                'icon' => 'error'
+            ]
+        ])->withInput($request->only('username'));
     }
 }

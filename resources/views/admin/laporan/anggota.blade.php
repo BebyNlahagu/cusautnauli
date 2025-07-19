@@ -1,5 +1,6 @@
 @extends('layouts.master')
-@section('title', 'Laporan Angsuran')
+@section('title', 'Laporan Anggota')
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 @section('bread')
 <div class="page-header">
     <h3 class="fw-bold mb-3">@yield('title')</h3>
@@ -19,7 +20,7 @@
             <i class="icon-arrow-right"></i>
         </li>
         <li class="nav-item">
-            <a href="{{ route('laporan.angsuran') }}">@yield('title')</a>
+            <a href="{{ route('laporan.simpanan') }}">@yield('title')</a>
         </li>
     </ul>
 </div>
@@ -37,7 +38,7 @@
                         <i class="fa fa-filter"></i>
                     </button>
                     <div class="dropdown-menu p-4" style="min-width: 300px;">
-                        <form action="{{ route('laporan.angsuran') }}" method="GET">
+                        <form action="{{ route('laporan.anggota') }}" method="GET">
                             <!-- Bulan Filter -->
                             <div class="mb-3">
                                 <label for="bulan" class="form-label">Pilih Bulan</label>
@@ -72,18 +73,18 @@
                             <!-- Submit & Reset Button -->
                             <div class="d-flex justify-content-between">
                                 <button type="submit" class="btn btn-primary">Terapkan</button>
-                                <a href="{{ route('laporan.angsuran') }}" class="btn btn-secondary">Reset</a>
+                                <a href="{{ route('laporan.anggota') }}" class="btn btn-secondary">Reset</a>
                             </div>
                         </form>
                     </div>
                 </div>
 
-
-                <a class="btn btn-label-info btn-round btn-sm" href="{{ route('pdf.angsuran') }}">
+                <a class="btn btn-label-info btn-round btn-sm" href="{{ route('pdf.anggota') }}">
                     <i class="fa fa-download"></i>
                 </a>
                 @endif
             </div>
+
             <div class="card-body">
                 <div class="table-responsive">
                     <table id="basic-datatables" class="display table table-striped table-hover">
@@ -92,33 +93,27 @@
                                 <th>No</th>
                                 <th>Nomor Anggota</th>
                                 <th>Nama</th>
-                                <th>Tanggal Pinjaman</th>
-                                <th>Jumlah Angsuran</th>
-                                <th>Total Pinjaman</th>
+                                <th>Tanggal Bergabung</th>
+                                <th>Kecamatan</th>
+                                <th>Kelurahan</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php $no = 1; @endphp
                             @php
-                            $groupedAngsuran = $angsuran->groupBy('user_id');
                             $no = 1;
                             @endphp
 
-                            @foreach ($groupedAngsuran as $nasabahId => $ang)
-                            <tr>
-                                <td>{{ $no++ }}</td>
-                                <td>{{ $ang->first()->user->nm_koperasi }}</td>
-                                <td>{{ $ang->first()->user->name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($ang->first()->created_at)->translatedFormat('l, d F Y') }}
-                                </td>
-                                <td>{{ $ang->first()->pinjaman->lama_pinjaman }}</td>
-                                <td>Rp {{ number_format($ang->first()->pinjaman->terima_total, 0, ',', '.') }}</td>
-                               <td>
-                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#lihatSemuaAngsuran{{ $nasabahId }}">
-                                        <i class="fa fa-eye"></i> Lihat Semua
-                                    </button>
-                                </td>
-                            </tr>
+                            @foreach ($user as $s)
+                                @if ($s->role == 'User' && !empty($s->nm_koperasi))
+                                    <tr>
+                                        <td>{{ $no++ }}</td>
+                                        <td>{{ $s->nm_koperasi }}</td>
+                                        <td>{{ $s->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
+                                        <td>{{ $s->kecamatan }}</td>
+                                        <td>{{ $s->desa }}</td>
+                                    </tr>
+                                @endif
                             @endforeach
                         </tbody>
                     </table>
@@ -128,47 +123,9 @@
     </div>
 </div>
 
-@foreach ($groupedAngsuran as $nasabahId => $ang)
-<div class="modal fade" id="lihatSemuaAngsuran{{ $nasabahId }}" tabindex="-1" aria-labelledby="lihatSemuaAngsuranLabel{{ $nasabahId }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Riwayat Angsuran - {{ $ang->first()->user->name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-            </div>
-            <div class="modal-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Tanggal Angsuran</th>
-                            <th>Jumlah Angsuran</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                       @foreach ($groupedAngsuran as $nasabahId => $ang)
-                            <tr>
-                                <td>{{ $no++ }}</td>
-                                <td>{{ $ang->first()->user->nm_koperasi }}</td>
-                                <td>{{ $ang->first()->user->name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($ang->first()->created_at)->translatedFormat('l, d F Y') }}</td>
-                                <td>{{ $ang->first()->pinjaman->lama_pinjaman }}</td>
-                                <td>Rp {{ number_format($ang->first()->pinjaman->terima_total, 0, ',', '.') }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endforeach
 
 <script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     $(document).ready(function() {
         $("#basic-datatables").DataTable({});

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Angsuran</title>
+    <title>Laporan Transaksi</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -104,59 +104,60 @@
         </div>
         <div class="kop-surat" style="padding-left: 5rem;">
             <h3>CU SAUT MAJU NAULI</h3>
-            <p>Nagasaribu iii, Kecamatan Lintongnihuta, <br>Kabupaten Humbang Hasundutan</p>
+            <p>Nagasaribu III, Kecamatan Lintongnihuta, <br>Kabupaten Humbang Hasundutan</p>
         </div>
     </div>
 
     <hr>
 
     <div class="header">
-        <h2 style="font-weight: bold;">Laporan Angsuran</h2>
+        <h2 style="font-weight: bold;">Laporan Anggota</h2>
     </div>
 
-    <table id="basic-datatables" class="display table table-striped table-hover">
+    <table>
         <thead>
             <tr>
                 <th>No</th>
-                <th>Nama</th>
-                <th>Tanggal angsuran</th>
-                <th>Lama Angsuran</th>
-                <th>Total Pinjaman</th>
+                <th>Nomor Anggota</th>
+                <th>Nama Anggota</th>
+                <th>Tanggal Bergabung</th>
             </tr>
         </thead>
         <tbody>
-            @php $no = 1; @endphp
             @php
-                $groupedAngsuran = $angsuran->groupBy('user_id');
                 $no = 1;
             @endphp
-
-            @foreach ($groupedAngsuran as $nasabahId => $angsurans)
-                <tr>
+            @foreach ($user as $s)
+            <tr>
+                @if ($s->role == "User")
                     <td>{{ $no++ }}</td>
-                    <td>{{ $angsurans->first()->user->name }}</td>
-                    <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F Y') }}</td>
-                    <td>{{ $angsurans->first()->total_anguran }}</td>
-                    <td>{{ $angsurans->first()->pinjaman->lama_pinjaman }}</td>
-                    <td>Rp {{ number_format($angsurans->first()->pinjaman->terima_total, 0, ',', '.') }}
-                    </td>
-                </tr>
+                    <td>{{ $s->nm_koperasi }}</td>
+                    <td>{{ $s->name }}</td>
+                    <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
+                @endif
+            </tr>
             @endforeach
         </tbody>
     </table>
-    
+
     <div class="signature-inline">
         <div class="signature-left">
             <br>
             <p>Ketua</p>
             <br><br>
-            <p><u>H. Nababan</u></p>
+            <p><u>H.Nababan</u></p>
         </div>
         <div class="signature-right" style="margin-left:400px;margin-top:-550px">
             <p>Nagasaribu, {{ date('d-m-Y') }}</p>
             <p>Penanggung Jawab,</p>
             <br><br>
-            <p><u>{{ $user->name }}</u></p>
+            @php
+                $admin = $user->firstWhere('role', 'Admin');
+            @endphp
+
+            @if ($admin)
+                <p><u>{{ $admin->name }}</u></p>
+            @endif
         </div>
     </div>
 

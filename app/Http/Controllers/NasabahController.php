@@ -28,13 +28,26 @@ class NasabahController extends Controller
 
         return view('admin.nasabah.index', compact('nasabah', 'nasabahTerverifikasi', 'nasabahTidakTerverifikasi'));
     }
-
     public function addData(Request $request)
     {
         $request->validate([
-            'alamat_id' => 'required|exists:alamats,id',
+            "kecamatan" => "required",
+            'desa' => 'required',
+            "username" => "required",
+            // 'alamat_id' => 'required|exists:alamats,id',
             'name' => 'required',
-            'Nik' => 'required|max_digits:16',
+            "email" => "nullable",
+            'Nik' => [
+                'required',
+                'digits:16',
+                'numeric',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/^(\d)\1{15}$/', $value)) {
+                        session()->flash('swal_error', 'NIK tidak boleh terdiri dari angka yang sama.');
+                        return $fail('NIK tidak boleh terdiri dari angka yang sama.');
+                    }
+                },
+            ],
             'no_telp' => 'required|max_digits:12',
             'jenis_kelamin' => 'required',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -82,15 +95,18 @@ class NasabahController extends Controller
         $nmr_anggota = "NMR-{$tgl}{$bln}{$thn}-{$hariIni}";
 
         User::create([
+            'username' => $request->username,
+            'desa' => $request->desa,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'alamat_id' => $request->alamat_id,
+            // 'alamat_id' => $request->alamat_id,
             'name' => $request->name,
             'nmr_anggota' => $nmr_anggota,
             'Nik' => $request->Nik,
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
+            'kecamatan' => $request->kecamatan,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,
             'foto' => $foto ?? null,
@@ -98,14 +114,52 @@ class NasabahController extends Controller
             'kk' => $kk ?? null,
         ]);
 
-        return redirect()->back()->with('success', 'Nasabah berhasil didaftarkan!');
+        return redirect()->back()->with('success', 'pendaftaran anda berhasil, lengkapi pendaftaran selanjutnya di kantor cu saut maju nauli');
     }
+
+    public function updateCheckbox(Request $request, $id)
+    {
+        $nasabah = User::findOrFail($id);
+
+        if ($request->has('simpanan_wajib')) {
+            $nasabah->simpanan_wajib = $request->simpanan_wajib;
+        }
+
+        if ($request->has('administrasi')) {
+            $nasabah->administrasi = $request->administrasi;
+        }
+
+        $nasabah->save();
+
+        return response()->json(['status' => 'success']);
+    }
+
 
     public function verify($id)
     {
         $nasabah = User::findOrFail($id);
 
+        if (!$nasabah->simpanan_wajib || !$nasabah->administrasi) {
+            return redirect()->back()->with('error', 'Tidak bisa verifikasi sebelum semua checkbox dicentang.');
+        }
+
+        $lastUser = User::whereNotNull('nm_koperasi')
+            ->where('nm_koperasi', 'like', 'AGT-%')
+            ->orderByDesc('nm_koperasi')
+            ->first();
+
+        if ($lastUser && preg_match('/AGT-(\d+)/', $lastUser->nm_koperasi, $match)) {
+            $lastNumber = (int) $match[1];
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $next = str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $nmr_anggota = "AGT-{$next}";
+
         $nasabah->status = 'Verify';
+        $nasabah->nm_koperasi = $nmr_anggota;
         $nasabah->save();
 
         $nasabah->notify(new DataVerify(Auth::user()->name));
@@ -177,7 +231,6 @@ class NasabahController extends Controller
             'no_telp' => $request->no_telp,
             'jenis_kelamin' => $request->jenis_kelamin,
             'tanggal_lahir' => $request->tanggal_lahir,
-            // 'tanggal_masuk' => $request->tanggal_masuk,
             'alamat' => $request->alamat,
             'kelurahan' => $request->kelurahan,
             'pekerjaan' => $request->pekerjaan,

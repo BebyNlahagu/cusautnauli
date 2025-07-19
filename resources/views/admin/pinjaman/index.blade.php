@@ -40,8 +40,13 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">@yield('title')</h4>
-                @if (auth()->user()->role == "Admin")
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
+                @php
+                $user = auth()->user();
+                $umur = \Carbon\Carbon::parse($user->tanggal_lahir)->age;
+                @endphp
+
+                @if (auth()->user()->role == "User")
+                <a href="{{ route('pinjaman.create') }}" class="btn btn-success">Ajukan Pinjaman</a>
                 @endif
             </div>
             <div class="card-body">
@@ -51,12 +56,19 @@
                             <tr>
                                 <th>No</th>
                                 <th>Tanggal</th>
+                                @if (auth()->user()->role === "Admin")
                                 <th>No. NIK</th>
                                 <th>Nama</th>
+                                @endif
                                 <th>Jumlah Pinjaman</th>
                                 <th>Tenor</th>
                                 <th>Bunga</th>
+                                @if (auth()->user()->role === "Admin")
                                 <th style="width: 10%">Action</th>
+                                @else
+                                <th>Status</th>
+                                @endif
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -68,20 +80,84 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 <td>{{ \Carbon\Carbon::parse($n->created_at)->translatedFormat('l, d F Y') }}</td>
-                                <td>{{ $n->nasabah->Nik }}</td>
-                                <td>{{ $n->nasabah->name }}</td>
+                                @if (auth()->user()->role === "Admin")
+                                <td>{{ $n->user->Nik }}</td>
+                                <td>{{ $n->user->name }}</td>
+                                @endif
                                 <td>Rp {{ number_format((float) $n->jumlah_pinjaman, 0, ',', '.') }}</td>
                                 <td>{{ $n->lama_pinjaman }}</td>
                                 <td>{{ $n->bunga_pinjaman }} %</td>
+                                @if (auth()->user()->role === "User" )
+                                <td><span class="badge
+                                                    @if ($n->status === 'Disetujui') bg-success
+                                                    @elseif ($n->status === 'Ditolak') bg-danger
+                                                    @else bg-secondary
+                                                    @endif">
+                                        @if ($n->status === 'Disetujui')
+                                        <i class="fa fa-check me-1"></i> Disetujui
+                                        @elseif ($n->status === 'Ditolak')
+                                        <i class="fa fa-times me-1"></i> Ditolak
+                                        @else
+                                        Belum Diproses
+                                        @endif
+                                    </span></td>
+                                @endif
                                 <td>
+                                    @if (auth()->user()->role === "Admin")
                                     <div class="form-button-action">
-                                        <a href="{{ route('pinjaman.edit', $n->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $n->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a>
-                                        <form id="delete-form-{{ $n->id }}" action="{{ route('pinjaman.destroy', $n->id) }}" method="POST">
+                                        <!-- Tombol Edit -->
+                                        <a href="{{ route('pinjaman.edit', $n->id) }}" data-bs-toggle="modal" data-bs-target="#Edit{{ $n->id }}" class="btn btn-link btn-primary btn-lg" title="Edit">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+
+                                        @if ($n->status === 'Pending')
+                                        <!-- Tombol Approve -->
+                                        <form action="{{ route('pengajuan.status', $n->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="Disetujui">
+                                            <button type="submit" class="btn btn-sm btn-success" title="Setujui">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Tombol Reject -->
+                                        <form action="{{ route('pengajuan.status', $n->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="Ditolak">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Tolak">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </form>
+                                        @else
+                                        <!-- Tampilkan Badge Status -->
+                                        <span class="badge
+                                                    @if ($n->status === 'Disetujui') bg-success
+                                                    @elseif ($n->status === 'Ditolak') bg-danger
+                                                    @else bg-secondary
+                                                    @endif">
+                                            @if ($n->status === 'Disetujui')
+                                            <i class="fa fa-check me-1"></i> Disetujui
+                                            @elseif ($n->status === 'Ditolak')
+                                            <i class="fa fa-times me-1"></i> Ditolak
+                                            @else
+                                            Belum Diproses
+                                            @endif
+                                        </span>
+
+                                        @endif
+
+                                        <!-- Tombol Delete -->
+                                        <form id="delete-form-{{ $n->id }}" action="{{ route('pinjaman.destroy', $n->id) }}" method="POST" style="display: inline;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="button" data-bs-toggle="tooltip" class="btn btn-link btn-danger" data-original-title="Remove" onclick="confirmDelete({{ $n->id }})"><i class="fa fa-times"></i></button>
+                                            <button type="button" class="btn btn-link btn-danger" title="Hapus" onclick="confirmDelete({{ $n->id }})">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
                                         </form>
                                     </div>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -92,79 +168,6 @@
         </div>
     </div>
 </div>
-
-<!-- Modal Tambah-->
-{{-- <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">Tambah Data pinjaman</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="{{ route('pinjaman.store') }}" method="post" enctype="multipart/form-data">
-@csrf
-<div class="modal-body">
-    <div class="form-floating form-floating-custom mb-3">
-        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
-            <option value="">Pilih NIK</option>
-            @if ($nasabah ?? $nasabah->isNotEmpty())
-            @foreach ($nasabah as $n)
-            <option value="{{ $n->id }}" data-nik="{{ $n->Nik ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->Nik }}</option>
-            @endforeach
-            @else
-            <p>Tidak ada Data</p>
-            @endif
-        </select>
-        <label for="user_id">Pilih NIK</label>
-    </div>
-
-    <div class="form-floating form-floating-custom mb-3">
-        <input type="text" class="form-control" id="nama_nasabah" name="nama_nasabah" placeholder="Nama Nasabah" readonly />
-        <label for="nama_nasabah">Nama Nasabah</label>
-    </div>
-
-    <div class="form-floating form-floating-custom mb-3">
-        <select name="lama_pinjaman" id="lama_pinjaman" class="form-control form-select @error('lama_pinjaman') is-invalid @enderror">
-            <option value="">--pilih--</option>
-            <option value="5 Bulan">5 Bulan</option>
-            <option value="10 Bulan">10 Bulan</option>
-            <option value="15 Bulan">15 Bulan</option>
-            <option value="20 Bulan">20 Bulan</option>
-            <option value="25 Bulan">25 Bulan</option>
-            <option value="30 Bulan">30 Bulan</option>
-        </select>
-        <label for="lama_pinjaman">Lama Pinjaman</label>
-        @error('lama_pinjaman')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-    <div class="form-floating form-floating-custom mb-3">
-        <input type="text" id="jumlah_pinjaman_display" class="form-control @error('jumlah_pinjaman') is-invalid @enderror" placeholder="Jumlah Pinjaman" value="{{ old('jumlah_pinjaman') }}" readonly />
-        <input type="hidden" name="jumlah_pinjaman" id="jumlah_pinjaman" value="{{ old('jumlah_pinjaman') }}" />
-        <label for="floatingInput">Jumlah Pinjaman</label>
-        @error('jumlah_pinjaman')
-        <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-
-    <div class="form-floating form-floating-custom mb-3">
-        <input type="number" name="bunga_pinjaman" class="form-control" id="bunga_pinjaman" placeholder="Bunga" readonly />
-        <label for="floatingInput">Bunga Pinjaman</label>
-    </div>
-    <input type="hidden" name="kapitalisasi" id="jumlah_kapitalisasi">
-    <input type="hidden" name="proposi" id="jumlah_adm">
-    <input type="hidden" name="terima_total" id="jumlah_terima">
-</div>
-<div class="modal-footer">
-    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-    <button type="submit" class="btn btn-success">Save</button>
-</div>
-</form>
-</div>
-</div>
-</div> --}}
-
 
 <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -177,19 +180,32 @@
                 @csrf
                 <div class="modal-body">
                     <!-- NIK Nasabah -->
+                    @php
+                    $user = auth()->user();
+                    $isAdmin = $user->role === 'Admin';
+                    @endphp
+
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">Pilih Nomor Anggota</option>
-                           @if (isset($nasabah) && $nasabah->isNotEmpty())
-                                @foreach ($nasabah->where('status','Verify') as $n)
-                                    <option value="{{ $n->id }}" data-nik="{{ $n->nmr_anggota ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nmr_anggota }}</option>
-                                @endforeach
+
+                            @if (isset($nasabah) && $nasabah->isNotEmpty())
+                            @foreach ($nasabah->where('status','Verify') as $n)
+                            @if ($isAdmin)
+                            <option value="{{ $n->id }}" data-nik="{{ $n->nm_koperasi ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nm_koperasi }}</option>
                             @else
-                            <p>Tidak ada Data</p>
+                            @if ($n->id == $user->id)
+                            <option value="{{ $n->id }}" data-nik="{{ $n->nm_koperasi ?? '' }}" data-nama="{{ $n->name ?? '' }}">{{ $n->nm_koperasi }}</option>
+                            @endif
+                            @endif
+                            @endforeach
+                            @else
+                            <option disabled>Tidak ada Data</option>
                             @endif
                         </select>
                         <label for="user_id">Pilih Nomor Anggota</label>
                     </div>
+
 
                     <!-- Nama Nasabah -->
                     <div class="form-floating form-floating-custom mb-3">
@@ -216,14 +232,22 @@
                         <input type="text" id="jumlah_pinjaman_display" class="form-control" placeholder="Jumlah Pinjaman" />
                         <label for="jumlah_pinjaman_display">Jumlah Pinjaman</label>
                     </div>
-
                     <input type="hidden" id="jumlah_pinjaman" name="jumlah_pinjaman" />
-
                     <small class="text-danger" id="maxInfo" style="display: none;"></small>
-
                     <div class="form-floating form-floating-custom mb-3">
                         <input type="number" name="bunga_pinjaman" class="form-control" id="bunga_pinjaman" placeholder="Bunga Pinjaman" readonly />
                         <label for="floatingInput">Bunga Pinjaman</label>
+                    </div>
+
+                    <h2>Penjamin</h2>
+                    <div class="form-floating form-floating-custom mb-3">
+                        <input type="char" name="nama_penjamin" class="form-control" id="nama_penjamin" placeholder="Nama penjamin" readonly />
+                        <label for="floatingInput">Nama Penjamin</label>
+                    </div>
+
+                    <div class="form-floating form-floating-custom mb-3">
+                        <input type="file" class="form-control" id="foto" name="foto" placeholder="Foto KTP" readonly />
+                        <label for="foto">Foto KTP Penjamin</label>
                     </div>
 
                     <!-- Hidden Fields -->
@@ -260,9 +284,131 @@
     </div>
 </div>
 
+{{-- Modal Edit --}}
+{{-- @foreach ($pinjaman as $n)
+<div class="modal fade" id="Edit{{ $n->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Data Pinjaman</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{{ route('pinjaman.update', $n->id) }}" method="post" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="modal-body">
+                <div class="form-floating form-floating-custom mb-3">
+                    <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
+                        <option value="">Pilih</option>
+                        @if (isset($nasabah) && $nasabah->isNotEmpty())
+                        @foreach ($nasabah->where('status','Verify') as $item)
+                        <option value="{{ $item->id }}" {{ $item->id == $n->user_id ? 'selected' : '' }} data-nik="{{ $item->Nik }}" data-nama="{{ $item->name }}">
+                            {{ $item->Nik }}
+                        </option>
+                        @endforeach
+                        @else
+                        <p>Tidak Ada Data</p>
+                        @endif
+                    </select>
+                    <label for="user_id">Pilih Nasabah</label>
+                </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                <div class="form-floating form-floating-custom mb-3">
+                    <input type="text" class="form-control" id="nama_nasabah" name="nama_nasabah" placeholder="Nama Nasabah" value="{{ $n->nasabah->name ?? '' }}" readonly />
+                    <label for="nama_nasabah">Nama Nasabah</label>
+                </div>
+
+                <div class="form-floating form-floating-custom mb-3">
+                    <select name="lama_pinjaman" id="lama_pinjaman" class="form-control form-select">
+                        <option value="">--pilih--</option>
+                        <option value="5 Bulan" {{ $n->lama_pinjaman == '5 Bulan' ? 'selected' : '' }}>5 Bulan
+                        </option>
+                        <option value="10 Bulan" {{ $n->lama_pinjaman == '10 Bulan' ? 'selected' : '' }}>10
+                            Bulan</option>
+                        <option value="15 Bulan" {{ $n->lama_pinjaman == '15 Bulan' ? 'selected' : '' }}>15
+                            Bulan</option>
+                        <option value="20 Bulan" {{ $n->lama_pinjaman == '20 Bulan' ? 'selected' : '' }}>20
+                            Bulan</option>
+                        <option value="25 Bulan" {{ $n->lama_pinjaman == '25 Bulan' ? 'selected' : '' }}>25
+                            Bulan</option>
+                        <option value="30 Bulan" {{ $n->lama_pinjaman == '30 Bulan' ? 'selected' : '' }}>30
+                            Bulan</option>
+                    </select>
+                    <label for="lama_pinjaman">Lama Pinjaman</label>
+                </div>
+
+
+                <div class="form-floating form-floating-custom mb-3">
+                    <input type="text" id="jumlah_pinjaman_display_edit_{{ $n->id }}" oninput="formatUangEdit(this, {{ $n->id }})" class="form-control @error('jumlah_pinjaman') is-invalid @enderror" placeholder="Jumlah Simpanan" value="{{ 'Rp ' . number_format($n->jumlah_pinjaman, 0, ',', '.') }}" />
+
+                    <input type="hidden" name="jumlah_pinjaman" class="form-control @error('jumlah_pinjaman') is-invalid @enderror" id="jumlah_pinjaman_edit_{{ $n->id }}" value="{{ $n->jumlah_pinjaman }}" />
+
+                    <label for="jumlah_pinjaman">Jumlah Pinjaman</label>
+                    @error('jumlah_pinjaman')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-floating form-floating-custom mb-3">
+                    <input type="number" name="bunga_pinjaman" class="form-control" id="bunga_pinjaman" placeholder="Bunga Pinjaman" value="{{ old('bunga_pinjaman', $n->bunga_pinjaman) }}" />
+                    <label for="bunga_pinjaman">Bunga Pinjaman</label>
+                </div>
+
+                <div class="form-floating form-floating-custom mb-3">
+                    <input type="number" name="simpanan" class="form-control @error('simpanan') is-invalid @enderror" id="simpanan" placeholder="Simpanan" value="{{ old('simpanan', $n->simpanan) }}" />
+                    <label for="simpanan">Simpanan</label>
+                    @error('simpanan')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-success">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+@endforeach --}}
+
+@if (session('success'))
+<script>
+    Swal.fire({
+        title: "Berhasil!"
+        , text: "{{ session('success') }}"
+        , icon: "success"
+        , confirmButtonText: "OK"
+    });
+
+</script>
+@endif
+
+@if (session('delete'))
+<script>
+    Swal.fire({
+        title: "Dihapus!"
+        , text: "{{ session('delete') }}"
+        , icon: "warning"
+        , confirmButtonText: "OK"
+    });
+
+</script>
+@endif
+
+@if (session('error'))
+<script>
+    Swal.fire({
+        icon: 'error'
+        , title: 'Gagal'
+        , text: "{{ session('error') }}"
+        , timer: 3000
+        , showConfirmButton: false
+    });
+
+</script>
+@endif
+
 <script>
     function confirmDelete(id) {
         Swal.fire({
@@ -279,6 +425,14 @@
             }
         });
     }
+
+</script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
+<script>
     $(document).ready(function() {
         $("#basic-datatables").DataTable({});
 
@@ -321,195 +475,65 @@
         });
 
         // Saat nasabah dipilih
-       $('#user_id').on('change', function () {
-    var user_id = $(this).val();
+        $('#user_id').on('change', function() {
+            var user_id = $(this).val();
 
-    if (user_id) {
-        $.ajax({
-            url: '/pinjaman/check-eligibility/' + user_id,
-            type: 'GET',
-            success: function (response) {
-                if (response.status === 'not_eligible') {
-                    // Tambahan: jika respons ada alasan
-                    let alasan = response.message ?? 'Nasabah tidak memenuhi syarat.';
+            if (user_id) {
+                $.ajax({
+                    url: '/pinjaman/check-eligibility/' + user_id
+                    , type: 'GET'
+                    , success: function(response) {
+                        if (response.status === 'not_eligible') {
+                            // Tambahan: jika respons ada alasan
+                            let alasan = response.message ? ? 'Nasabah tidak memenuhi syarat.';
 
-                    // Tampilkan modal
-                    $('#nasabahBergabungModal').modal('show');
+                            // Tampilkan modal
+                            $('#nasabahBergabungModal').modal('show');
 
-                    // Optional: update isi modal jika perlu
-                    $('#nasabahBergabungModal .modal-body').html(`<p>${alasan}</p>`);
+                            // Optional: update isi modal jika perlu
+                            $('#nasabahBergabungModal .modal-body').html(`<p>${alasan}</p>`);
 
-                    // Reset semua inputan
-                    $('#nama_nasabah').val('');
-                    $('#jumlah_pinjaman_display').val('');
-                    $('#jumlah_pinjaman').val('');
-                    $('#bunga_pinjaman').val('');
-                    $('#jumlah_kapitalisasi').val('');
-                    $('#jumlah_adm').val('');
-                    $('#jumlah_terima').val('');
-                    $('#maxInfo').hide();
-                    $('#infoTambahan').hide();
-                } else if (response.status === 'eligible') {
-                    $('#nama_nasabah').val(response.nama_nasabah);
-                    maxLoan = response.jumlah_pinjaman;
+                            // Reset semua inputan
+                            $('#nama_nasabah').val('');
+                            $('#jumlah_pinjaman_display').val('');
+                            $('#jumlah_pinjaman').val('');
+                            $('#bunga_pinjaman').val('');
+                            $('#jumlah_kapitalisasi').val('');
+                            $('#jumlah_adm').val('');
+                            $('#jumlah_terima').val('');
+                            $('#maxInfo').hide();
+                            $('#infoTambahan').hide();
+                        } else if (response.status === 'eligible') {
+                            $('#nama_nasabah').val(response.nama_nasabah);
+                            maxLoan = response.jumlah_pinjaman;
 
-                    // Reset input nilai
-                    $('#jumlah_pinjaman_display').val('');
-                    $('#jumlah_pinjaman').val('');
-                    $('#jumlah_kapitalisasi').val('');
-                    $('#jumlah_adm').val('');
-                    $('#jumlah_terima').val('');
+                            // Reset input nilai
+                            $('#jumlah_pinjaman_display').val('');
+                            $('#jumlah_pinjaman').val('');
+                            $('#jumlah_kapitalisasi').val('');
+                            $('#jumlah_adm').val('');
+                            $('#jumlah_terima').val('');
 
-                    // Set bunga default
-                    $('#bunga_pinjaman').val(response.bunga_pinjaman);
+                            // Set bunga default
+                            $('#bunga_pinjaman').val(response.bunga_pinjaman);
 
-                    // Tampilkan maksimal pinjaman
-                    $('#maxInfo').text('Maksimal pinjaman: ' + formatRupiah(maxLoan)).show();
+                            // Tampilkan maksimal pinjaman
+                            $('#maxInfo').text('Maksimal pinjaman: ' + formatRupiah(maxLoan)).show();
+                            let info = '';
+                            if (response.umur && response.lama_gabung_bulan && response.angsuran !== undefined) {
+                                info = `Umur nasabah: ${response.umur} tahun<br>Lama bergabung: ${response.lama_gabung_bulan} bulan`;
+                            }
 
-                    // 🆕 Tambahan: info umur & lama gabung
-                    debugger;
-                    let info = '';
-                    if (response.umur && response.lama_gabung_bulan && response.angsuran !== undefined) {
-                        info = `Umur nasabah: ${response.umur} tahun<br>Lama bergabung: ${response.lama_gabung_bulan} bulan`;
+                            $('#infoTambahan').html(info).show();
+                        }
                     }
-
-                    $('#infoTambahan').html(info).show();
-                }
-            },
-            error: function (xhr) {
-                alert('Terjadi kesalahan: ' + (xhr.responseJSON?.error ?? 'Unknown Error'));
+                    , error: function(xhr) {
+                        alert('Terjadi kesalahan: ' + (xhr.responseJSON ? .error ? ? 'Unknown Error'));
+                    }
+                });
             }
         });
-    }
-});
-
-});
-
-</script>
-
-{{-- Modal Edit --}}
-@foreach ($pinjaman as $n)
-<div class="modal fade" id="Edit{{ $n->id }}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Data Pinjaman</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form action="{{ route('pinjaman.update', $n->id) }}" method="post" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
-                    <div class="form-floating form-floating-custom mb-3">
-                        <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
-                            <option value="">Pilih</option>
-                            @if (isset($nasabah) && $nasabah->isNotEmpty())
-                            @foreach ($nasabah->where('status','Verify') as $item)
-                            <option value="{{ $item->id }}" {{ $item->id == $n->user_id ? 'selected' : '' }} data-nik="{{ $item->Nik }}" data-nama="{{ $item->name }}">
-                                {{ $item->Nik }}
-                            </option>
-                            @endforeach
-                            @else
-                            <p>Tidak Ada Data</p>
-                            @endif
-                        </select>
-                        <label for="user_id">Pilih Nasabah</label>
-                    </div>
-
-                    <div class="form-floating form-floating-custom mb-3">
-                        <input type="text" class="form-control" id="nama_nasabah" name="nama_nasabah" placeholder="Nama Nasabah" value="{{ $n->nasabah->name ?? '' }}" readonly />
-                        <label for="nama_nasabah">Nama Nasabah</label>
-                    </div>
-
-                    <div class="form-floating form-floating-custom mb-3">
-                        <select name="lama_pinjaman" id="lama_pinjaman" class="form-control form-select">
-                            <option value="">--pilih--</option>
-                            <option value="5 Bulan" {{ $n->lama_pinjaman == '5 Bulan' ? 'selected' : '' }}>5 Bulan
-                            </option>
-                            <option value="10 Bulan" {{ $n->lama_pinjaman == '10 Bulan' ? 'selected' : '' }}>10
-                                Bulan</option>
-                            <option value="15 Bulan" {{ $n->lama_pinjaman == '15 Bulan' ? 'selected' : '' }}>15
-                                Bulan</option>
-                            <option value="20 Bulan" {{ $n->lama_pinjaman == '20 Bulan' ? 'selected' : '' }}>20
-                                Bulan</option>
-                            <option value="25 Bulan" {{ $n->lama_pinjaman == '25 Bulan' ? 'selected' : '' }}>25
-                                Bulan</option>
-                            <option value="30 Bulan" {{ $n->lama_pinjaman == '30 Bulan' ? 'selected' : '' }}>30
-                                Bulan</option>
-                        </select>
-                        <label for="lama_pinjaman">Lama Pinjaman</label>
-                    </div>
-
-
-                    <div class="form-floating form-floating-custom mb-3">
-                        <input type="text" id="jumlah_pinjaman_display_edit_{{ $n->id }}" oninput="formatUangEdit(this, {{ $n->id }})" class="form-control @error('jumlah_pinjaman') is-invalid @enderror" placeholder="Jumlah Simpanan" value="{{ 'Rp ' . number_format($n->jumlah_pinjaman, 0, ',', '.') }}" />
-
-                        <input type="hidden" name="jumlah_pinjaman" class="form-control @error('jumlah_pinjaman') is-invalid @enderror" id="jumlah_pinjaman_edit_{{ $n->id }}" value="{{ $n->jumlah_pinjaman }}" />
-
-                        <label for="jumlah_pinjaman">Jumlah Pinjaman</label>
-                        @error('jumlah_pinjaman')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="form-floating form-floating-custom mb-3">
-                        <input type="number" name="bunga_pinjaman" class="form-control" id="bunga_pinjaman" placeholder="Bunga Pinjaman" value="{{ old('bunga_pinjaman', $n->bunga_pinjaman) }}" />
-                        <label for="bunga_pinjaman">Bunga Pinjaman</label>
-                    </div>
-
-                    <div class="form-floating form-floating-custom mb-3">
-                        <input type="number" name="simpanan" class="form-control @error('simpanan') is-invalid @enderror" id="simpanan" placeholder="Simpanan" value="{{ old('simpanan', $n->simpanan) }}" />
-                        <label for="simpanan">Simpanan</label>
-                        @error('simpanan')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    {{-- <div class="form-floating form-floating-custom mb-3">
-                        <input type="number" name="adm" class="form-control @error('adm') is-invalid @enderror" id="adm"
-                            placeholder="Administrasi" value="{{ old('adm', $n->adm) }}" />
-                    <label for="adm">Administrasi</label>
-                    @error('adm')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div> --}}
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-success">Save Changes</button>
-        </div>
-        </form>
-    </div>
-</div>
-</div>
-@endforeach
-
-
-@if (session('success'))
-<script>
-    Swal.fire({
-        title: "Berhasil!"
-        , text: "{{ session('success') }}"
-        , icon: "success"
-        , confirmButtonText: "OK"
     });
 
 </script>
-@endif
-
-@if (session('delete'))
-<script>
-    Swal.fire({
-        title: "Dihapus!"
-        , text: "{{ session('delete') }}"
-        , icon: "warning"
-        , confirmButtonText: "OK"
-    });
-
-</script>
-@endif
-
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
 @endsection

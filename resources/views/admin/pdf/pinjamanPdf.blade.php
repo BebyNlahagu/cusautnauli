@@ -138,13 +138,20 @@
             <tr>
                 <td>{{ $no++ }}</td>
                 <td>{{ \Carbon\Carbon::parse($n->created_at)->translatedFormat('l, d F Y') }}</td>
-                <td>{{ $n->nasabah->Nik }}</td>
-                <td>{{ $n->nasabah->name }}</td>
+                <td>{{ $n->user->Nik }}</td>
+                <td>{{ $n->user->name }}</td>
                 <td>Rp {{ number_format((float)$n->jumlah_pinjaman, 0, ',', '.') }}</td>
                 <td>{{ $n->lama_pinjaman }}</td>
                 <td>{{ $n->bunga_pinjaman }} %</td>
             </tr>
             @endforeach
+
+            <tfoot>
+                <tr>
+                    <td colspan="6">Jumlah Pinjaman</td>
+                    <td class="text-end">Rp.{{ number_format($jumlah_pinjaman) }}</td>
+                </tr>
+            </tfoot>
         </tbody>
     </table>>
 

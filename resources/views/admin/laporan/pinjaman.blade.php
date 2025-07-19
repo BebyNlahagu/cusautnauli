@@ -92,7 +92,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Tanggal</th>
-                                <th>No. NIK</th>
+                                <th>Nomor Anggota</th>
                                 <th>Nama</th>
                                 <th>Jumlah Pinjaman</th>
                                 <th>Tenor</th>
@@ -108,11 +108,16 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 <td>{{ \Carbon\Carbon::parse($n->created_at)->translatedFormat('l, d F Y') }}</td>
-                                <td>{{ $n->nasabah->Nik }}</td>
-                                <td>{{ $n->nasabah->name }}</td>
+                                <td>{{ $n->user->nm_koperasi }}</td>
+                                <td>{{ $n->user->name }}</td>
                                 <td>Rp {{ number_format((float)$n->jumlah_pinjaman, 0, ',', '.') }}</td>
                                 <td>{{ $n->lama_pinjaman }}</td>
                                 <td>{{ $n->bunga_pinjaman }} %</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#lihatSemuaModal{{ $n->user_id }}">
+                                        <i class="fa fa-eye"></i> Lihat Semua
+                                    </button>
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -122,6 +127,62 @@
         </div>
     </div>
 </div>
+
+@foreach ($semua_pinjaman->groupBy('user_id') as $user_id => $pinjaman_user)
+<div class="modal fade" id="lihatSemuaModal{{ $user_id }}" tabindex="-1" aria-labelledby="lihatSemuaModalLabel{{ $user_id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Riwayat Pinjaman - {{ $pinjaman_user->first()->user->name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tanggal</th>
+                            <th>Jumlah</th>
+                            <th>Lama</th>
+                            <th>Bunga</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($pinjaman_user as $i => $p)
+                            <tr>
+                                <td>{{ $i + 1 }}</td>
+                                <td>{{ \Carbon\Carbon::parse($p->created_at)->translatedFormat('d F Y') }}</td>
+                                <td>Rp {{ number_format($p->jumlah_pinjaman, 0, ',', '.') }}</td>
+                                <td>{{ $p->lama_pinjaman }}</td>
+                                <td>{{ $p->bunga_pinjaman }}%</td>
+                                <td>
+                                    <span class="badge 
+                                        {{ $p->status === 'Disetujui' ? 'bg-success' : 
+                                           ($p->status === 'Ditolak' ? 'bg-danger' : 'bg-secondary') }}">
+                                        @if ($p->status === 'Disetujui')
+                                            <i class="fa fa-check me-1"></i> Disetujui
+                                        @elseif ($p->status === 'Ditolak')
+                                            <i class="fa fa-times me-1"></i> Ditolak
+                                        @else
+                                            {{ ucfirst($p->status) }}
+                                        @endif
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+
+
 <script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
 <script>
     $(document).ready(function() {

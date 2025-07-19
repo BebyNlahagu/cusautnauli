@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreign("user_id")->references('id')->on('users')->onDelete("cascade");
             $table->unsignedBigInteger("user_id");
-            $table->enum("jenis_simpanan",["Simpanan Pokok","Simpanan Wajib", "Simpanan Dakesma", "Biaya Administrasi"]);
+            $table->enum("jenis_simpanan",["Simpanan Pokok","Simpanan Wajib", "Simpanan Dakesma", "Biaya Administrasi"])->nullable();
             $table->decimal("jumlah_simpanan",15, 2);
             $table->decimal('jumlah_kapitalisasi',15,2)->nullable();
             $table->decimal("total" ,15 ,2)->nullable();

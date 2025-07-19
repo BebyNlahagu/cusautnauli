@@ -111,7 +111,7 @@
     <div class="col-md-12">
         <div class="card card-round">
             <div class="card-body">
-                <h1 class="text-center">SELAMAT DATANG DI SISTEM INFORMASI SIMPAN PINJAM DI CU NAULI</h1>
+                <h1 class="text-center">SELAMAT DATANG DI SISTEM INFORMASI SIMPAN PINJAM DI CU SAUT MAJU NAULI</h1>
             </div>
         </div>
     </div>

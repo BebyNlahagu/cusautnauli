@@ -40,7 +40,7 @@ class User extends Authenticatable
 
     public function petugas()
     {
-        return $this->hasMany(Petugas::class,'user_id');
+        return $this->hasMany(Petugas::class, 'user_id');
     }
 
     public function simpanan()
@@ -61,5 +61,10 @@ class User extends Authenticatable
     public function alamat()
     {
         return $this->belongsTo(Alamat::class, 'alamat_id');
+    }
+
+    public function simpans()
+    {
+        return $this->hasMany(Simpan::class,'user_id');
     }
 }

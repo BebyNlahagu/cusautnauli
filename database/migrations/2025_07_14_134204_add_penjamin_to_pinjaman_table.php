@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alamats', function (Blueprint $table) {
-            $table->id();
-            $table->string("alamat")->nullable();
-            $table->timestamps();
+        Schema::table('pinjaman', function (Blueprint $table) {
+            $table->string('nama_penjamin')->nullable();
+            $table->string('foto')->nullable()->after('nama_penjamin');
         });
     }
 
@@ -23,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alamats');
+        Schema::table('pinjaman', function (Blueprint $table) {
+            $table->dropColumn('nama_penjamin');
+            $table->dropColumn('foto');
+        });
     }
 };

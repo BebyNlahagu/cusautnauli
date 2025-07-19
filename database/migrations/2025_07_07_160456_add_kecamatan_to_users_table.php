@@ -4,15 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('alamat_id')->nullable()->after('id');
-            $table->foreign('alamat_id')->references('id')->on('alamats')->onDelete('set null');
+            $table->enum("kecamatan",["Kecamatan Siborong Borong","Kecamatan Paranginan","Kecamatan Lintong Nihuta"])->nullable()->after("pekerjaan");
         });
     }
 
@@ -22,8 +22,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['alamat_id']);
-            $table->dropColumn('alamat_id');
+            $table->dropColumn("kecamatan");
         });
     }
 };

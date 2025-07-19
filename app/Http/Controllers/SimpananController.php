@@ -13,21 +13,51 @@ class SimpananController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $user = Auth::user();
+        $simpanan = Simpanan::with('user')->latest()->get();
 
-        if ($user->role == "Admin") {
-            $simpanan = Simpanan::with('user')->get();
-            $nasabah = User::where('status', 'Verify')->get();
-            $kapitalisasi = Simpanan::sum('jumlah_kapitalisasi');
-        } else {
-            $simpanan = Simpanan::with('user')->where('user_id', $user->id)->get();
+        $simpananGrouped = $simpanan->groupBy('user_id')->map(function ($items) {
+            return [
+                'user' => $items->first()->user,
+                'tanggal_transaksi' => $items->max('created_at')->translatedFormat('l, d F Y'),
+                'jenis_simpanan' => $items->pluck('jenis_simpanan')->implode(', '),
+                'total_simpanan' => $items->sum('jumlah_simpanan'),
+                'total_kapitalisasi' => $items->sum('jumlah_kapitalisasi'),
+            ];
+        });
+
+        $kapitalisasi = $simpanan->sum('jumlah_kapitalisasi');
+        $nasabah = User::where('status', 'Verify')->get();
+
+        if ($user->role !== 'Admin') {
+            $simpananGrouped = $simpananGrouped->filter(function ($item) use ($user) {
+                return $item['user']->id === $user->id;
+            });
+
+            $kapitalisasi = $simpanan->where('user_id', $user->id)->sum('jumlah_kapitalisasi');
             $nasabah = User::where('id', $user->id)->get();
-            $kapitalisasi = Simpanan::where('user_id', $user->id)->sum('jumlah_kapitalisasi');
         }
 
-        return view("admin.simpanan.index", compact('simpanan', 'nasabah', 'kapitalisasi'));
+        $jumlah = Simpanan::sum("jumlah_simpanan");
+
+        return view("admin.simpanan.index", compact('simpananGrouped', 'kapitalisasi', 'nasabah', 'simpanan','jumlah'));
     }
 
+    public function getUserSimpanan($id)
+    {
+        $simpans = Simpan::where('user_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($simpan) {
+                return [
+                    'nama_simpanan' => $simpan->nama_simpanan,
+                    'besar_simpanan' => number_format($simpan->besar_simpanan, 0, ',', '.'),
+                    'tanggal' => $simpan->created_at->translatedFormat('d F Y'),
+                ];
+            });
+
+        return response()->json(['simpans' => $simpans]);
+    }
 
     public function store(Request $request)
     {
@@ -42,33 +72,18 @@ class SimpananController extends Controller
         $potongan = 0.02 * $jumlahSimpananAwal;
         $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
 
-        $simpanan = Simpanan::where('user_id', $request->user_id)
-            ->where('jenis_simpanan', $request->jenis_simpanan)
-            ->first();
-
-        if ($simpanan) {
-            $simpanan->jumlah_simpanan += $jumlahSetelahPotong;
-            $simpanan->jumlah_kapitalisasi += $potongan;
-            $simpanan->save();
-        } else {
-            $simpananAll = $jumlahSetelahPotong;
-            $kap = $potongan;
-
-            Simpanan::create([
-                'user_id' => $request->user_id,
-                'jumlah_simpanan' => $simpananAll,
-                'jumlah_kapitalisasi' => $kap,
-                'jenis_simpanan' => $request->jenis_simpanan,
-            ]);
-        }
+        Simpanan::create([
+            'user_id' => $request->user_id,
+            'jumlah_simpanan' => $jumlahSetelahPotong,
+            'jumlah_kapitalisasi' => $potongan,
+            'jenis_simpanan' => $request->jenis_simpanan,
+        ]);
 
         Simpan::create([
             'user_id' => $request->user_id,
             'nama_simpanan' => $request->jenis_simpanan ?? 'Tidak diketahui',
             'besar_simpanan' => $jumlahSetelahPotong,
         ]);
-
-
         return redirect()->route('simpanan.index')->with('success', 'Data Berhasil Di Tambahkan');
     }
 
@@ -94,30 +109,29 @@ class SimpananController extends Controller
         $potongan = 0.02 * $jumlahSimpananAwal;
         $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
 
-        $simpanan = Simpanan::where('user_id', $request->user_id)
-            ->where('jenis_simpanan', $request->jenis_simpanan)
-            ->first();
 
-        if ($simpanan) {
-            $simpanan->jumlah_simpanan += $jumlahSetelahPotong;
-            $simpanan->jumlah_kapitalisasi += $potongan;
-            $simpanan->save();
-        } else {
-            Simpanan::create([
-                'user_id' => $request->user_id,
-                'jumlah_simpanan' => $jumlahSetelahPotong,
-                'jumlah_kapitalisasi' => $potongan,
-                'jenis_simpanan' => $request->jenis_simpanan,
-            ]);
-        }
-
+        Simpanan::create([
+            'user_id' => $request->user_id,
+            'jumlah_simpanan' => $jumlahSetelahPotong,
+            'jumlah_kapitalisasi' => $potongan,
+            'jenis_simpanan' => $request->jenis_simpanan,
+        ]);
 
         return redirect()->route('simpanan.index')->with('success', 'Data Berhasil Di Perbarui');
     }
 
-    public function destroy($id)
+    public function destroyByUser($user_id)
     {
-        Simpanan::findorfail($id)->delete();
-        return redirect()->route('simpanan.index')->with('delete', 'Data Berhasil Dihapus');
+        try {
+            // Hapus dari tabel 'simpan'
+            Simpan::where('user_id', $user_id)->delete();
+
+            // Hapus dari tabel 'simpanan'
+            Simpanan::where('user_id', $user_id)->delete();
+
+            return redirect()->route('simpanan.index')->with('delete', 'Data simpanan nasabah berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->route('simpanan.index')->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+        }
     }
 }
