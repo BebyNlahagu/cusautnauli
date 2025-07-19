@@ -14,7 +14,8 @@ class AnggsuranController extends Controller
     public function index()
     {
         $angsuran = Anggsuran::with('user', 'pinjaman')->get();
-        $nasabah = User::all();
+        $nasabah = User::where('role', 'user')->whereNotNull('nm_koperasi')->where('nm_koperasi', '!=', '')->get();
+
         return view("admin.angsuran.index", compact('angsuran', 'nasabah'));
     }
 
@@ -147,8 +148,8 @@ class AnggsuranController extends Controller
 
         $angsuran->status = 'Lunas';
         $angsuran->tanggal_bayar = $tanggal_bayar;
-        $angsuran->denda = $denda;  
-        $angsuran->total_angsuran += $denda; 
+        $angsuran->denda = $denda;
+        $angsuran->total_angsuran += $denda;
         $angsuran->save();
 
         return redirect()->back()->with('success', 'Status angsuran berhasil diubah menjadi lunas. Denda: Rp ' . number_format($denda, 0, ',', '.'));
