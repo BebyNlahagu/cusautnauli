@@ -63,6 +63,11 @@
                         <select name="lama_pinjaman" class="form-control" required>
                             <option value="">-- Pilih Lama Pinjaman --</option>
                             <option value="6 Bulan">6 Bulan</option>
+                            <option value="12 Bulan">12 Bulan</option>
+                            <option value="18 Bulan">18 Bulan</option>
+                            <option value="24 Bulan">24 Bulan</option>
+                            <option value="30 Bulan">30 Bulan</option>
+                            <option value="36 Bulan">36 Bulan</option>
                         </select>
                     </div>
 

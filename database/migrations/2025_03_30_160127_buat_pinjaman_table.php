@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pinjaman', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('lama_pinjaman',["6 Bulan",]);
+            $table->enum('lama_pinjaman',["6 Bulan","12 Bulan", "18 Bulan", "24 Bulan", "30 Bulan", "36 Bulan"]);
             $table->decimal('jumlah_pinjaman', 15, 2);
             $table->decimal('kapitalisasi',15,2)->nullable();
             $table->decimal('proposi',15,2)->nullable();
