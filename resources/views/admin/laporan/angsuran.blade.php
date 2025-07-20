@@ -141,9 +141,11 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Nomor Anggota</th>
+                            <th>Nama</th>
                             <th>Tanggal Angsuran</th>
-                            <th>Jumlah Angsuran</th>
-                            <th>Status</th>
+                            <th>Lama Angsuran</th>
+                            <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
