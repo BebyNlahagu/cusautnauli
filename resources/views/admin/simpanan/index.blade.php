@@ -244,7 +244,7 @@
                             , month: 'long'
                             , year: 'numeric'
                         });
-
+                        
                         var row = `
                             <tr>
                                 <td>${index + 1}</td>
