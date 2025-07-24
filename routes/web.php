@@ -60,6 +60,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
 
     Route::get('/get-pinjaman/{nasabah_id}', [AnggsuranController::class, 'getPinjaman']);
+    Route::delete('/simpanan/{id}', [SimpananController::class, 'destroy']);
 
     Route::get('/admin/laporan/simpanan', [LaporanController::class, 'LaporanSimpanan'])->name('laporan.simpanan');
     Route::get('/admin/laporan/pinjaman', [LaporanController::class, 'LaporanPinjaman'])->name('laporan.pinjaman');
@@ -77,6 +78,8 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
 
     Route::put('/pinjaman/status/{id}', [PinjamanController::class, 'ubahStatus'])->name('pengajuan.status');
+
+    
 });
 
 Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(function () {

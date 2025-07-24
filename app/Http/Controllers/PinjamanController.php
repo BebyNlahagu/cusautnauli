@@ -68,7 +68,7 @@ class PinjamanController extends Controller
 
       $request->validate([
          'user_id' => 'required|exists:users,id',
-         'lama_pinjaman' => 'required|in:6 Bulan',
+         'lama_pinjaman' => 'required|in:6 Bulan,12 Bulan,18 Bulan, 24 Bulan, 30 Bulan, 36 Bulan',
          'jumlah_pinjaman' => 'required',
          'nama_penjamin' => 'required|string',
          'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',

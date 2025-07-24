@@ -175,14 +175,16 @@
                 url: `/simpanan/user/${userId}`
                 , method: 'GET'
                 , success: function(data) {
+                    console.log(data);
+                    debugger;
                     let rows = '';
-                    data.simpans.forEach((simpan, index) => {
+                    data.simpanans.forEach((simpan, index) => {
                         rows += `<tr>
-                    <td>${index + 1}</td>
-                    <td>${simpan.tanggal}</td>
-                    <td>${simpan.nama_simpanan}</td>
-                    <td class="text-end">Rp ${simpan.besar_simpanan}</td>
-                </tr>`;
+                            <td>${index + 1}</td>
+                            <td>${simpan.tanggal}</td>
+                            <td>${simpan.nama_simpanan}</td>
+                            <td class="text-end">Rp ${simpan.besar_simpanan}</td>
+                        </tr>`;
                     });
 
                     if (data.simpans.length === 0) {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Simpanan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,4 +17,19 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::get('/simpanan/{userId}', function($userId) {
+    $simpanan = Simpanan::where('user_id', $userId)->get();
+
+    $data = $simpanan->map(function($item) {
+        return [
+            'id' => $item->id,
+            'jenis_simpanan' => $item->jenis_simpanan,
+            'jumlah_simpanan' => $item->jumlah_simpanan,
+            'tanggal' => $item->created_at->translatedFormat('d F Y'),
+        ];
+    });
+
+    return response()->json(['simpanan' => $data]);
 });

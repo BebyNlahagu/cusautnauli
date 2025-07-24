@@ -16,7 +16,9 @@ class AnggsuranController extends Controller
         $angsuran = Anggsuran::with('user', 'pinjaman')->get();
         $nasabah = User::where('role', 'user')->whereNotNull('nm_koperasi')->where('nm_koperasi', '!=', '')->get();
 
-        return view("admin.angsuran.index", compact('angsuran', 'nasabah'));
+        $jumlahAngsuran = Anggsuran::sum("total_angsuran");
+
+        return view("admin.angsuran.index", compact('angsuran', 'nasabah','jumlahAngsuran'));
     }
 
     public function getPinjaman($user_id)
@@ -121,7 +123,7 @@ class AnggsuranController extends Controller
                 'angsuran_pokok' => $pokok_per_bulan,
                 'bunga' => $bunga_bulan_ini,
                 'total_angsuran' => $total_angsuran,
-                'tanggal_jatuh_tempo' => $jatuh_tempo->copy()->addMonths($bulan - 1),
+                'tanggal_jatuh_tempo' => $jatuh_tempo->copy()->addMonths($bulan),
                 'status' => 'Belum Lunas',
                 'sisa_angsuran' => $sisa_angsuran,
             ]);

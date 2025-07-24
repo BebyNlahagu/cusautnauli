@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label>Maksimal Pinjaman</label>
+                        <label>Maksimal Pinjaman 5x Jumlah Simpanan</label>
                         <input type="text" class="form-control" id="maksimal_pinjaman_display" value="Rp {{ number_format($total_simpanan * 5, 0, ',', '.') }}" readonly>
                         <input type="hidden" id="maksimal_pinjaman" value="{{ $total_simpanan * 5 }}">
                     </div>
@@ -63,11 +63,16 @@
                         <select name="lama_pinjaman" class="form-control" required>
                             <option value="">-- Pilih Lama Pinjaman --</option>
                             <option value="6 Bulan">6 Bulan</option>
+                            <option value="12 Bulan">12 Bulan</option>
+                            <option value="18 Bulan">18 Bulan</option>
+                            <option value="24 Bulan">24 Bulan</option>
+                            <option value="30 Bulan">30 Bulan</option>
+                            <option value="36 Bulan">36 Bulan</option>
                         </select>
                     </div>
 
                     <div class="form-group mb-3">
-                        <label>Jumlah Pinjaman</label>
+                        <label>Minimal Pinjaman</label>
                         <input type="text" id="jumlah_pinjaman_display" class="form-control" required>
                         <input type="hidden" name="jumlah_pinjaman" id="jumlah_pinjaman" value="{{ $jumlahMinimal }}" min="{{ $jumlahMinimal }}">
 

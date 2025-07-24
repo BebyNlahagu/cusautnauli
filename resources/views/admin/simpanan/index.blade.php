@@ -2,7 +2,8 @@
 @section('title', 'Data Simpanan')
 @section('bread')
 <div class="page-header">
-    <h3 class="fw-bold mb-3"> @if(Auth::check() && Auth::user()->role === 'User')
+    <h3 class="fw-bold mb-3">
+        @if(Auth::check() && Auth::user()->role === 'User')
         {{ Auth::user()->nm_koperasi }}
         @endif
     </h3>
@@ -27,6 +28,7 @@
     </ul>
 </div>
 @endsection
+
 @section('content')
 <div class="row">
     <div class="col-md-12">
@@ -34,7 +36,9 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="card-title">@yield('title')</h4>
                 @if (auth()->user()->role == "Admin")
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah"><span class="btn-label"><i class="fa fa-plus"></i></span>Add</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tambah">
+                    <span class="btn-label"><i class="fa fa-plus"></i></span>Add
+                </button>
                 @endif
             </div>
             <div class="card-body">
@@ -46,18 +50,15 @@
                                 @if (auth()->user()->role === "Admin")
                                 <th>Nama</th>
                                 @endif
-                                <th>Tanggal Transaksi</th>
+                                <th>Bulan Transaksi</th>
                                 <th>Jumlah Simpanan</th>
                                 @if (auth()->user()->role === "Admin")
-                                <th style="width: 10%">Action</th>
+                                <th>Action</th>
                                 @endif
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                            $no = 1;
-                            @endphp
-
+                            @php $no = 1; @endphp
                             @foreach ($simpananGrouped as $index => $s)
                             <tr>
                                 <td>{{ $no++ }}</td>
@@ -68,20 +69,14 @@
                                 <td>Rp {{ number_format($s['total_simpanan'], 0, ',', '.') }}</td>
                                 @if (auth()->user()->role === "Admin")
                                 <td>
-                                    <div class="form-button-action">
-                                        {{-- <a href="{{ route('simpanan.edit', $s['user']->id) }}" data-bs-toggle="modal" class="btn btn-link btn-primary btn-lg" data-bs-target="#Edit{{ $s['user']->id }}" data-original-title="Edit Task"><i class="fa fa-edit"></i></a> --}}
-                                        <form id="delete-form-{{ $s['user']->id }}" action="{{ route('simpanan.destroyByUser', ['user_id' => $s['user']->id]) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="btn btn-link btn-danger delete-btn" data-form-id="{{ $s['user']->id }}">
-                                                <i class="fa fa-times"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary view-simpanan-btn" data-user="{{ $s['user']->name }}" data-id="{{ $s['user']->id }}">
+                                        Detail
+                                    </button>
                                 </td>
                                 @endif
                             </tr>
                             @endforeach
+                        </tbody>
                         <tfoot>
                             <tr>
                                 <td colspan="{{ auth()->check() && auth()->user()->role === 'Admin' ? 3 : 2 }}" class="text-center">
@@ -89,14 +84,13 @@
                                 </td>
                                 <td class="text-end">Rp {{ number_format($kapitalisasi, 0, ',', '.') }}</td>
                             </tr>
+                            @if (auth()->user()->role == "Admin")
                             <tr>
-                                @if (auth()->user()->role == "Admin")
-                                    <td colspan="3" class="text-center fw-bolder">Jumlah Simpanan</td>
-                                    <td class="text-end fw-bold">Rp. {{ number_format($jumlah, 0, ',' , '.') }}</td> 
-                                @endif
+                                <td colspan="3" class="text-center fw-bolder">Total Simpanan</td>
+                                <td class="text-end fw-bold">Rp. {{ number_format($jumlah, 0, ',' , '.') }}</td>
                             </tr>
+                            @endif
                         </tfoot>
-                        </tbody>
                     </table>
                 </div>
             </div>
@@ -105,7 +99,6 @@
 </div>
 
 {{-- Modal Tambah data --}}
-
 <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -129,15 +122,13 @@
                         <select class="form-control @error('jenis_simpanan') is-invalid @enderror" onchange="setJumlahSimpanan()" id="jenis_simpanan" name="jenis_simpanan">
                             <option value="">Pilih Jenis Simpanan</option>
                             <option value="Simpanan Wajib">Simpanan Wajib</option>
-                            {{-- <option value="Simpanan Pokok">Simpanan Pokok</option> --}}
                             <option value="Simpanan Dakesma">Simpanan Dakesma</option>
-                            {{-- <option value="Biaya Administrasi">Biaya Administrasi</option> --}}
                         </select>
                         <label for="jenis_simpanan">Jenis Simpanan</label>
                     </div>
                     <div class="form-floating form-floating-custom mb-3">
                         <input type="text" id="jumlah_simpanan_display" oninput="formatUang(this)" class="form-control @error('jumlah_simpanan') is-invalid @enderror" readonly placeholder="Jumlah Simpanan" value="{{ old('jumlah_simpanan') ? 'Rp ' . number_format(old('jumlah_simpanan'), 0, ',', '.') : '' }}" />
-                        <input type="hidden" readonly name="jumlah_simpanan" class="form-control @error('jumlah_simpanan') is-invalid @enderror" id="jumlah_simpanan" placeholder="Jumlah Simpanan" value="{{ old('jumlah_simpanan') }}" />
+                        <input type="hidden" readonly name="jumlah_simpanan" class="form-control @error('jumlah_simpanan') is-invalid @enderror" id="jumlah_simpanan" value="{{ old('jumlah_simpanan') }}" />
                         <label for="floatingInput">Jumlah Simpanan</label>
                         @error('jumlah_simpanan')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -149,6 +140,34 @@
                     <button type="submit" class="btn btn-success">Save</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Simpanan -->
+<div class="modal fade" id="modalDetailSimpanan" tabindex="-1" aria-labelledby="modalDetailSimpananLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalDetailSimpananLabel">Detail Simpanan <span id="namaUserDetail"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Jenis Simpanan</th>
+                            <th>Jumlah Simpanan</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailSimpananBody">
+                        <!-- Data simpanan user akan diisi lewat JS -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -167,7 +186,7 @@
 
 @if(session("error"))
 <script>
-    swal.fire({
+    Swal.fire({
         title: "Gagal!"
         , text: "{{ session('error') }}"
         , icon: "error"
@@ -189,35 +208,115 @@
 </script>
 @endif
 
+{{-- Scripts --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-    function confirmDelete(id) {
-        Swal.fire({
-            title: "Apakah Anda Yakin?"
-            , text: "Data yang dihapus tidak bisa dikembalikan!"
-            , icon: "warning"
-            , showCancelButton: true
-            , confirmButtonColor: "#d33"
-            , cancelButtonColor: "#3085d6"
-            , confirmButtonText: "Ya, Hapus!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('delete-form-' + id).submit();
-            }
+    $(document).ready(function() {
+        // Inisialisasi DataTable hanya sekali
+        $("#basic-datatables").DataTable();
+
+        // Event tombol detail
+        $('.view-simpanan-btn').on('click', function() {
+            var userId = $(this).data('id');
+            var userName = $(this).data('user');
+            $('#namaUserDetail').text(userName);
+
+            $.ajax({
+                url: '/api/simpanan/' + userId
+                , method: 'GET'
+                , dataType: 'json'
+                , success: function(data) {
+                    var tbody = $('#detailSimpananBody');
+                    tbody.empty();
+
+                    if (data.simpanan.length === 0) {
+                        tbody.append('<tr><td colspan="5" class="text-center">Tidak ada data simpanan.</td></tr>');
+                        return;
+                    }
+
+                    $.each(data.simpanan, function(index, item) {
+                        var tanggal = new Date(item.tanggal).toLocaleDateString('id-ID', {
+                            day: '2-digit'
+                            , month: 'long'
+                            , year: 'numeric'
+                        });
+                        
+                        var row = `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${item.jenis_simpanan}</td>
+                                <td>Rp ${Number(item.jumlah_simpanan).toLocaleString('id-ID')}</td>
+                                <td>${tanggal}</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm btn-hapus" data-id="${item.id}">Hapus</button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+
+                    // Tampilkan modal setelah data siap
+                    var modal = new bootstrap.Modal(document.getElementById('modalDetailSimpanan'));
+                    modal.show();
+
+                    // Bind event hapus (unbind dulu supaya gak dobel)
+                    tbody.off('click', '.btn-hapus').on('click', '.btn-hapus', function() {
+                        var simpananId = $(this).data('id');
+
+                        Swal.fire({
+                            title: 'Yakin ingin menghapus simpanan ini?'
+                            , icon: 'warning'
+                            , showCancelButton: true
+                            , confirmButtonText: 'Ya, hapus!'
+                            , cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: '/simpanan/' + simpananId
+                                    , type: 'DELETE'
+                                    , headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        , 'Accept': 'application/json'
+                                    }
+                                    , success: function(resp) {
+                                        if (resp.success) {
+                                            Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
+                                            // Refresh data simpanan di modal
+                                            $('.view-simpanan-btn[data-id="' + userId + '"]').click();
+                                            location.reload();
+                                        } else {
+                                            Swal.fire('Gagal!', 'Gagal menghapus data.', 'error');
+                                        }
+                                    }
+                                    , error: function() {
+                                        Swal.fire('Error!', 'Terjadi kesalahan.', 'error');
+                                    }
+                                });
+                            }
+                        });
+                    });
+                }
+                , error: function() {
+                    Swal.fire('Error!', 'Gagal mengambil data simpanan.', 'error');
+                }
+            });
         });
-    }
+    });
 
-
+    // Fungsi format uang Rp
     function formatUang(input) {
         let value = input.value.replace(/\D+/g, '');
-        if (value.length > 14) value = value.slice(14);
+        if (value.length > 14) value = value.slice(0, 14); // Batasi max 14 digit
         let formatted = 'Rp ' + value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         input.value = formatted;
         document.getElementById('jumlah_simpanan').value = value;
     }
 
+    // Set jumlah simpanan otomatis sesuai jenis
     function setJumlahSimpanan() {
         const jenis = document.getElementById('jenis_simpanan').value;
         const jumlahInput = document.getElementById('jumlah_simpanan_display');
@@ -228,24 +327,13 @@
 
         if (jenis) {
             jumlahInput.value = jumlah;
+            document.getElementById('jumlah_simpanan').value = jumlah;
             formatUang(jumlahInput);
         } else {
             jumlahInput.value = '';
             document.getElementById('jumlah_simpanan').value = '';
         }
     }
-
-
-    $(document).ready(function() {
-        $("#basic-datatables").DataTable({});
-        $('.delete-btn').on('click', function() {
-            var formId = $(this).data('form-id');
-
-            if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-                $('#delete-form-' + formId).submit();
-            }
-        });
-    });
 
 </script>
 @endsection
