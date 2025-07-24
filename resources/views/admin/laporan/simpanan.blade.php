@@ -175,10 +175,8 @@
                 url: `/simpanan/user/${userId}`
                 , method: 'GET'
                 , success: function(data) {
-                    console.log(data);
-                    debugger;
                     let rows = '';
-                    data.simpanans.forEach((simpan, index) => {
+                    data.simpans.forEach((simpan, index) => {
                         rows += `<tr>
                             <td>${index + 1}</td>
                             <td>${simpan.tanggal}</td>
