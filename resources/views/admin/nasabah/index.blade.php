@@ -48,6 +48,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>No.Anggota</th>
+                                <th>Tanggal Bergabung</th>
                                 <th>No. NIK</th>
                                 <th>Nama</th>
                                 <th>Jenis Kelamin</th>
@@ -75,11 +76,11 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $n->nm_koperasi }}</td>
+                                <td>{{ \Carbon\Carbon::parse($n->created_at)->translatedFormat('l, d F Y') }}</td>
                                 <td>{{ $n->Nik }}</td>
                                 <td>{{ $n->name }}</td>
                                 <td>{{ $n->jenis_kelamin }}</td>
-                                <td>{{ \Carbon\Carbon::parse($n->tanggal_lahir)->translatedFormat('l, d F Y') }}
-                                </td>
+                                <td>{{ \Carbon\Carbon::parse($n->tanggal_lahir)->translatedFormat('l, d F Y') }}</td>
                                 <td>{{ $n->no_telp }}</td>
                                 <td>{{ $n->pekerjaan }}</td>
                                 <td>{{ $n->kecamatan }}</td>

@@ -6,6 +6,7 @@ use App\Models\Nasabah;
 use App\Models\Simpan;
 use App\Models\Simpanan;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -40,7 +41,7 @@ class SimpananController extends Controller
 
         $jumlah = Simpanan::sum("jumlah_simpanan");
 
-        return view("admin.simpanan.index", compact('simpananGrouped', 'kapitalisasi', 'nasabah', 'simpanan','jumlah'));
+        return view("admin.simpanan.index", compact('simpananGrouped', 'kapitalisasi', 'nasabah', 'simpanan', 'jumlah'));
     }
 
     public function getUserSimpanan($id)
@@ -68,23 +69,62 @@ class SimpananController extends Controller
             'total' => 'nullable',
         ]);
 
+        $userId = $request->user_id;
+        $now = Carbon::now();
+        $bulanSekarang = $now->month;
+        $tahunSekarang = $now->year;
+
+        // Ambil simpanan terakhir user
+        $simpananTerakhir = Simpanan::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        // Jika user belum pernah menyimpan, ambil dari created_at user (bulan bergabung)
+        $tanggalBergabung = User::find($userId)->created_at;
+        $bulanBergabung = $tanggalBergabung->month;
+        $tahunBergabung = $tanggalBergabung->year;
+
+        // Hitung bulan terakhir menyimpan
+        $bulanTerakhirSimpan = $simpananTerakhir ? $simpananTerakhir->created_at->month : $bulanBergabung;
+        $tahunTerakhirSimpan = $simpananTerakhir ? $simpananTerakhir->created_at->year : $tahunBergabung;
+
+        // Hitung total bulan yang belum dibayar
+        $mulai = Carbon::create($tahunTerakhirSimpan, $bulanTerakhirSimpan, 1);
+        $selesai = Carbon::create($tahunSekarang, $bulanSekarang, 1);
+
+        $selisihBulan = $selesai->diffInMonths($mulai);
+
+        if ($selisihBulan < 1) {
+            return redirect()->back()->with('error', 'Simpanan hanya bisa dilakukan satu kali per bulan.');
+        }
+
+        // Mulai simpan simpanan untuk tiap bulan tertinggal
         $jumlahSimpananAwal = 50000;
         $potongan = 0.02 * $jumlahSimpananAwal;
         $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
 
-        Simpanan::create([
-            'user_id' => $request->user_id,
-            'jumlah_simpanan' => $jumlahSetelahPotong,
-            'jumlah_kapitalisasi' => $potongan,
-            'jenis_simpanan' => $request->jenis_simpanan,
-        ]);
+        for ($i = 1; $i <= $selisihBulan; $i++) {
+            $tanggal = $mulai->copy()->addMonths($i);
 
-        Simpan::create([
-            'user_id' => $request->user_id,
-            'nama_simpanan' => $request->jenis_simpanan ?? 'Tidak diketahui',
-            'besar_simpanan' => $jumlahSetelahPotong,
-        ]);
-        return redirect()->route('simpanan.index')->with('success', 'Data Berhasil Di Tambahkan');
+            Simpanan::create([
+                'user_id' => $userId,
+                'jumlah_simpanan' => $jumlahSetelahPotong,
+                'jumlah_kapitalisasi' => $potongan,
+                'jenis_simpanan' => $request->jenis_simpanan,
+                'created_at' => $tanggal,
+                'updated_at' => $tanggal,
+            ]);
+
+            Simpan::create([
+                'user_id' => $userId,
+                'nama_simpanan' => $request->jenis_simpanan ?? 'Tidak diketahui',
+                'besar_simpanan' => $jumlahSetelahPotong,
+                'created_at' => $tanggal,
+                'updated_at' => $tanggal,
+            ]);
+        }
+
+        return redirect()->route('simpanan.index')->with('success', 'Simpanan berhasil ditambahkan untuk ' . $selisihBulan . ' bulan tertunggak.');
     }
 
 
@@ -120,18 +160,15 @@ class SimpananController extends Controller
         return redirect()->route('simpanan.index')->with('success', 'Data Berhasil Di Perbarui');
     }
 
-    public function destroyByUser($user_id)
+    public function destroy($id)
     {
         try {
-            // Hapus dari tabel 'simpan'
-            Simpan::where('user_id', $user_id)->delete();
+            $simpanan = Simpanan::findOrFail($id);
+            $simpanan->delete();
 
-            // Hapus dari tabel 'simpanan'
-            Simpanan::where('user_id', $user_id)->delete();
-
-            return redirect()->route('simpanan.index')->with('delete', 'Data simpanan nasabah berhasil dihapus.');
+            return response()->json(['success' => true]);
         } catch (\Exception $e) {
-            return redirect()->route('simpanan.index')->with('error', 'Gagal menghapus data: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }
 }
