@@ -57,9 +57,9 @@ class PinjamanController extends Controller
             'status' => $request->status
          ]);
 
-         return redirect()->route('pinjaman.index')->with('success', 'Status pengajuan berhasil diubah.');
+         return redirect()->route('pinjaman.index')->with('success', 'Pengajuan Pinjaman berhasil di setujui.');
       } catch (\Exception $e) {
-         return back()->with('error', 'Gagal mengubah status: ' . $e->getMessage());
+         return back()->with('error', 'Pengajuan Pinjama di tolak : ' . $e->getMessage());
       }
    }
 
