@@ -112,8 +112,8 @@
                                 <td>{{ $item['tanggal_terakhir'] }}</td>
                                 <td class="text-end bold">Rp {{ number_format($item['total_simpanan'], 0, ',', '.') }}</td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-primary view-simpanan-btn" data-user="{{ $item['user']->name }}" data-id="{{ $item['user']->id }}">
-                                        Lihat Semua
+                                    <button type="button" class="btn btn-link btn-success view-simpanan-btn" title="Detail" data-user="{{ $item['user']->name }}" data-id="{{ $item['user']->id }}">
+                                        <i class="fa fa-eye"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -122,7 +122,7 @@
                         @if (auth()->user()->role == "Admin")
                         <tfoot>
                             <tr>
-                                <th colspan="4" class="text-center fw-bolder">Jumlah Keselurahn</th>
+                                <th colspan="4" class="text-center fw-bolder">Jumlah Total</th>
                                 <th class="text-end fw-bold">Rp. {{ number_format($jumlah,0,',','.') }}</th>
                             </tr>
                         </tfoot>
@@ -175,10 +175,8 @@
                 url: `/simpanan/user/${userId}`
                 , method: 'GET'
                 , success: function(data) {
-                    console.log(data);
-                    debugger;
                     let rows = '';
-                    data.simpanans.forEach((simpan, index) => {
+                    data.simpans.forEach((simpan, index) => {
                         rows += `<tr>
                             <td>${index + 1}</td>
                             <td>${simpan.tanggal}</td>

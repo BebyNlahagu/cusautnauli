@@ -73,11 +73,10 @@
 
                     <div class="form-group mb-3">
                         <label>Minimal Pinjaman</label>
-                        <input type="text" id="jumlah_pinjaman_display" class="form-control" required>
+                        <input type="text" id="jumlah_pinjaman_display" class="form-control" required autocomplete="off">
                         <input type="hidden" name="jumlah_pinjaman" id="jumlah_pinjaman" value="{{ $jumlahMinimal }}" min="{{ $jumlahMinimal }}">
-
-                        <small id="error-message" class="text-danger" style="display: none;">
-                            Jumlah pinjaman tidak boleh melebihi batas maksimal.
+                        <small id="error-message" class="text-danger">
+                            {{-- Jumlah pinjaman tidak kurang dari minimal. --}}
                         </small>
                     </div>
 
@@ -114,73 +113,123 @@
     Swal.fire({
         icon: 'error'
         , title: 'Gagal'
-        , text: '{{ session('error') }}'
+        , text: '{{ session('
+        error ') }}'
     , });
     @endif
+
 </script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js "></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     $(document).ready(function() {
-        const formatRupiah = function(angka) {
-            return 'Rp. ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        };
+        const jumlahMinimal = parseFloat("{{ $jumlahMinimal }}");
+        const maksimalPinjaman = parseFloat($('#maksimal_pinjaman').val());
 
-        // Ambil nilai minimal dari hidden input, default ke 0 kalau kosong
-        let rawInitial = $('#jumlah_pinjaman').val() || '0';
+        // Fungsi format angka jadi Rp. 10.000
+        function formatRupiah(angka) {
+            let number_string = angka.toString().replace(/[^,\d]/g, '')
+                , split = number_string.split(',')
+                , sisa = split[0].length % 3
+                , rupiah = split[0].substr(0, sisa)
+                , ribuan = split[0].substr(sisa).match(/\d{3}/gi);
 
-        // Hapus leading zero kalau ada
-        rawInitial = rawInitial.replace(/^0+/, '');
-        if (rawInitial === '') rawInitial = '0';
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
 
-        // Set nilai display dengan format rupiah
-        $('#jumlah_pinjaman_display').val(formatRupiah(rawInitial));
+            rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+            return 'Rp. ' + rupiah;
+        }
 
-        // Saat form disubmit
+        // Set default nilai awal ke minimal dengan format Rupiah
+        $('#jumlah_pinjaman_display').val(formatRupiah(jumlahMinimal));
+        $('#jumlah_pinjaman').val(jumlahMinimal);
+
+        // Fungsi untuk dapatkan angka murni dari string input
+        function getNumberOnly(string) {
+            return parseInt(string.replace(/[^0-9]/g, '')) || 0;
+        }
+
+        // Event input, format dan update nilai hidden tanpa mengganggu posisi cursor
+        $('#jumlah_pinjaman_display').on('input', function(e) {
+            let input = $(this);
+            let cursorPos = this.selectionStart;
+
+            let originalLength = input.val().length;
+
+            let angka = getNumberOnly(input.val());
+
+            const errorEl = $("#error-message")
+
+            if (angka < jumlahMinimal) {
+                errorEl.text('Jumlah pinjaman tidak kurang dari minimal.').show();
+            }else{
+                errorEl.hide();
+            }
+
+            $('#jumlah_pinjaman').val(angka);
+
+           
+            let formatted = formatRupiah(angka);
+            input.val(formatted);
+
+            let newLength = formatted.length;
+            cursorPos = cursorPos + (newLength - originalLength);
+            this.setSelectionRange(cursorPos, cursorPos);
+        });
+
+        // Saat blur (keluar input), koreksi ke minimal kalau kurang dan format ulang
+        $('#jumlah_pinjaman_display').on('blur', function() {
+            let angka = getNumberOnly($(this).val());
+
+            if (angka < jumlahMinimal) {
+                angka = jumlahMinimal;
+                $('#jumlah_pinjaman').val(angka);
+                $(this).val(formatRupiah(angka));
+            }
+        });
+
+        // Validasi form saat submit
         $('form').on('submit', function(e) {
-            const maksimalPinjaman = parseFloat($('#maksimal_pinjaman').val());
             const jumlahPinjaman = parseFloat($('#jumlah_pinjaman').val());
-            const errorEl = $('#error-message');
 
             if (isNaN(jumlahPinjaman)) {
                 e.preventDefault();
-                errorEl.text('Masukkan jumlah pinjaman yang valid.').show();
+                Swal.fire({
+                    icon: 'error'
+                    , title: 'Gagal'
+                    , text: 'Masukkan jumlah pinjaman yang valid.'
+                });
+                return false;
+            }
+
+            if (jumlahPinjaman < jumlahMinimal) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error'
+                    , title: 'Gagal'
+                    , text: 'Jumlah pinjaman tidak boleh kurang dari minimal (Rp ' + jumlahMinimal.toLocaleString('id-ID') + ').'
+                });
+                $('#jumlah_pinjaman_display').val(formatRupiah(jumlahMinimal));
+                $('#jumlah_pinjaman').val(jumlahMinimal);
                 return false;
             }
 
             if (jumlahPinjaman > maksimalPinjaman) {
                 e.preventDefault();
-                errorEl.text('Jumlah pinjaman melebihi batas maksimal.').show();
+                Swal.fire({
+                    icon: 'error'
+                    , title: 'Gagal'
+                    , text: 'Jumlah pinjaman melebihi batas maksimal.'
+                });
                 return false;
-            } else {
-                errorEl.hide();
-            }
-        });
-
-        $('#jumlah_pinjaman_display').on('input', function() {
-            let raw = $(this).val().replace(/[^0-9]/g, '') || '0';
-
-            // Hapus leading zero
-            raw = raw.replace(/^0+/, '');
-            if (raw === '') raw = '0';
-
-            const formatted = formatRupiah(raw);
-            const jumlahPinjaman = parseFloat(raw);
-            const maksimalPinjaman = parseFloat($('#maksimal_pinjaman').val());
-            const errorEl = $('#error-message');
-
-            $(this).val(formatted);
-            $('#jumlah_pinjaman').val(jumlahPinjaman);
-
-            if (jumlahPinjaman > maksimalPinjaman) {
-                errorEl.text('Jumlah pinjaman melebihi batas maksimal.').show();
-                $(this).addClass('is-invalid');
-            } else {
-                errorEl.hide();
-                $(this).removeClass('is-invalid');
             }
         });
     });
+
 </script>
 @endsection

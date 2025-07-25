@@ -69,8 +69,8 @@
                                 <td>Rp {{ number_format($s['total_simpanan'], 0, ',', '.') }}</td>
                                 @if (auth()->user()->role === "Admin")
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-primary view-simpanan-btn" data-user="{{ $s['user']->name }}" data-id="{{ $s['user']->id }}">
-                                        Detail
+                                    <button type="button" class="btn btn-link btn-success view-simpanan-btn" title="Detail" data-user="{{ $s['user']->name }}" data-id="{{ $s['user']->id }}">
+                                        <i class="fa fa-eye"></i>
                                     </button>
                                 </td>
                                 @endif
@@ -216,7 +216,6 @@
 
 <script>
     $(document).ready(function() {
-        // Inisialisasi DataTable hanya sekali
         $("#basic-datatables").DataTable();
 
         // Event tombol detail
