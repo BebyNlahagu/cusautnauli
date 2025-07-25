@@ -53,7 +53,7 @@ class SimpananController extends Controller
                 return [
                     'nama_simpanan' => $simpan->nama_simpanan,
                     'besar_simpanan' => number_format($simpan->besar_simpanan, 0, ',', '.'),
-                    'tanggal' => $simpan->created_at->format('Y-m-d'),
+                    'tanggal' => $simpan->created_at->translatedFormat('F'),
                 ];
             });
 
@@ -69,7 +69,7 @@ class SimpananController extends Controller
         ]);
 
         $userId = $request->user_id;
-        $jenisSimpanan = $request->jenis_simpanan; // lowercase for comparison
+        $jenisSimpanan = $request->jenis_simpanan; 
         $now = Carbon::now();
         $bulanSekarang = $now->month;
         $tahunSekarang = $now->year;
@@ -94,7 +94,7 @@ class SimpananController extends Controller
 
             $jumlahBulanDitambahkan = 0;
 
-            $tanggalIterasi = $mulai->copy()->addMonth();
+            $tanggalIterasi = $mulai->copy();
 
             while ($tanggalIterasi <= $selesai) {
                 $bulan = $tanggalIterasi->month;
