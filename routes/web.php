@@ -77,16 +77,15 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/get-max-pinjaman/{nasabah_id}', [PinjamanController::class, 'getMaxPinjaman'])->name('pinjaman.getMaxPinjaman');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
 
-    Route::put('/pinjaman/status/{id}', [PinjamanController::class, 'ubahStatus'])->name('pengajuan.status');
-
-    
+    Route::put('/pinjaman/status/{id}', [PinjamanController::class, 'ubahStatus'])->name('pengajuan.status');    
 });
 
-Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:Admin,Kepala'])->prefix('admin')->group(function () {
     Route::prefix('laporan')->group(function () {
         Route::get('/simpanan', [LaporanController::class, 'LaporanSimpanan'])->name('laporan.simpanan');
         Route::get('/pinjaman', [LaporanController::class, 'LaporanPinjaman'])->name('laporan.pinjaman');
         Route::get('/angsuran', [LaporanController::class, 'LaporanAngsuran'])->name('laporan.angsuran');
+        Route::get('/anggota', [LaporanController::class, 'LaporanAnggota'])->name('laporan.anggota');
     });
 
     Route::prefix('pdf')->group(function () {
@@ -97,10 +96,10 @@ Route::middleware(['auth', 'role:Admin,kepala'])->prefix('admin')->group(functio
 });
 
 Route::middleware(['auth', 'role:User,Admin'])->prefix('admin')->group(function () {
-    Route::resource('/admin/pinjaman', PinjamanController::class);
-    Route::resource('/admin/angsuran', AnggsuranController::class);
-    Route::get('/admin/simpanan', [SimpananController::class, 'index'])->name('simpanan.index');
-    Route::resource('/admin/petugas', PetugasController::class);
+    Route::resource('/pinjaman', PinjamanController::class);
+    Route::resource('/angsuran', AnggsuranController::class);
+    Route::get('/simpanan', [SimpananController::class, 'index'])->name('simpanan.index');
+    Route::resource('/petugas', PetugasController::class);
     Route::get("/profil", [Daftar::class, 'profil'])->name("user.profil");
     Route::get("/profil/edit", [Daftar::class, 'edit'])->name('user.edit');
     Route::Put('/profil/{id}', [Daftar::class, 'update'])->name('user.update');

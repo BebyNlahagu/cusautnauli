@@ -19,7 +19,7 @@ class SimpanController extends Controller
                 return [
                     'nama_simpanan' => $simpan->nama_simpanan,
                     'besar_simpanan' => number_format($simpan->besar_simpanan, 0, ',', '.'),
-                    'tanggal' => \Carbon\Carbon::parse($simpan->created_at)->translatedFormat('d F Y'),
+                    'tanggal' => \Carbon\Carbon::parse($simpan->created_at)->translatedFormat('F'),
                 ];
             }),
         ]);
