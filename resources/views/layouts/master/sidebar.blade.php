@@ -22,7 +22,7 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
-                @if(Auth::user()->role == 'Admin')
+                @if(Auth::user()->role == 'Admin' || Auth::user()->role == "Kepala")
                 <li class="nav-item {{ \Route::is('home') ? 'active' : '' }}">
                     <a href="{{ route('home') }}">
                         <i class="fas fa-home"></i>
