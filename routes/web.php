@@ -86,6 +86,7 @@ Route::middleware(['auth', 'role:Admin,Kepala'])->prefix('admin')->group(functio
         Route::get('/pinjaman', [LaporanController::class, 'LaporanPinjaman'])->name('laporan.pinjaman');
         Route::get('/angsuran', [LaporanController::class, 'LaporanAngsuran'])->name('laporan.angsuran');
         Route::get('/anggota', [LaporanController::class, 'LaporanAnggota'])->name('laporan.anggota');
+        Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
     });
 
     Route::prefix('pdf')->group(function () {

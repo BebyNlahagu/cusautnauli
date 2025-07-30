@@ -172,7 +172,7 @@
             $('#simpananTableBody').html('<tr><td colspan="4" class="text-center">Loading...</td></tr>');
 
             $.ajax({
-                url: `/simpanan/user/${userId}`
+                url: `/admin/laporan/simpanan/user/${userId}`
                 , method: 'GET'
                 , success: function(data) {
                     let rows = '';
