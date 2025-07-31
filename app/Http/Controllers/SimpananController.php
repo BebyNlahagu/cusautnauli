@@ -41,8 +41,49 @@ class SimpananController extends Controller
 
         $jumlah = Simpanan::sum("jumlah_simpanan");
 
-        return view("admin.simpanan.index", compact('simpananGrouped', 'kapitalisasi', 'nasabah', 'simpanan', 'jumlah'));
+        $targetUser = $user->role == 'Admin' ? $nasabah->first() : $user;
+
+        $tanggalGabung = $targetUser->created_at;
+        $tahunGabung = $tanggalGabung->year;
+        $bulanGabung = $tanggalGabung->month;
+
+        $now = \Carbon\Carbon::now();
+        $bulanSekarang = $now->month;
+        $tahunSekarang = $now->year;
+
+        $availableMonths = [];
+        $tempDate = \Carbon\Carbon::create($tahunGabung, $bulanGabung, 1);
+
+        while ($tempDate->lessThanOrEqualTo($now)) {
+            $availableMonths[] = $tempDate->format('Y-m');
+            $tempDate->addMonth();
+        }
+
+
+        $bulanTerbayar = Simpanan::where('user_id', $targetUser->id)
+            ->where('jenis_simpanan', 'Simpanan Wajib')
+            ->pluck('created_at')
+            ->map(function ($date) {
+                return \Carbon\Carbon::parse($date)->format('Y-m');
+            })->toArray();
+        $jenisSimpanan = 'Simpanan Wajib';
+
+        return view("admin.simpanan.index", compact(
+            'simpananGrouped',
+            'kapitalisasi',
+            'nasabah',
+            'simpanan',
+            'jumlah',
+            'targetUser',
+            'tahunGabung',
+            'bulanGabung',
+            'bulanSekarang',
+            'availableMonths',
+            'bulanTerbayar',
+            'jenisSimpanan'
+        ));
     }
+
 
     public function getUserSimpanan($id)
     {
@@ -66,110 +107,95 @@ class SimpananController extends Controller
             'user_id' => 'required|exists:users,id',
             'jenis_simpanan' => 'required|string',
             'jumlah_simpanan' => 'nullable|numeric',
+            'bulan_transaksi' => 'nullable|array',
         ]);
 
         $userId = $request->user_id;
-        $jenisSimpanan = $request->jenis_simpanan; 
+        $jenisSimpanan = $request->jenis_simpanan;
         $now = Carbon::now();
-        $bulanSekarang = $now->month;
-        $tahunSekarang = $now->year;
 
-        if ($jenisSimpanan === 'Simpanan Wajib') {
-            $tanggalBergabung = User::find($userId)->created_at;
+        $jumlahSimpananAwal = 50000;
+        $potongan = 0.02 * $jumlahSimpananAwal;
+        $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
 
-            $simpananTerakhir = Simpanan::where('user_id', $userId)
-                ->where('jenis_simpanan', 'simpanan wajib')
-                ->orderBy('created_at', 'desc')
-                ->first();
+        if ($request->has('bulan_transaksi') && is_array($request->bulan_transaksi)) {
+            if ($jenisSimpanan === 'Simpanan Wajib') {
+                $berhasil = 0;
+                $duplikat = [];
 
-            $bulanTerakhirSimpan = $simpananTerakhir ? $simpananTerakhir->created_at->month : $tanggalBergabung->month;
-            $tahunTerakhirSimpan = $simpananTerakhir ? $simpananTerakhir->created_at->year : $tanggalBergabung->year;
+                foreach ($request->bulan_transaksi as $bulan) {
+                    $tanggal = Carbon::parse($bulan . '-01');
 
-            $mulai = Carbon::create($tahunTerakhirSimpan, $bulanTerakhirSimpan, 1);
-            $selesai = Carbon::create($tahunSekarang, $bulanSekarang, 1);
+                    $sudahAda = Simpanan::where('user_id', $userId)
+                        ->where('jenis_simpanan', 'Simpanan Wajib')
+                        ->whereMonth('created_at', $tanggal->month)
+                        ->whereYear('created_at', $tanggal->year)
+                        ->exists();
 
-            $jumlahSimpananAwal = 50000;
-            $potongan = 0.02 * $jumlahSimpananAwal;
-            $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
+                    if (!$sudahAda) {
+                        Simpanan::create([
+                            'user_id' => $userId,
+                            'jumlah_simpanan' => $jumlahSetelahPotong,
+                            'jumlah_kapitalisasi' => $potongan,
+                            'jenis_simpanan' => 'Simpanan Wajib',
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
 
-            $jumlahBulanDitambahkan = 0;
+                        Simpan::create([
+                            'user_id' => $userId,
+                            'nama_simpanan' => 'Simpanan Wajib',
+                            'besar_simpanan' => $jumlahSetelahPotong,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ]);
 
-            $tanggalIterasi = $mulai->copy();
-
-            while ($tanggalIterasi <= $selesai) {
-                $bulan = $tanggalIterasi->month;
-                $tahun = $tanggalIterasi->year;
-
-                $sudahAda = Simpanan::where('user_id', $userId)
-                    ->where('jenis_simpanan', 'simpanan wajib')
-                    ->whereMonth('created_at', $bulan)
-                    ->whereYear('created_at', $tahun)
-                    ->exists();
-
-                if (!$sudahAda) {
-                    Simpanan::create([
-                        'user_id' => $userId,
-                        'jumlah_simpanan' => $jumlahSetelahPotong,
-                        'jumlah_kapitalisasi' => $potongan,
-                        'jenis_simpanan' => 'simpanan wajib',
-                        'created_at' => $tanggalIterasi,
-                        'updated_at' => $tanggalIterasi,
-                    ]);
-
-                    Simpan::create([
-                        'user_id' => $userId,
-                        'nama_simpanan' => 'simpanan wajib',
-                        'besar_simpanan' => $jumlahSetelahPotong,
-                        'created_at' => $tanggalIterasi,
-                        'updated_at' => $tanggalIterasi,
-                    ]);
-
-                    $jumlahBulanDitambahkan++;
+                        $berhasil++;
+                    } else {
+                        $duplikat[] = $tanggal->translatedFormat('F Y');
+                    }
                 }
 
-                $tanggalIterasi->addMonth();
+                if ($berhasil > 0) {
+                    return redirect()->route('simpanan.index')->with('success', "Simpanan Wajib berhasil ditambahkan untuk $berhasil bulan.");
+                } else {
+                    return redirect()->back()->with('error', 'Simpanan Wajib sudah dibayar untuk bulan yang dipilih: ' . implode(', ', $duplikat));
+                }
+            } else {
+                $tahunDipilih = Carbon::parse($request->bulan_transaksi[0] . '-01')->year;
+
+                $sudahBayar = Simpanan::where('user_id', $userId)
+                    ->where('jenis_simpanan', $jenisSimpanan)
+                    ->whereYear('created_at', $tahunDipilih)
+                    ->exists();
+
+                if ($sudahBayar) {
+                    return redirect()->back()->with('error', "$jenisSimpanan sudah dibayar untuk tahun $tahunDipilih.");
+                }
+
+                $tanggalSimpan = Carbon::createFromDate($tahunDipilih, 1, 1);
+
+                Simpanan::create([
+                    'user_id' => $userId,
+                    'jumlah_simpanan' => $jumlahSetelahPotong,
+                    'jumlah_kapitalisasi' => $potongan,
+                    'jenis_simpanan' => $jenisSimpanan,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+
+                Simpan::create([
+                    'user_id' => $userId,
+                    'nama_simpanan' => $jenisSimpanan,
+                    'besar_simpanan' => $jumlahSetelahPotong,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+
+                return redirect()->route('simpanan.index')->with('success', "$jenisSimpanan berhasil ditambahkan untuk tahun $tahunDipilih.");
             }
-            if ($jumlahBulanDitambahkan === 0) {
-                return redirect()->back()->with('error', 'Simpanan Wajib bulan ini sudah dibayar.');
-            }
-            return redirect()->route('simpanan.index')->with('success', 'Simpanan Wajib berhasil ditambahkan untuk ' . $jumlahBulanDitambahkan . ' bulan tertunggak.');
-        }
-        else {
-            $sudahBayarTahunIni = Simpanan::where('user_id', $userId)
-                ->where('jenis_simpanan', $jenisSimpanan)
-                ->whereYear('created_at', $tahunSekarang)
-                ->exists();
-
-            if ($sudahBayarTahunIni) {
-                return redirect()->back()->with('error', 'Jenis Simpanan ' . $jenisSimpanan . ' hanya bisa dibayar sekali dalam setahun dan sudah dibayar.');
-            }
-
-            $jumlahSimpananAwal = 50000;
-            $potongan = 0.02 * $jumlahSimpananAwal;
-            $jumlahSetelahPotong = $jumlahSimpananAwal - $potongan;
-
-            Simpanan::create([
-                'user_id' => $userId,
-                'jumlah_simpanan' => $jumlahSetelahPotong,
-                'jumlah_kapitalisasi' => $potongan,
-                'jenis_simpanan' => $jenisSimpanan,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-
-            Simpan::create([
-                'user_id' => $userId,
-                'nama_simpanan' => $jenisSimpanan,
-                'besar_simpanan' => $jumlahSetelahPotong,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-
-            return redirect()->route('simpanan.index')->with('success', '' . $jenisSimpanan . ' berhasil ditambahkan untuk tahun ini.');
         }
     }
-
-
 
     public function edit($id)
     {
