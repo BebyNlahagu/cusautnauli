@@ -92,7 +92,7 @@
                                 <th>No</th>
                                 <th>Nomor Anggota</th>
                                 <th>Nama</th>
-                                <th>Tanggal Angguran</th>
+                                <th>Tanggal Anggsuran</th>
                                 <th>Jumlah Angsuran</th>
                                 <th>Total Pinjaman</th>
                             </tr>
