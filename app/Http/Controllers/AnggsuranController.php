@@ -79,7 +79,7 @@ class AnggsuranController extends Controller
             'pinjaman_id' => 'required|exists:pinjaman,id',
         ]);
 
-        // Cari data pinjaman
+
         $pinjaman = Pinjaman::where('id', $request->pinjaman_id)
             ->where('user_id', $request->user_id)
             ->first();

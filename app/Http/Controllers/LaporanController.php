@@ -55,7 +55,6 @@ class LaporanController extends Controller
 
         $pinjaman = $query->with('user')->orderBy('created_at', 'desc')->get();
 
-        // Ambil pinjaman terakhir per user
         $pinjaman_terakhir = $pinjaman->groupBy('user_id')->map(function ($items) {
             return $items->first();
         })->values();
@@ -79,8 +78,9 @@ class LaporanController extends Controller
         if ($request->filled('hari')) {
             $query->whereDate('created_at', $request->hari);
         }
+        $jumlahAngsuran = Anggsuran::sum("total_angsuran");
         $angsuran = $query->with(['user', 'pinjaman'])->orderBy('created_at', 'desc')->get();
-        return view('admin.laporan.angsuran', compact('angsuran'));
+        return view('admin.laporan.angsuran', compact('angsuran','jumlahAngsuran'));
     }
 
     public function LaporanAnggota(Request $request)
@@ -95,7 +95,8 @@ class LaporanController extends Controller
         if ($request->filled('hari')) {
             $query->whereDate('created_at', $request->hari);
         }
-        $user = $query->orderBy('created_at', 'desc')->get();
+        $user = $query->orderBy('nm_koperasi', 'asc')->get();
         return view('admin.laporan.anggota', compact('user'));
     }
 }
+ 

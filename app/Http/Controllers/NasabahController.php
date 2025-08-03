@@ -23,8 +23,8 @@ class NasabahController extends Controller
         $user = Auth::user();
         $nasabah = User::with('alamat')->get();
 
-        $nasabahTerverifikasi = User::where('status', 'Verify')->where('role', 'User')->get();
-        $nasabahTidakTerverifikasi = User::where('status', 'Unverifyed')->where('role', 'User')->get();
+        $nasabahTerverifikasi = User::where('status', 'Verify')->where('role', 'User')->orderBy('nm_koperasi','asc')->get();
+        $nasabahTidakTerverifikasi = User::where('status', 'Unverifyed')->where('role', 'User')->orderBy('nmr_anggota', 'asc')->get();
 
         return view('admin.nasabah.index', compact('nasabah', 'nasabahTerverifikasi', 'nasabahTidakTerverifikasi'));
     }

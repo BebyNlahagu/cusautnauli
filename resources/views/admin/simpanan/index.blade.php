@@ -109,6 +109,77 @@
             <form action="{{ route('simpanan.store') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
+
+                    {{-- BULAN TRANSAKSI --}}
+                    <div class="form-group mb-3" id="bulan-wrapper">
+                        <label for="bulan_transaksi">Pilih Bulan Transaksi:</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach(range(1, 12) as $bulan)
+                                @php
+                                    $tahunIni = date('Y');
+                                    $namaBulan = \Carbon\Carbon::create()->month($bulan)->translatedFormat('F');
+                                    $value = $tahunIni . '-' . str_pad($bulan, 2, '0', STR_PAD_LEFT);
+                                    $aktif = false;
+                                    $disabled = '';
+                                    $btnClass = 'btn-outline-primary';
+
+                                    // Cek apakah bulan aktif
+                                    if ($tahunIni == $tahunGabung && $bulan >= $bulanGabung && $bulan <= $bulanSekarang) {
+                                        $aktif = true;
+                                    } elseif ($tahunIni > $tahunGabung && $bulan <= $bulanSekarang) {
+                                        $aktif = true;
+                                    }
+
+                                    // Cek apakah sudah dibayar
+                                    $sudahDibayar = isset($bulanTerbayar) && in_array($value, $bulanTerbayar);
+
+                                    if (!$aktif || $sudahDibayar) {
+                                        $disabled = 'disabled';
+                                    }
+
+                                    if ($sudahDibayar) {
+                                        $btnClass = 'btn-warning'; 
+                                    }
+                                @endphp
+
+                                <input type="checkbox" class="btn-check" name="bulan_transaksi[]" value="{{ $value }}" id="bulan{{ $bulan }}" autocomplete="off" {{ $disabled }}>
+                                <label class="btn {{ $btnClass }} {{ $disabled }}" for="bulan{{ $bulan }}">
+                                    {{ $namaBulan }} {{ $tahunIni }}
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3 {{ $jenisSimpanan !== 'Simpanan Wajib' ? '' : 'd-none' }}" id="tahun-wrapper">
+                        <label for="tahun_transaksi">Pilih Tahun Transaksi:</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            @php $tahunIni = date('Y'); @endphp
+                            @for($i = $tahunIni; $i >= $tahunGabung; $i--)
+                                @php
+                                    $value = $i . '-01';
+                                    $disabled = '';
+                                    $btnClass = 'btn-outline-primary';
+
+                                    if (isset($tahunTerbayar) && in_array($i, $tahunTerbayar)) {
+                                        $disabled = 'disabled';
+                                        $btnClass = 'btn-warning';
+                                    }
+                                @endphp
+                                <input type="radio"
+                                    class="btn-check"
+                                    name="bulan_transaksi[]"
+                                    value="{{ $value }}"
+                                    id="tahun{{ $i }}"
+                                    autocomplete="off"
+                                    {{ $disabled }}>
+                                <label class="btn {{ $btnClass }} {{ $disabled }}" for="tahun{{ $i }}">
+                                    {{ $i }}
+                                </label>
+                            @endfor
+                        </div>
+                    </div>
+
+
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">--Pilih Nomor Anggota--</option>
@@ -214,6 +285,9 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+
+
+
 <script>
     $(document).ready(function() {
         $("#basic-datatables").DataTable();
@@ -243,7 +317,7 @@
                             , month: 'long'
                             , year: 'numeric'
                         });
-                        
+
                         var row = `
                             <tr>
                                 <td>${index + 1}</td>
@@ -304,6 +378,24 @@
                 }
             });
         });
+
+        //bulan dan tahun simpanan
+        const $jenisSelect = $('#jenis_simpanan');
+        const $bulanWrapper = $('#bulan-wrapper');
+        const $tahunWrapper = $('#tahun-wrapper');
+
+        function toggleBulanTahun() {
+            if ($jenisSelect.val() === 'Simpanan Wajib') {
+                $bulanWrapper.removeClass('d-none');
+                $tahunWrapper.addClass('d-none');
+            } else {
+                $bulanWrapper.addClass('d-none');
+                $tahunWrapper.removeClass('d-none');
+            }
+        }
+
+        $jenisSelect.on('change', toggleBulanTahun);
+        toggleBulanTahun();
     });
 
     // Fungsi format uang Rp

@@ -129,7 +129,7 @@
             @endphp
             @foreach ($user as $s)
             <tr>
-                @if ($s->role == "User")
+                @if ($s->role == "User" && !empty($s->nm_koperasi))
                     <td>{{ $no++ }}</td>
                     <td>{{ $s->nm_koperasi }}</td>
                     <td>{{ $s->name }}</td>
