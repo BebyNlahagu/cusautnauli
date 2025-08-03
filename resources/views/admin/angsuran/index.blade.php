@@ -53,13 +53,14 @@
                             <tr>
                                 <th>No</th>
                                 @if (auth()->user()->role === "Admin")
-                                    <th>Nama</th>
+                                <th>Nama</th>
                                 @endif
-                                <th>Tanggal Pinjaman</th>
+                                <th>Tanggal Angusran</th>
+                                {{-- <th>Tanggal Pinjaman</th> --}}
                                 <th>Jumlah Angsuran</th>
                                 <th>Terima Total Pinjaman</th>
                                 @if (auth()->user()->role === "Admin")
-                                    <th style="width: 10%">Action</th>
+                                <th style="width: 10%">Action</th>
                                 @endif
                             </tr>
                         </thead>
@@ -74,11 +75,10 @@
                             <tr>
                                 <td>{{ $no++ }}</td>
                                 @if (auth()->user()->role === "Admin")
-                                    <td>{{ $angsurans->first()->user->name }}</td>   
+                                <td>{{ $angsurans->first()->user->name }}</td>
                                 @endif
-                                <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F
-                                    Y') }}
-                                </td>
+                                <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F Y') }}</td>
+                                {{-- <td>{{ \Carbon\Carbon::parse($angsurans->pinjaman->created_at)->translatedFormat('l, d F Y') }}</td> --}}
                                 <td>{{ $angsurans->first()->pinjaman->lama_pinjaman }}</td>
                                 <td>Rp {{ number_format($angsurans->first()->pinjaman->terima_total, 0, ',', '.') }}
                                 </td>
@@ -123,6 +123,7 @@
                                         <th>Denda</th>
                                         <th>Total Angsuran</th>
                                         <th>Tanggal Jatuh Tempo</th>
+                                        <th>Tanggal Dibayar</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
@@ -140,6 +141,12 @@
                                         <td>{{ \Carbon\Carbon::parse($detail->tanggal_jatuh_tempo)->translatedFormat('l,
                                             d F Y') }}
                                         </td>
+                                        @if($detail->status == 'Lunas')
+                                            <td>{{ \Carbon\Carbon::parse($detail->tanggal_bayar)->translatedFormat('l, d F Y') }}</td>
+                                        @else
+                                            <td>--/--/----</td>
+                                        @endif
+
                                         <td>
                                             @if ($detail->status == 'Lunas')
                                             <span class="badge text-bg-success">Lunas</span>
@@ -180,12 +187,12 @@
                                         </td>
                                     </tr>
                                     @endforeach
-                                    <tfoot>
-                                        <tr>
-                                            <td colspan="4" class="text-center fw-bold">Total Angsuran</td>
-                                            <td class="text-end fw-bold">Rp {{ number_format($jumlahAngsuran, 0, ',', '.') }}</td>
-                                        </tr>
-                                    </tfoot>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="text-center fw-bold">Total Angsuran</td>
+                                        <td class="text-end fw-bold">Rp {{ number_format($jumlahAngsuran, 0, ',', '.') }}</td>
+                                    </tr>
+                                </tfoot>
                                 </tbody>
                             </table>
                         </div>
@@ -223,7 +230,7 @@
                         <select class="form-control" id="user_id" name="user_id" required>
                             <option value="">--Pilih Nama Nasabah--</option>
                             @foreach ($nasabah as $n)
-                                <option value="{{ $n->id }}">{{ $n->name }}</option>
+                            <option value="{{ $n->id }}">{{ $n->name }}</option>
                             @endforeach
                         </select>
                         <label for="user_id">Nama Nasabah</label>

@@ -109,8 +109,7 @@
                                 <td>{{ $no++ }}</td>
                                 <td>{{ $ang->first()->user->nm_koperasi }}</td>
                                 <td>{{ $ang->first()->user->name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($ang->first()->created_at)->translatedFormat('l, d F Y') }}
-                                </td>
+                                <td>{{ \Carbon\Carbon::parse($ang->first()->created_at)->translatedFormat('l, d F Y') }}</td>
                                 <td>{{ $ang->first()->pinjaman->lama_pinjaman }}</td>
                                 <td>Rp {{ number_format($ang->first()->pinjaman->terima_total, 0, ',', '.') }}</td>
                                <td>
@@ -128,42 +127,82 @@
     </div>
 </div>
 
-@foreach ($groupedAngsuran as $nasabahId => $ang)
-<div class="modal fade" id="lihatSemuaAngsuran{{ $nasabahId }}" tabindex="-1" aria-labelledby="lihatSemuaAngsuranLabel{{ $nasabahId }}" aria-hidden="true">
+@foreach ($groupedAngsuran as $nasabahId => $angsurans)
+<!-- Modal Detail -->
+<div class="modal fade" id="lihatSemuaAngsuran{{ $nasabahId }}" tabindex="-1" aria-labelledby="lihatSemuaAngsuran{{ $nasabahId }}" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Riwayat Angsuran - {{ $ang->first()->user->name }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                <h5 class="modal-title" id="lihatSemuaAngsuran{{ $nasabahId }}">
+                    Detail Angsuran: {{ $angsurans->first()->user->name }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
             </div>
             <div class="modal-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Nomor Anggota</th>
-                            <th>Nama</th>
-                            <th>Tanggal Angsuran</th>
-                            <th>Lama Angsuran</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                       @foreach ($groupedAngsuran as $nasabahId => $ang)
-                            <tr>
-                                <td>{{ $no++ }}</td>
-                                <td>{{ $ang->first()->user->nm_koperasi }}</td>
-                                <td>{{ $ang->first()->user->name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($ang->first()->created_at)->translatedFormat('l, d F Y') }}</td>
-                                <td>{{ $ang->first()->pinjaman->lama_pinjaman }}</td>
-                                <td>Rp {{ number_format($ang->first()->pinjaman->terima_total, 0, ',', '.') }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                @if ($angsurans->count() > 0)
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Bulan Ke</th>
+                                        <th>Pokok</th>
+                                        <th>Bunga</th>
+                                        <th>Denda</th>
+                                        <th>Total Angsuran</th>
+                                        <th>Tanggal Jatuh Tempo</th>
+                                        <th>Tanggal Dibayar</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($angsurans as $detail)
+                                    <tr>
+                                        <td>{{ $detail->bulan_ke }}</td>
+                                        <td>Rp {{ number_format($detail->angsuran_pokok, 0, ',', '.') }}
+                                        </td>
+                                        <td>Rp {{ number_format($detail->bunga, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($detail->denda, 0, ',', '.') }}</td>
+
+                                        <td>Rp {{ number_format($detail->total_angsuran, 0, ',', '.') }}
+                                        </td>
+                                        <td>{{ \Carbon\Carbon::parse($detail->tanggal_jatuh_tempo)->translatedFormat('l,
+                                            d F Y') }}
+                                        </td>
+                                        @if($detail->status == 'Lunas')
+                                            <td>{{ \Carbon\Carbon::parse($detail->tanggal_bayar)->translatedFormat('l, d F Y') }}</td>
+                                        @else
+                                            <td>--/--/----</td>
+                                        @endif
+
+                                        <td>
+                                            @if ($detail->status == 'Lunas')
+                                            <span class="badge text-bg-success">Lunas</span>
+                                            @else
+                                            <span class="badge text-bg-danger">Belum Lunas</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" class="text-center fw-bold">Total Angsuran</td>
+                                        <td class="text-end fw-bold">Rp {{ number_format($jumlahAngsuran, 0, ',', '.') }}</td>
+                                    </tr>
+                                </tfoot>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @else
+                <p class="text-center">Belum ada data angsuran tersedia.</p>
+                @endif
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>

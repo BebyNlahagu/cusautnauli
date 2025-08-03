@@ -78,8 +78,9 @@ class LaporanController extends Controller
         if ($request->filled('hari')) {
             $query->whereDate('created_at', $request->hari);
         }
+        $jumlahAngsuran = Anggsuran::sum("total_angsuran");
         $angsuran = $query->with(['user', 'pinjaman'])->orderBy('created_at', 'desc')->get();
-        return view('admin.laporan.angsuran', compact('angsuran'));
+        return view('admin.laporan.angsuran', compact('angsuran','jumlahAngsuran'));
     }
 
     public function LaporanAnggota(Request $request)
