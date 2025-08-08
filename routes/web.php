@@ -77,7 +77,9 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/get-max-pinjaman/{nasabah_id}', [PinjamanController::class, 'getMaxPinjaman'])->name('pinjaman.getMaxPinjaman');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
 
-    Route::put('/pinjaman/status/{id}', [PinjamanController::class, 'ubahStatus'])->name('pengajuan.status');    
+    Route::put('/pinjaman/status/{id}', [PinjamanController::class, 'ubahStatus'])->name('pengajuan.status');
+    Route::post('/simpanan/konfirmasi/{id}', [SimpananController::class, 'konfirmasi']);
+
 });
 
 Route::middleware(['auth', 'role:Admin,Kepala'])->prefix('admin')->group(function () {
