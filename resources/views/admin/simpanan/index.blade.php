@@ -109,77 +109,6 @@
             <form action="{{ route('simpanan.store') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body">
-
-                    {{-- BULAN TRANSAKSI --}}
-                    <div class="form-group mb-3" id="bulan-wrapper">
-                        <label for="bulan_transaksi">Pilih Bulan Transaksi:</label>
-                        <div class="d-flex flex-wrap gap-2">
-                            @foreach(range(1, 12) as $bulan)
-                                @php
-                                    $tahunIni = date('Y');
-                                    $namaBulan = \Carbon\Carbon::create()->month($bulan)->translatedFormat('F');
-                                    $value = $tahunIni . '-' . str_pad($bulan, 2, '0', STR_PAD_LEFT);
-                                    $aktif = false;
-                                    $disabled = '';
-                                    $btnClass = 'btn-outline-primary';
-
-                                    // Cek apakah bulan aktif
-                                    if ($tahunIni == $tahunGabung && $bulan >= $bulanGabung && $bulan <= $bulanSekarang) {
-                                        $aktif = true;
-                                    } elseif ($tahunIni > $tahunGabung && $bulan <= $bulanSekarang) {
-                                        $aktif = true;
-                                    }
-
-                                    // Cek apakah sudah dibayar
-                                    $sudahDibayar = isset($bulanTerbayar) && in_array($value, $bulanTerbayar);
-
-                                    if (!$aktif || $sudahDibayar) {
-                                        $disabled = 'disabled';
-                                    }
-
-                                    if ($sudahDibayar) {
-                                        $btnClass = 'btn-warning'; 
-                                    }
-                                @endphp
-
-                                <input type="checkbox" class="btn-check" name="bulan_transaksi[]" value="{{ $value }}" id="bulan{{ $bulan }}" autocomplete="off" {{ $disabled }}>
-                                <label class="btn {{ $btnClass }} {{ $disabled }}" for="bulan{{ $bulan }}">
-                                    {{ $namaBulan }} {{ $tahunIni }}
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3 {{ $jenisSimpanan !== 'Simpanan Wajib' ? '' : 'd-none' }}" id="tahun-wrapper">
-                        <label for="tahun_transaksi">Pilih Tahun Transaksi:</label>
-                        <div class="d-flex flex-wrap gap-2">
-                            @php $tahunIni = date('Y'); @endphp
-                            @for($i = $tahunIni; $i >= $tahunGabung; $i--)
-                                @php
-                                    $value = $i . '-01';
-                                    $disabled = '';
-                                    $btnClass = 'btn-outline-primary';
-
-                                    if (isset($tahunTerbayar) && in_array($i, $tahunTerbayar)) {
-                                        $disabled = 'disabled';
-                                        $btnClass = 'btn-warning';
-                                    }
-                                @endphp
-                                <input type="radio"
-                                    class="btn-check"
-                                    name="bulan_transaksi[]"
-                                    value="{{ $value }}"
-                                    id="tahun{{ $i }}"
-                                    autocomplete="off"
-                                    {{ $disabled }}>
-                                <label class="btn {{ $btnClass }} {{ $disabled }}" for="tahun{{ $i }}">
-                                    {{ $i }}
-                                </label>
-                            @endfor
-                        </div>
-                    </div>
-
-
                     <div class="form-floating form-floating-custom mb-3">
                         <select class="form-control @error('user_id') is-invalid @enderror" id="user_id" name="user_id">
                             <option value="">--Pilih Nomor Anggota--</option>
@@ -230,7 +159,8 @@
                             <th>No</th>
                             <th>Jenis Simpanan</th>
                             <th>Jumlah Simpanan</th>
-                            <th>Tanggal</th>
+                            <th>Bulan</th>
+                            <th>Status</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -285,9 +215,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-
-
-
 <script>
     $(document).ready(function() {
         $("#basic-datatables").DataTable();
@@ -312,11 +239,20 @@
                     }
 
                     $.each(data.simpanan, function(index, item) {
-                        var tanggal = new Date(item.tanggal).toLocaleDateString('id-ID', {
-                            day: '2-digit'
-                            , month: 'long'
-                            , year: 'numeric'
+                         console.log('Status:', item.status);
+
+                        var tanggal = new Date(item.tanggal + 'T00:00:00').toLocaleDateString('id-ID', {
+                            month: 'long',
+                            // year: 'numeric'
                         });
+
+                        var statusBadge = item.status === 'Lunas'
+                            ? '<span class="badge bg-success">Lunas</span>'
+                            : '<span class="badge bg-warning text-dark">Belum Lunas</span>';
+
+                        var confirmButton = item.status === 'Belum Lunas'
+                            ? `<button class="btn btn-primary btn-sm btn-konfirmasi" data-id="${item.id}">Confirm</button>`
+                            : '';
 
                         var row = `
                             <tr>
@@ -324,13 +260,17 @@
                                 <td>${item.jenis_simpanan}</td>
                                 <td>Rp ${Number(item.jumlah_simpanan).toLocaleString('id-ID')}</td>
                                 <td>${tanggal}</td>
-                                <td>
+                                <td>${statusBadge}</td>
+                                <td class="d-flex align-items-center gap-2">
+                                    ${confirmButton}
                                     <button class="btn btn-danger btn-sm btn-hapus" data-id="${item.id}">Hapus</button>
                                 </td>
+
                             </tr>
                         `;
                         tbody.append(row);
                     });
+
 
                     // Tampilkan modal setelah data siap
                     var modal = new bootstrap.Modal(document.getElementById('modalDetailSimpanan'));
@@ -372,30 +312,46 @@
                             }
                         });
                     });
+
+                    tbody.off('click', '.btn-konfirmasi').on('click', '.btn-konfirmasi', function() {
+                    var simpananId = $(this).data('id');
+
+                    Swal.fire({
+                        title: 'Konfirmasi Simpanan?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, konfirmasi',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: '/simpanan/konfirmasi/' + simpananId,
+                                type: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                success: function(resp) {
+                                    if (resp.success) {
+                                        Swal.fire('Terkonfirmasi!', 'Simpanan berhasil dikonfirmasi.', 'success');
+                                        $('.view-simpanan-btn[data-id="' + userId + '"]').click();
+                                        location.reload();
+                                    } else {
+                                        Swal.fire('Gagal!', resp.message, 'error');
+                                    }
+                                },
+                                error: function() {
+                                    Swal.fire('Error!', 'Terjadi kesalahan.', 'error');
+                                }
+                            });
+                        }
+                    });
+                });
                 }
                 , error: function() {
                     Swal.fire('Error!', 'Gagal mengambil data simpanan.', 'error');
                 }
             });
         });
-
-        //bulan dan tahun simpanan
-        const $jenisSelect = $('#jenis_simpanan');
-        const $bulanWrapper = $('#bulan-wrapper');
-        const $tahunWrapper = $('#tahun-wrapper');
-
-        function toggleBulanTahun() {
-            if ($jenisSelect.val() === 'Simpanan Wajib') {
-                $bulanWrapper.removeClass('d-none');
-                $tahunWrapper.addClass('d-none');
-            } else {
-                $bulanWrapper.addClass('d-none');
-                $tahunWrapper.removeClass('d-none');
-            }
-        }
-
-        $jenisSelect.on('change', toggleBulanTahun);
-        toggleBulanTahun();
     });
 
     // Fungsi format uang Rp
@@ -407,7 +363,7 @@
         document.getElementById('jumlah_simpanan').value = value;
     }
 
-    // Set jumlah simpanan otomatis sesuai jenis
+
     function setJumlahSimpanan() {
         const jenis = document.getElementById('jenis_simpanan').value;
         const jumlahInput = document.getElementById('jumlah_simpanan_display');

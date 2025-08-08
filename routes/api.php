@@ -27,7 +27,8 @@ Route::get('/simpanan/{userId}', function($userId) {
             'id' => $item->id,
             'jenis_simpanan' => $item->jenis_simpanan,
             'jumlah_simpanan' => $item->jumlah_simpanan,
-            'tanggal' => $item->created_at->translatedFormat('d F Y'),
+            'tanggal' => $item->created_at->format('Y-m-d'),
+            'status' => $item->status
         ];
     });
 

@@ -146,7 +146,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Tanggal</th>
+                            <th>Bulan</th>
                             <th>Jenis Simpanan</th>
                             <th>Jumlah</th>
                         </tr>
@@ -180,8 +180,8 @@
                         rows += `<tr>
                             <td>${index + 1}</td>
                             <td>${simpan.tanggal}</td>
-                            <td>${simpan.nama_simpanan}</td>
-                            <td class="text-end">Rp ${simpan.besar_simpanan}</td>
+                            <td>${simpan.jenis_simpanan}</td>
+                            <td class="text-end">Rp ${simpan.jumlah_simpanan}</td>
                         </tr>`;
                     });
 
