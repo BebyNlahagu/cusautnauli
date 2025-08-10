@@ -239,37 +239,42 @@
                     }
 
                     $.each(data.simpanan, function(index, item) {
-                         console.log('Status:', item.status);
+                    console.log('Status:', item.status);
 
-                        var tanggal = new Date(item.tanggal + 'T00:00:00').toLocaleDateString('id-ID', {
-                            month: 'long',
-                            // year: 'numeric'
-                        });
+                    var tanggal = new Date(item.tanggal + 'T00:00:00').toLocaleDateString('id-ID', {
+                        month: 'long',
+                        // year: 'numeric'
+                    });
 
-                        var statusBadge = item.status === 'Lunas'
+                    var statusBadge = '';
+                    var confirmButton = '';
+
+                    if (item.jenis_simpanan === 'Simpanan Wajib') {
+                        statusBadge = (item.status === 'Lunas')
                             ? '<span class="badge bg-success">Lunas</span>'
                             : '<span class="badge bg-warning text-dark">Belum Lunas</span>';
 
-                        var confirmButton = item.status === 'Belum Lunas'
+                        confirmButton = (item.status === 'Belum Lunas')
                             ? `<button class="btn btn-primary btn-sm btn-konfirmasi" data-id="${item.id}">Confirm</button>`
                             : '';
+                    }
 
-                        var row = `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${item.jenis_simpanan}</td>
-                                <td>Rp ${Number(item.jumlah_simpanan).toLocaleString('id-ID')}</td>
-                                <td>${tanggal}</td>
-                                <td>${statusBadge}</td>
-                                <td class="d-flex align-items-center gap-2">
-                                    ${confirmButton}
-                                    <button class="btn btn-danger btn-sm btn-hapus" data-id="${item.id}">Hapus</button>
-                                </td>
+                    var row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${item.jenis_simpanan}</td>
+                            <td>Rp ${Number(item.jumlah_simpanan).toLocaleString('id-ID')}</td>
+                            <td>${tanggal}</td>
+                            <td>${statusBadge}</td>
+                            <td class="d-flex align-items-center gap-2">
+                                ${confirmButton}
+                                <button class="btn btn-danger btn-sm btn-hapus" data-id="${item.id}">Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
 
-                            </tr>
-                        `;
-                        tbody.append(row);
-                    });
 
 
                     // Tampilkan modal setelah data siap
