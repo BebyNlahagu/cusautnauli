@@ -52,9 +52,7 @@
                                 @endif
                                 <th>Bulan Transaksi</th>
                                 <th>Jumlah Simpanan</th>
-                                @if (auth()->user()->role === "Admin")
                                 <th>Action</th>
-                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -67,13 +65,11 @@
                                 @endif
                                 <td>{{ $s['tanggal_transaksi'] }}</td>
                                 <td>Rp {{ number_format($s['total_simpanan'], 0, ',', '.') }}</td>
-                                @if (auth()->user()->role === "Admin")
                                 <td>
                                     <button type="button" class="btn btn-link btn-success view-simpanan-btn" title="Detail" data-user="{{ $s['user']->name }}" data-id="{{ $s['user']->id }}">
                                         <i class="fa fa-eye"></i>
                                     </button>
                                 </td>
-                                @endif
                             </tr>
                             @endforeach
                         </tbody>
@@ -161,7 +157,9 @@
                             <th>Jumlah Simpanan</th>
                             <th>Bulan</th>
                             <th>Status</th>
+                            @if (auth()->user()->role == "Admin")
                             <th>Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody id="detailSimpananBody">
@@ -216,6 +214,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    const currentUserRole = "{{ auth()->user()->role }}";
+
     $(document).ready(function() {
         $("#basic-datatables").DataTable();
 
@@ -239,42 +239,43 @@
                     }
 
                     $.each(data.simpanan, function(index, item) {
-                    console.log('Status:', item.status);
+                        var tanggal = new Date(item.tanggal + 'T00:00:00').toLocaleDateString('id-ID', {
+                            month: 'long'
+                        , });
 
-                    var tanggal = new Date(item.tanggal + 'T00:00:00').toLocaleDateString('id-ID', {
-                        month: 'long',
-                        // year: 'numeric'
+                        var statusBadge = item.status === 'Lunas' ?
+                            '<span class="badge bg-success">Lunas</span>' :
+                            '<span class="badge bg-warning text-dark">Belum Lunas</span>';
+
+                        let actionColumn = '';
+                        if (currentUserRole === 'Admin') {
+                            let confirmButton = '';
+                            if (item.status === 'Belum Lunas' && item.jenis_simpanan === 'Simpanan Wajib') {
+                                confirmButton = `<button class="btn btn-primary btn-sm btn-konfirmasi" data-id="${item.id}">Confirm</button>`;
+                            }
+
+                            let deleteButton = `<button class="btn btn-danger btn-sm btn-hapus" data-id="${item.id}">Hapus</button>`;
+
+                            actionColumn = `
+                                <td class="d-flex align-items-center gap-2">
+                                    ${confirmButton}
+                                    ${deleteButton}
+                                </td>
+                            `;
+                        }
+
+                        var row = `
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.jenis_simpanan}</td>
+                                    <td>Rp ${Number(item.jumlah_simpanan).toLocaleString('id-ID')}</td>
+                                    <td>${tanggal}</td>
+                                    <td>${statusBadge}</td>
+                                    ${actionColumn}
+                                </tr>
+                            `;
+                        tbody.append(row);
                     });
-
-                    var statusBadge = '';
-                    var confirmButton = '';
-
-                    if (item.jenis_simpanan === 'Simpanan Wajib') {
-                        statusBadge = (item.status === 'Lunas')
-                            ? '<span class="badge bg-success">Lunas</span>'
-                            : '<span class="badge bg-warning text-dark">Belum Lunas</span>';
-
-                        confirmButton = (item.status === 'Belum Lunas')
-                            ? `<button class="btn btn-primary btn-sm btn-konfirmasi" data-id="${item.id}">Confirm</button>`
-                            : '';
-                    }
-
-                    var row = `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${item.jenis_simpanan}</td>
-                            <td>Rp ${Number(item.jumlah_simpanan).toLocaleString('id-ID')}</td>
-                            <td>${tanggal}</td>
-                            <td>${statusBadge}</td>
-                            <td class="d-flex align-items-center gap-2">
-                                ${confirmButton}
-                                <button class="btn btn-danger btn-sm btn-hapus" data-id="${item.id}">Hapus</button>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.append(row);
-                });
-
 
 
                     // Tampilkan modal setelah data siap
@@ -319,38 +320,38 @@
                     });
 
                     tbody.off('click', '.btn-konfirmasi').on('click', '.btn-konfirmasi', function() {
-                    var simpananId = $(this).data('id');
+                        var simpananId = $(this).data('id');
 
-                    Swal.fire({
-                        title: 'Konfirmasi Simpanan?',
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ya, konfirmasi',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                url: '/simpanan/konfirmasi/' + simpananId,
-                                type: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                success: function(resp) {
-                                    if (resp.success) {
-                                        Swal.fire('Terkonfirmasi!', 'Simpanan berhasil dikonfirmasi.', 'success');
-                                        $('.view-simpanan-btn[data-id="' + userId + '"]').click();
-                                        location.reload();
-                                    } else {
-                                        Swal.fire('Gagal!', resp.message, 'error');
+                        Swal.fire({
+                            title: 'Konfirmasi Simpanan?'
+                            , icon: 'question'
+                            , showCancelButton: true
+                            , confirmButtonText: 'Ya, konfirmasi'
+                            , cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $.ajax({
+                                    url: '/simpanan/konfirmasi/' + simpananId
+                                    , type: 'POST'
+                                    , headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                                     }
-                                },
-                                error: function() {
-                                    Swal.fire('Error!', 'Terjadi kesalahan.', 'error');
-                                }
-                            });
-                        }
+                                    , success: function(resp) {
+                                        if (resp.success) {
+                                            Swal.fire('Terkonfirmasi!', 'Simpanan berhasil dikonfirmasi.', 'success');
+                                            $('.view-simpanan-btn[data-id="' + userId + '"]').click();
+                                            location.reload();
+                                        } else {
+                                            Swal.fire('Gagal!', resp.message, 'error');
+                                        }
+                                    }
+                                    , error: function() {
+                                        Swal.fire('Error!', 'Terjadi kesalahan.', 'error');
+                                    }
+                                });
+                            }
+                        });
                     });
-                });
                 }
                 , error: function() {
                     Swal.fire('Error!', 'Gagal mengambil data simpanan.', 'error');

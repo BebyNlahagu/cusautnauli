@@ -107,4 +107,5 @@ Route::middleware(['auth', 'role:User,Admin'])->prefix('admin')->group(function 
     Route::get("/profil/edit", [Daftar::class, 'edit'])->name('user.edit');
     Route::Put('/profil/{id}', [Daftar::class, 'update'])->name('user.update');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
+    Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
 });
