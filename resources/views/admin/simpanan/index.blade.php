@@ -250,7 +250,7 @@
                         let actionColumn = '';
                         if (currentUserRole === 'Admin') {
                             let confirmButton = '';
-                            if (item.status === 'Belum Lunas' && item.jenis_simpanan === 'Simpanan Wajib') {
+                            if (item.status === 'Belum Lunas') {
                                 confirmButton = `<button class="btn btn-primary btn-sm btn-konfirmasi" data-id="${item.id}">Confirm</button>`;
                             }
 

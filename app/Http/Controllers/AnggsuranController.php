@@ -13,13 +13,25 @@ class AnggsuranController extends Controller
 {
     public function index()
     {
-        $angsuran = Anggsuran::with('user', 'pinjaman')->get();
-        $nasabah = User::where('role', 'user')->whereNotNull('nm_koperasi')->where('nm_koperasi', '!=', '')->get();
+        $userId = auth()->id();
 
-        $jumlahAngsuran = Anggsuran::sum("total_angsuran");
+        $angsuran = Anggsuran::with('user', 'pinjaman')
+            ->where('user_id', $userId)
+            ->get();
 
-        return view("admin.angsuran.index", compact('angsuran', 'nasabah','jumlahAngsuran'));
+        $nasabah = User::where('role', 'User')
+            ->whereNotNull('nm_koperasi')
+            ->where('nm_koperasi', '!=', '')
+            ->whereHas('pinjaman', function($query) {
+                $query->where('status', 'Disetujui');
+            })
+            ->get();
+
+        $jumlahAngsuran = Anggsuran::where('user_id', $userId)->sum("total_angsuran");
+
+        return view("admin.angsuran.index", compact('angsuran', 'nasabah', 'jumlahAngsuran'));
     }
+
 
     public function getPinjaman($user_id)
     {
