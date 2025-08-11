@@ -100,25 +100,30 @@
         </div>
     </div>
 </div>
+@if (session('success'))
 <script>
-    @if(session('success'))
     Swal.fire({
         icon: 'success'
-        , title: 'Berhasil'
-        , text: '{{ session('
-        success ') }}'
-    , });
-
-    @elseif(session('error'))
-    Swal.fire({
-        icon: 'error'
-        , title: 'Gagal'
-        , text: '{{ session('
-        error ') }}'
-    , });
-    @endif
+        , title: 'Berhasil!'
+        , text: '{{ session('success ') }}',
+        , showConfirmButton: false
+        , timer: 2000
+    });
 
 </script>
+@endif
+
+@if (session('error'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: '{{ session('error') }}',
+        showConfirmButton: false,
+        timer: 3000
+    });
+</script>
+@endif
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js "></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -173,7 +178,7 @@
 
             $('#jumlah_pinjaman').val(angka);
 
-           
+
             let formatted = formatRupiah(angka);
             input.val(formatted);
 

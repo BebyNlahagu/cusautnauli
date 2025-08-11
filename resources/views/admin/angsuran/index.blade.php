@@ -277,8 +277,7 @@
     Swal.fire({
         icon: 'success'
         , title: 'Berhasil!'
-        , text: '{{ session('
-        success ') }}'
+        , text: '{{ session('success ') }}',
         , showConfirmButton: false
         , timer: 2000
     });
@@ -289,14 +288,12 @@
 @if (session('error'))
 <script>
     Swal.fire({
-        icon: 'error'
-        , title: 'Gagal!'
-        , text: '{{ session('
-        error ') }}'
-        , showConfirmButton: false
-        , timer: 3000
+        icon: 'error',
+        title: 'Gagal!',
+        text: '{{ session('error') }}',
+        showConfirmButton: false,
+        timer: 3000
     });
-
 </script>
 @endif
 
