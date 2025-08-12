@@ -190,7 +190,7 @@
                                 <tfoot>
                                     <tr>
                                         <td colspan="4" class="text-center fw-bold">Total Angsuran</td>
-                                        <td class="text-end fw-bold">Rp {{ number_format($jumlahAngsuran, 0, ',', '.') }}</td>
+                                        <td class="text-end fw-bold">Rp {{ number_format($totalPerUser[$nasabahId] ?? 0, 0, ',', '.') }}</td>
                                     </tr>
                                 </tfoot>
                                 </tbody>

@@ -8,6 +8,8 @@ use App\Models\Pinjaman;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 
 class AnggsuranController extends Controller
 {
@@ -15,20 +17,32 @@ class AnggsuranController extends Controller
     {
         $user = auth()->user();
 
-
         if ($user->role === 'Admin') {
             $angsuran = Anggsuran::with('user', 'pinjaman')->get();
             $jumlahAngsuran = Anggsuran::sum("total_angsuran");
-        } else {
 
+            $angsuranPerUser = Anggsuran::select('user_id', DB::raw('SUM(total_angsuran) as total'))
+                ->with('user')
+                ->groupBy('user_id')
+                ->get();
+
+            $totalPerUser = $angsuranPerUser->pluck('total', 'user_id')->toArray();
+
+        } else {
             $angsuran = Anggsuran::with('user', 'pinjaman')
                 ->where('user_id', $user->id)
                 ->get();
 
             $jumlahAngsuran = Anggsuran::where('user_id', $user->id)
                 ->sum("total_angsuran");
-        }
 
+            $angsuranPerUser = null;
+
+            // Total per user cuma 1 user, buat array supaya di blade tetap jalan
+            $totalPerUser = [
+                $user->id => $jumlahAngsuran
+            ];
+        }
 
         $nasabah = User::where('role', 'User')
             ->whereNotNull('nm_koperasi')
@@ -38,9 +52,8 @@ class AnggsuranController extends Controller
             })
             ->get();
 
-        return view("admin.angsuran.index", compact('angsuran', 'nasabah', 'jumlahAngsuran'));
+        return view("admin.angsuran.index", compact('angsuran', 'nasabah', 'jumlahAngsuran', 'angsuranPerUser', 'totalPerUser'));
     }
-
 
 
     public function getPinjaman($user_id)
