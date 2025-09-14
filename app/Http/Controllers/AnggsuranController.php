@@ -166,6 +166,34 @@ class AnggsuranController extends Controller
         return redirect()->route('angsuran.index')->with('success', 'Jadwal Angsuran berhasil dibuat.');
     }
 
+    public function getPayment($id)
+    {
+        $angsuran = Anggsuran::findOrFail($id);
+
+        \Midtrans\Config::$serverKey = config('midtrans.midtrans.server_key');
+        \Midtrans\Config::$isProduction = config('midtrans.midtrans.is_production');
+        \Midtrans\Config::$isSanitized = true;
+        \Midtrans\Config::$is3ds = true;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $angsuran->id . '-' . time(),
+                'gross_amount' => (int)$angsuran->total_angsuran,
+            ],
+            'customer_details' => [
+                'first_name' => $angsuran->user->name,
+                'email' => $angsuran->user->email,
+            ],
+        ];
+
+        try {
+            $snapToken = \Midtrans\Snap::getSnapToken($params);
+            return response()->json(['snapToken' => $snapToken]);
+        } catch (\Exception $e) {
+             \Log::error('Midtrans error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 
     public function updateStatus($id)
     {

@@ -28,13 +28,13 @@ class NasabahController extends Controller
 
         return view('admin.nasabah.index', compact('nasabah', 'nasabahTerverifikasi', 'nasabahTidakTerverifikasi'));
     }
+
     public function addData(Request $request)
     {
         $request->validate([
             "kecamatan" => "required",
             'desa' => 'required',
             "username" => "required",
-            // 'alamat_id' => 'required|exists:alamats,id',
             'name' => 'required',
             "email" => "nullable",
             'Nik' => [
