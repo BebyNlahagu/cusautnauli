@@ -217,7 +217,7 @@
                                     <span>Data Foto Tidak Ada</span>
                                     @endif
                                 </td>
-                        
+
                                 <td>@if($n->status == "Verify")
                                     <span class="badge text-bg-success">Terverifikasi</span>
                                     @else
@@ -442,7 +442,7 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugin/datatables/datatables.min.js') }}"></script>
 
 <script>
     $(document).ready(function() {

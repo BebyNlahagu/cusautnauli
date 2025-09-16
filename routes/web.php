@@ -10,6 +10,7 @@ use App\Http\Controllers\PetugasController;
 use App\Http\Controllers\PinjamanController;
 use App\Http\Controllers\SimpananController;
 use App\Http\Controllers\SimpanController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,7 +45,7 @@ Route::get('/nasabah', [NasabahController::class, 'create'])->name("create");
 Route::post('/nasabah', [NasabahController::class, 'addData'])->name('addNasabah');
 Route::get('/', [Daftar::class, 'index']);
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')->middleware('auth');
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
 Route::middleware(['auth', 'role:Admin'])->group(function () {
 
     Route::resource('/admin/nasabah', NasabahController::class);
@@ -55,11 +56,14 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/simpanan', [SimpananController::class, 'index'])->name('simpanan.index');
     Route::post('/admin/simpanan', [SimpananController::class, 'store'])->name('simpanan.store');
     Route::delete('/admin/simpanan/user/{user_id}', [SimpananController::class, 'destroyByUser'])->name('simpanan.destroyByUser');
+    Route::get('/simpanan/paid/{id}',[SimpananController::class, 'paid']);
 
     Route::put('/nasabah/update-checkbox/{id}', [NasabahController::class, 'updateCheckbox'])->name('nasabah.updateCheckbox');
     Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
 
     Route::get('/get-pinjaman/{nasabah_id}', [AnggsuranController::class, 'getPinjaman']);
+    Route::get('/angsuran/payment/{id}', [AnggsuranController::class, 'getPayment'])->name('angsuran.payment');
+
     Route::delete('/simpanan/{id}', [SimpananController::class, 'destroy']);
 
     Route::get('/admin/laporan/simpanan', [LaporanController::class, 'LaporanSimpanan'])->name('laporan.simpanan');
