@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Anggsuran;
+use App\Models\Nasabah;
+use Illuminate\Http\Request;
 use App\Models\Pinjaman;
 use App\Models\Simpanan;
 use App\Models\User;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class PinjamanController extends Controller
 {
@@ -28,27 +29,67 @@ class PinjamanController extends Controller
         return view('admin.pinjaman.index', compact('pinjaman', 'nasabah'));
     }
 
-    public function create()
+    public function checkEligibility($user_id)
     {
-        $user = Auth::user();
+        try {
+            $nasabah = User::find($user_id);
 
-        $selisih_bulan = Carbon::parse($user->created_at)->diffInMonths(now());
-        $umur = Carbon::parse($user->tanggal_lahir)->diffInYears(now());
+            if (!$nasabah) {
+                return response()->json(['error' => 'Nasabah tidak ditemukan.'], 404);
+            }
 
-        if ($selisih_bulan < 6 || $umur < 17) {
-            return redirect()->route('pinjaman.index')->with('error', 'Anda belum memenuhi syarat pengajuan pinjaman.');
+            $selisih_bulan = Carbon::parse($nasabah->created_at)->diffInMonths(now());
+
+            if ($selisih_bulan < 6) {
+                return response()->json([
+                    'status' => 'not_eligible',
+                    'message' => 'Nasabah belum bergabung minimal 6 bulan.',
+                ]);
+            }
+
+            if (!$nasabah->tanggal_lahir) {
+                return response()->json(['error' => 'Data tanggal lahir tidak tersedia.'], 422);
+            }
+
+            $umur = Carbon::parse($nasabah->tanggal_lahir)->diffInYears(now());
+            if ($umur < 17) {
+                return response()->json([
+                    'status' => 'not_eligible',
+                    'message' => 'Nasabah belum berumur 17 tahun.',
+                ]);
+            }
+
+            $adaAngsuranBelumLunas = DB::table('angsuran')->join('pinjaman', 'angsuran.pinjaman_id', '=', 'pinjaman.id')->where('pinjaman.user_id', $nasabah->id)->where('angsuran.status', '!=', 'Lunas')->exists();
+
+            if ($adaAngsuranBelumLunas) {
+                return response()->json([
+                    'status' => 'not_eligible',
+                    'message' => 'Nasabah masih memiliki angsuran yang belum lunas.',
+                ]);
+            }
+
+            $total_simpanan = Simpanan::where('user_id', $nasabah->id)->sum('jumlah_simpanan');
+            $jumlah_pinjaman = $total_simpanan * 5;
+            $bunga_pinjaman = 3;
+
+            return response()->json([
+                'status' => 'eligible',
+                'nama_nasabah' => $nasabah->name,
+                'jumlah_pinjaman' => $jumlah_pinjaman,
+                'bunga_pinjaman' => $bunga_pinjaman,
+                'umur' => $umur,
+                'lama_gabung_bulan' => $selisih_bulan,
+                'angsuran' => $adaAngsuranBelumLunas,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Server error: ' . $e->getMessage()], 500);
         }
-
-        $jumlahMinimal = Simpanan::where('user_id', $user->id)->where('jenis_simpanan', 'Simpanan Wajib')->sum('jumlah_simpanan');
-        $total_simpanan = Simpanan::where('user_id', $user->id)->sum('jumlah_simpanan');
-
-        return view('admin.pinjaman.create', compact('user', 'total_simpanan', 'jumlahMinimal'));
     }
 
     public function ubahStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:Disetujui,Ditolak',
+            'status' => 'nullable|in:Disetujui,Ditolak',
         ]);
 
         try {
@@ -130,82 +171,46 @@ class PinjamanController extends Controller
         }
     }
 
+    public function edit($id)
+    {
+        $pinjaman = Pinjaman::findOrFail($id);
+        return redirect()->route('pinjaman.index', compact('pinjaman'));
+    }
+
     public function update(Request $request, $id)
     {
         $request->validate([
-            'lama_pinjaman' => 'required|in:5 Bulan,10 Bulan,15 Bulan,20 Bulan,25 Bulan,30 Bulan',
-            'jumlah_pinjaman' => 'required|numeric',
-            'bunga_pinjaman' => 'required|numeric',
+            'user_id' => 'nullable|exists:users,id',
+            'lama_pinjaman' => 'nullable|in:5 Bulan,10 Bulan,15 Bulan,20 Bulan,25 Bulan,30 Bulan',
+            'jumlah_pinjaman' => 'nullable|numeric|min:0',
+            'bunga_pinjaman' => 'nullable|numeric|min:0',
+            'simpanan' => 'nullable|numeric|min:0',
+            'adm' => 'nullable|numeric|min:0',
         ]);
 
-        try {
-            $pinjaman = Pinjaman::findOrFail($id);
+        // $potongan = $request->jumlah_pinjaman * (2 / 100);
+        $adm = $request->jumlah_pinjaman * (0.5 / 100);
+        $total_terima = $request->jumlah_pinjaman - $adm;
 
-            $pinjaman->update([
-                'lama_pinjaman' => $request->lama_pinjaman,
-                'jumlah_pinjaman' => $request->jumlah_pinjaman,
-                'bunga_pinjaman' => $request->bunga_pinjaman,
-            ]);
+        $bunga_perbulan = 3;
+        Pinjaman::findOrFail($id);
 
-            return redirect()->route('pinjaman.index')->with('success', 'Data Berhasil Di Perbarui');
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => $e->getMessage()]);
-        }
+        Pinjaman::create([
+            'user_id' => $request->user_id,
+            'lama_pinjaman' => $request->lama_pinjaman,
+            'jumlah_pinjaman' => $request->jumlah_pinjaman,
+            'bunga_pinjaman' => $bunga_perbulan,
+            // 'kapitalisasi' => $potongan,
+            'proposi' => $adm,
+            'terima_total' => $total_terima,
+        ]);
+
+        return redirect()->route('pinjaman.index')->with('success', 'Data Berhasil Di Perbarui');
     }
 
     public function destroy($id)
     {
-        try {
-            $pinjaman = Pinjaman::findOrFail($id);
-            $pinjaman->delete();
-            return redirect()->route('pinjaman.index')->with('delete', 'Data Berhasil Dihapus');
-        } catch (\Exception $e) {
-            return redirect()
-                ->route('pinjaman.index')
-                ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
-        }
-    }
-
-    public function checkEligibility($user_id)
-    {
-        try {
-            $nasabah = User::find($user_id);
-            if (!$nasabah) {
-                return response()->json(['error' => 'Nasabah tidak ditemukan'], 404);
-            }
-
-            $selisih_bulan = Carbon::parse($nasabah->created_at)->diffInMonths(now());
-            $umur = Carbon::parse($nasabah->tanggal_lahir)->diffInYears(now());
-
-            if ($selisih_bulan < 6 || $umur < 17) {
-                return response()->json([
-                    'status' => 'not_eligible',
-                    'message' => 'Nasabah belum memenuhi syarat minimal usia atau lama bergabung.',
-                ]);
-            }
-
-            $adaBelumLunas = Anggsuran::join('pinjaman', 'angsuran.pinjaman_id', '=', 'pinjaman.id')->where('pinjaman.user_id', $nasabah->id)->where('angsuran.status', '!=', 'Lunas')->exists();
-
-            if ($adaBelumLunas) {
-                return response()->json([
-                    'status' => 'not_eligible',
-                    'message' => 'Masih ada angsuran yang belum lunas.',
-                ]);
-            }
-
-            $total_simpanan = Simpanan::where('user_id', $nasabah->id)->sum('jumlah_simpanan');
-            $maksimal_pinjaman = $total_simpanan * 5;
-
-            return response()->json([
-                'status' => 'eligible',
-                'jumlah_pinjaman' => $maksimal_pinjaman,
-                'bunga_pinjaman' => 3,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
+        Pinjaman::findorfail($id)->delete();
+        return redirect()->route('pinjaman.index')->with('delete', 'Data Berhasil Dihapus');
     }
 }
-
-
-

@@ -265,39 +265,38 @@
     </div>
 </div>
 
-@if (session('success'))
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
 <script>
     Swal.fire({
-        title: "Berhasil!"
-        , text: "{{ session('success') }}"
-        , icon: "success"
-        , confirmButtonText: "OK"
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '{{ session("success") }}',
+        confirmButtonText: 'OK'
     });
-
 </script>
 @endif
 
-@if (session('error'))
+@if(session('swal_error'))
 <script>
     Swal.fire({
-        title: "Gagal!"
-        , text: "{{ session('error') }}"
-        , icon: "error"
-        , confirmButtonText: "OK"
+        icon: 'error',
+        title: 'Oops!',
+        text: '{{ session("swal_error") }}',
+        confirmButtonText: 'OK'
     });
-
 </script>
 @endif
 
-@if (session('delete'))
+@if(session('swal_warning'))
 <script>
     Swal.fire({
-        title: "Dihapus!"
-        , text: "{{ session('delete') }}"
-        , icon: "warning"
-        , confirmButtonText: "OK"
+        icon: 'warning',
+        title: 'Peringatan!',
+        text: '{{ session("swal_warning") }}',
+        confirmButtonText: 'OK'
     });
-
 </script>
 @endif
 

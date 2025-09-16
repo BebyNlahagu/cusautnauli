@@ -110,7 +110,7 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-floating form-floating-custom mb-3">
-                            <select class="form-control @error('user_id') is-invalid @enderror" id="user_id"
+                            <select class="form-control select2-input @error('user_id') is-invalid @enderror" id="user_id"
                                 name="user_id">
                                 <option value="">--Pilih Nomor Anggota--</option>
                                 @foreach ($nasabah->whereNotNull('nm_koperasi') as $n)
@@ -225,68 +225,76 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-   <script>
-    const currentUserRole = "{{ auth()->user()->role }}";
+    <script>
+        const currentUserRole = "{{ auth()->user()->role }}";
 
-    $(document).ready(function() {
-        $("#basic-datatables").DataTable();
+        $(document).ready(function() {
+            $("#basic-datatables").DataTable();
 
-        // Event tombol detail
-        $('.view-simpanan-btn').on('click', function() {
-            var userId = $(this).data('id');
-            var userName = $(this).data('user');
-            $('#namaUserDetail').text(userName);
+            // Event tombol detail
+            $('.view-simpanan-btn').on('click', function() {
+                var userId = $(this).data('id');
+                var userName = $(this).data('user');
+                $('#namaUserDetail').text(userName);
 
-            $.ajax({
-                url: '/api/simpanan/' + userId,
-                method: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    var tbody = $('#detailSimpananBody');
-                    tbody.empty();
+                $.ajax({
+                    url: '/api/simpanan/' + userId,
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        var tbody = $('#detailSimpananBody');
+                        tbody.empty();
 
-                    if (data.simpanan.length === 0) {
-                        tbody.append('<tr><td colspan="5" class="text-center">Tidak ada data simpanan.</td></tr>');
-                        return;
-                    }
+                        if (data.simpanan.length === 0) {
+                            tbody.append(
+                                '<tr><td colspan="5" class="text-center">Tidak ada data simpanan.</td></tr>'
+                                );
+                            return;
+                        }
 
-                    $.each(data.simpanan, function(index, item) {
-                        var tanggal = new Date(item.tanggal + 'T00:00:00').toLocaleDateString('id-ID', {
-                            month: 'long',
-                        });
+                        $.each(data.simpanan, function(index, item) {
+                            var tanggal = new Date(item.tanggal + 'T00:00:00')
+                                .toLocaleDateString('id-ID', {
+                                    month: 'long',
+                                });
 
-                        var statusBadge = item.status === 'Lunas'
-                            ? '<span class="badge bg-success">Lunas</span>'
-                            : '<span class="badge bg-warning text-dark">Belum Lunas</span>';
+                            var statusBadge = item.status === 'Lunas' ?
+                                '<span class="badge bg-success">Lunas</span>' :
+                                '<span class="badge bg-warning text-dark">Belum Lunas</span>';
 
-                        let actionColumn = '';
-                        if (currentUserRole === 'Admin') {
-                            let confirmButton = '';
-                            if (item.status === 'Belum Lunas') {
-                                // ✅ tambahkan data-amount supaya bisa dipakai di click handler
-                                confirmButton = `
+                            let actionColumn = '';
+                            if (currentUserRole === 'Admin' || currentUserRole ===
+                                'User') {
+                                let confirmButton = '';
+                                if (item.status === 'Belum Lunas') {
+                                    confirmButton = `
                                     <button class="btn btn-primary btn-sm btn-konfirmasi"
                                             data-id="${item.id}"
                                             data-amount="${item.jumlah_simpanan}">
-                                        Confirm
+                                        Pay
                                     </button>`;
+                                }
+
+                                let deleteButton = '';
+                                // Hanya Admin yang bisa melihat tombol hapus
+                                if (currentUserRole === 'Admin') {
+                                    deleteButton = `
+                                    <button class="btn btn-danger btn-sm btn-hapus"
+                                            data-id="${item.id}">
+                                        Hapus
+                                    </button>`;
+                                }
+
+                                actionColumn = `
+                                    <td class="d-flex align-items-center gap-2">
+                                        ${confirmButton}
+                                        ${deleteButton}
+                                    </td>
+                                `;
                             }
 
-                            let deleteButton = `
-                                <button class="btn btn-danger btn-sm btn-hapus"
-                                        data-id="${item.id}">
-                                    Hapus
-                                </button>`;
 
-                            actionColumn = `
-                                <td class="d-flex align-items-center gap-2">
-                                    ${confirmButton}
-                                    ${deleteButton}
-                                </td>
-                            `;
-                        }
-
-                        var row = `
+                            var row = `
                             <tr>
                                 <td>${index + 1}</td>
                                 <td>${item.jenis_simpanan}</td>
@@ -296,145 +304,199 @@
                                 ${actionColumn}
                             </tr>
                         `;
-                        tbody.append(row);
-                    });
-
-                    // Tampilkan modal setelah data siap
-                    var modal = new bootstrap.Modal(document.getElementById('modalDetailSimpanan'));
-                    modal.show();
-
-                    // Event hapus
-                    tbody.off('click', '.btn-hapus').on('click', '.btn-hapus', function() {
-                        var simpananId = $(this).data('id');
-
-                        Swal.fire({
-                            title: 'Yakin ingin menghapus simpanan ini?',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonText: 'Ya, hapus!',
-                            cancelButtonText: 'Batal'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $.ajax({
-                                    url: '/simpanan/' + simpananId,
-                                    type: 'DELETE',
-                                    headers: {
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                        'Accept': 'application/json'
-                                    },
-                                    success: function(resp) {
-                                        if (resp.success) {
-                                            Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
-                                            $('.view-simpanan-btn[data-id="' + userId + '"]').click();
-                                            location.reload();
-                                        } else {
-                                            Swal.fire('Gagal!', 'Gagal menghapus data.', 'error');
-                                        }
-                                    },
-                                    error: function() {
-                                        Swal.fire('Error!', 'Terjadi kesalahan.', 'error');
-                                    }
-                                });
-                            }
+                            tbody.append(row);
                         });
-                    });
 
-                    // Event konfirmasi (bayar)
-                    tbody.off('click', '.btn-konfirmasi').on('click', '.btn-konfirmasi', function() {
-                        var simpananId = $(this).data('id');
-                        var amount = $(this).data('amount');
+                        // Tampilkan modal setelah data siap
+                        var modal = new bootstrap.Modal(document.getElementById(
+                            'modalDetailSimpanan'));
+                        modal.show();
 
-                        Swal.fire({
-                            title: 'Lanjutkan pembayaran simpanan ini?',
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonText: 'Ya, bayar',
-                            cancelButtonText: 'Batal'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                $.ajax({
-                                    url: '/simpanan/paid/' + simpananId,
-                                    type: 'GET',
-                                    headers: {
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
-                                    success: function(res) {
-                                        if (res.snap_token) {
-                                            window.snap.pay(res.snap_token, {
-                                                onSuccess: function(result) {
-                                                    $.ajax({
-                                                        url: '/simpanan/konfirmasi/' + simpananId,
-                                                        type: 'POST',
-                                                        headers: {
-                                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                                        },
-                                                        success: function(resp) {
-                                                            if (resp.success) {
-                                                                Swal.fire('Berhasil!', 'Pembayaran dan konfirmasi sukses.', 'success');
-                                                                $('.view-simpanan-btn[data-id="' + userId + '"]').click();
-                                                                location.reload();
-                                                            } else {
-                                                                Swal.fire('Gagal!', resp.message, 'error');
+                        // Event hapus
+                        tbody.off('click', '.btn-hapus').on('click', '.btn-hapus', function() {
+                            var simpananId = $(this).data('id');
+
+                            Swal.fire({
+                                title: 'Yakin ingin menghapus simpanan ini?',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'Ya, hapus!',
+                                cancelButtonText: 'Batal'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: '/simpanan/' + simpananId,
+                                        type: 'DELETE',
+                                        headers: {
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                            'Accept': 'application/json'
+                                        },
+                                        success: function(resp) {
+                                            if (resp.success) {
+                                                Swal.fire(
+                                                    'Terhapus!',
+                                                    'Data berhasil dihapus.',
+                                                    'success');
+                                                $('.view-simpanan-btn[data-id="' +
+                                                    userId +
+                                                    '"]')
+                                                .click();
+                                                location.reload();
+                                            } else {
+                                                Swal.fire('Gagal!',
+                                                    'Gagal menghapus data.',
+                                                    'error');
+                                            }
+                                        },
+                                        error: function() {
+                                            Swal.fire('Error!',
+                                                'Terjadi kesalahan.',
+                                                'error');
+                                        }
+                                    });
+                                }
+                            });
+                        });
+
+                        // Event konfirmasi (bayar)
+                        tbody.off('click', '.btn-konfirmasi').on('click', '.btn-konfirmasi',
+                            function() {
+                                var simpananId = $(this).data('id');
+                                var amount = $(this).data('amount');
+
+                                Swal.fire({
+                                    title: 'Lanjutkan pembayaran simpanan ini?',
+                                    icon: 'question',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Ya, bayar',
+                                    cancelButtonText: 'Batal'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $.ajax({
+                                            url: "{{ url('/simpanan/paid') }}/" + simpananId,
+                                            type: 'GET',
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                            },
+                                            success: function(res) {
+                                                if (res.snap_token) {
+                                                    window.snap.pay(res
+                                                        .snap_token, {
+                                                            onSuccess: function(
+                                                                result
+                                                                ) {
+                                                                $.ajax({
+                                                                    url: '/simpanan/konfirmasi/' +
+                                                                        simpananId,
+                                                                    type: 'POST',
+                                                                    headers: {
+                                                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                                    },
+                                                                    success: function(
+                                                                        resp
+                                                                        ) {
+                                                                        if (resp
+                                                                            .success
+                                                                            ) {
+                                                                            Swal.fire(
+                                                                                'Berhasil!',
+                                                                                'Pembayaran dan konfirmasi sukses.',
+                                                                                'success'
+                                                                                );
+                                                                            $('.view-simpanan-btn[data-id="' +
+                                                                                    userId +
+                                                                                    '"]'
+                                                                                    )
+                                                                                .click();
+                                                                            location
+                                                                                .reload();
+                                                                        } else {
+                                                                            Swal.fire(
+                                                                                'Gagal!',
+                                                                                resp
+                                                                                .message,
+                                                                                'error'
+                                                                                );
+                                                                        }
+                                                                    }
+                                                                });
+                                                            },
+                                                            onPending: function(
+                                                                result
+                                                                ) {
+                                                                Swal.fire(
+                                                                    'Menunggu pembayaran.',
+                                                                    '',
+                                                                    'info'
+                                                                    );
+                                                            },
+                                                            onError: function(
+                                                                result
+                                                                ) {
+                                                                Swal.fire(
+                                                                    'Error!',
+                                                                    'Pembayaran gagal.',
+                                                                    'error'
+                                                                    );
+                                                            },
+                                                            onClose: function() {
+                                                                Swal.fire(
+                                                                    'Dibatalkan',
+                                                                    'Anda menutup popup pembayaran.',
+                                                                    'warning'
+                                                                    );
                                                             }
-                                                        }
-                                                    });
-                                                },
-                                                onPending: function(result) {
-                                                    Swal.fire('Menunggu pembayaran.', '', 'info');
-                                                },
-                                                onError: function(result) {
-                                                    Swal.fire('Error!', 'Pembayaran gagal.', 'error');
-                                                },
-                                                onClose: function() {
-                                                    Swal.fire('Dibatalkan', 'Anda menutup popup pembayaran.', 'warning');
+                                                        });
+                                                } else {
+                                                    Swal.fire('Error!',
+                                                        'Token pembayaran tidak valid.',
+                                                        'error');
                                                 }
-                                            });
-                                        } else {
-                                            Swal.fire('Error!', 'Token pembayaran tidak valid.', 'error');
-                                        }
-                                    },
-                                    error: function() {
-                                        Swal.fire('Error!', 'Gagal membuat transaksi.', 'error');
+                                            },
+                                            error: function() {
+                                                Swal.fire('Error!',
+                                                    'Gagal membuat transaksi.',
+                                                    'error');
+                                            }
+                                        });
                                     }
                                 });
-                            }
-                        });
-                    });
+                            });
 
-                },
-                error: function() {
-                    Swal.fire('Error!', 'Gagal mengambil data simpanan.', 'error');
-                }
+                    },
+                    error: function() {
+                        Swal.fire('Error!', 'Gagal mengambil data simpanan.', 'error');
+                    }
+                });
             });
         });
-    });
 
-    // Fungsi format uang Rp
-    function formatUang(input) {
-        let value = input.value.replace(/\D+/g, '');
-        if (value.length > 14) value = value.slice(0, 14);
-        let formatted = 'Rp ' + value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        input.value = formatted;
-        document.getElementById('jumlah_simpanan').value = value;
-    }
-
-    function setJumlahSimpanan() {
-        const jenis = document.getElementById('jenis_simpanan').value;
-        const jumlahInput = document.getElementById('jumlah_simpanan_display');
-
-        const awal = 50000;
-        const potongan = awal * 0.02;
-        const jumlah = awal - potongan;
-
-        if (jenis) {
-            jumlahInput.value = jumlah;
-            document.getElementById('jumlah_simpanan').value = jumlah;
-            formatUang(jumlahInput);
-        } else {
-            jumlahInput.value = '';
-            document.getElementById('jumlah_simpanan').value = '';
+        // Fungsi format uang Rp
+        function formatUang(input) {
+            let value = input.value.replace(/\D+/g, '');
+            if (value.length > 14) value = value.slice(0, 14);
+            let formatted = 'Rp ' + value.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            input.value = formatted;
+            document.getElementById('jumlah_simpanan').value = value;
         }
-    }
-</script>
+
+        function setJumlahSimpanan() {
+            const jenis = document.getElementById('jenis_simpanan').value;
+            const jumlahInput = document.getElementById('jumlah_simpanan_display');
+
+            const awal = 50000;
+            const potongan = awal * 0.02;
+            const jumlah = awal - potongan;
+
+            if (jenis) {
+                jumlahInput.value = jumlah;
+                document.getElementById('jumlah_simpanan').value = jumlah;
+                formatUang(jumlahInput);
+            } else {
+                jumlahInput.value = '';
+                document.getElementById('jumlah_simpanan').value = '';
+            }
+        }
+    </script>
 
 @endsection
