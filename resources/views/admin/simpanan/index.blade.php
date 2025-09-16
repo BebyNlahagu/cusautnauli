@@ -114,7 +114,7 @@
                                 name="user_id">
                                 <option value="">--Pilih Nomor Anggota--</option>
                                 @foreach ($nasabah->whereNotNull('nm_koperasi') as $n)
-                                    <option value="{{ $n->id }}">{{ $n->nm_koperasi }}</option>
+                                    <option value="{{ $n->id }}">{{ $n->nm_koperasi }} - {{ $n->name }}</option>
                                 @endforeach
                             </select>
                             <label for="user_id">Pilih Nomor Anggota</label>
