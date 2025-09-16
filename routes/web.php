@@ -102,14 +102,16 @@ Route::middleware(['auth', 'role:Admin,Kepala'])->prefix('admin')->group(functio
     });
 });
 
-Route::middleware(['auth', 'role:User,Admin'])->prefix('admin')->group(function () {
-    Route::resource('/pinjaman', PinjamanController::class);
-    Route::resource('/angsuran', AnggsuranController::class);
-    Route::get('/simpanan', [SimpananController::class, 'index'])->name('simpanan.index');
-    Route::resource('/petugas', PetugasController::class);
+Route::middleware(['auth', 'role:User,Admin'])->group(function () {
+    Route::resource('/admin/pinjaman', PinjamanController::class);
+    Route::resource('/admin/angsuran', AnggsuranController::class);
+    Route::get('/admin/simpanan', [SimpananController::class, 'index'])->name('simpanan.index');
+    Route::resource('/admin/petugas', PetugasController::class);
     Route::get("/profil", [Daftar::class, 'profil'])->name("user.profil");
     Route::get("/profil/edit", [Daftar::class, 'edit'])->name('user.edit');
     Route::Put('/profil/{id}', [Daftar::class, 'update'])->name('user.update');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
     Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
+    Route::get('/simpanan/paid/{id}',[SimpananController::class, 'paid']);
+    Route::get('/angsuran/payment/{id}', [AnggsuranController::class, 'getPayment'])->name('angsuran.payment');
 });

@@ -8,8 +8,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-
 
 class NasabahController extends Controller
 {
@@ -23,7 +23,7 @@ class NasabahController extends Controller
         $user = Auth::user();
         $nasabah = User::with('alamat')->get();
 
-        $nasabahTerverifikasi = User::where('status', 'Verify')->where('role', 'User')->orderBy('nm_koperasi','asc')->get();
+        $nasabahTerverifikasi = User::where('status', 'Verify')->where('role', 'User')->orderBy('nm_koperasi', 'asc')->get();
         $nasabahTidakTerverifikasi = User::where('status', 'Unverifyed')->where('role', 'User')->orderBy('nmr_anggota', 'asc')->get();
 
         return view('admin.nasabah.index', compact('nasabah', 'nasabahTerverifikasi', 'nasabahTidakTerverifikasi'));
@@ -32,11 +32,11 @@ class NasabahController extends Controller
     public function addData(Request $request)
     {
         $request->validate([
-            "kecamatan" => "required",
+            'kecamatan' => 'required',
             'desa' => 'required',
-            "username" => "required",
+            'username' => 'required',
             'name' => 'required',
-            "email" => "nullable",
+            'email' => 'nullable',
             'Nik' => [
                 'required',
                 'digits:16',
@@ -64,10 +64,25 @@ class NasabahController extends Controller
                     if ($birthDate->diffInYears(Carbon::now()) < $minAge) {
                         $fail('Umur harus minimal 17 tahun.');
                     }
-                }
+                },
             ],
-
         ]);
+
+        $apiKey = env('FACEPP_API_KEY');
+        $apiSecret = env('FACEPP_API_SECRET');
+
+        $ocrResponse = Http::asMultipart()->post('https://api-us.faceplusplus.com/cardpp/v1/ocridcard', [['name' => 'api_key', 'contents' => $apiKey], ['name' => 'api_secret', 'contents' => $apiSecret], ['name' => 'image_file', 'contents' => fopen($request->file('ktp')->getPathname(), 'r')]]);
+
+        $nikFromKTP = $ocrResponse->json()['cards'][0]['id_card_number'] ?? null;
+
+        $faceResponse = Http::asMultipart()->post('https://api-us.faceplusplus.com/facepp/v3/compare', [['name' => 'api_key', 'contents' => $apiKey], ['name' => 'api_secret', 'contents' => $apiSecret], ['name' => 'image_file1', 'contents' => fopen($request->file('foto')->getPathname(), 'r')], ['name' => 'image_file2', 'contents' => fopen($request->file('ktp')->getPathname(), 'r')]]);
+
+        $confidence = $faceResponse->json()['confidence'] ?? 0;
+
+        if ($confidence < 80) {
+            session()->flash('swal_error', 'Foto wajah tidak sesuai dengan wajah di KTP');
+            return redirect()->back()->withInput();
+        }
 
         if ($request->hasFile('foto')) {
             $foto = time() . '.' . $request->foto->extension();
@@ -99,7 +114,6 @@ class NasabahController extends Controller
             'desa' => $request->desa,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            // 'alamat_id' => $request->alamat_id,
             'name' => $request->name,
             'nmr_anggota' => $nmr_anggota,
             'Nik' => $request->Nik,
@@ -134,7 +148,6 @@ class NasabahController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-
     public function verify($id)
     {
         $nasabah = User::findOrFail($id);
@@ -143,10 +156,7 @@ class NasabahController extends Controller
             return redirect()->back()->with('error', 'Tidak bisa verifikasi sebelum semua checkbox dicentang.');
         }
 
-        $lastUser = User::whereNotNull('nm_koperasi')
-            ->where('nm_koperasi', 'like', 'AGT-%')
-            ->orderByDesc('nm_koperasi')
-            ->first();
+        $lastUser = User::whereNotNull('nm_koperasi')->where('nm_koperasi', 'like', 'AGT-%')->orderByDesc('nm_koperasi')->first();
 
         if ($lastUser && preg_match('/AGT-(\d+)/', $lastUser->nm_koperasi, $match)) {
             $lastNumber = (int) $match[1];
@@ -164,7 +174,7 @@ class NasabahController extends Controller
 
         $nasabah->notify(new DataVerify(Auth::user()->name));
 
-        return redirect()->route('nasabah.index')->with("success", "Nasabah berhasil diverifikasi");
+        return redirect()->route('nasabah.index')->with('success', 'Nasabah berhasil diverifikasi');
     }
 
     public function edit($id)
@@ -190,7 +200,6 @@ class NasabahController extends Controller
         ]);
 
         $nasabah = User::findOrFail($id);
-
 
         if ($request->hasFile('foto')) {
             if ($nasabah->foto) {
