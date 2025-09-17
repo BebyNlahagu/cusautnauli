@@ -112,7 +112,7 @@
                     <div class="modal-body">
                         <div class="form-floating form-floating-custom mb-3">
                             <select class="form-control select2 @error('user_id') is-invalid @enderror" id="user_id"
-                                name="user_id">
+                                name="user_id" style="width: 100%;">
                                 <option value="">--Pilih Nomor Anggota--</option>
                                 @foreach ($nasabah->whereNotNull('nm_koperasi') as $n)
                                     <option value="{{ $n->id }}">{{ $n->nm_koperasi }} - {{ $n->name }}</option>
