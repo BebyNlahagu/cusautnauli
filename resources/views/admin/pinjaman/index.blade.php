@@ -166,17 +166,17 @@
                     </div>
 
                     <!-- Lama Pinjaman -->
-                    <div class="form-floating form-floating-custom mb-3">
-                        <select name="lama_pinjaman" id="lama_pinjaman" class="form-control form-select @error('lama_pinjaman') is-invalid @enderror">
-                            <option value="">--pilih--</option>
-                            <option value="5 Bulan">5 Bulan</option>
-                            <option value="10 Bulan">10 Bulan</option>
-                            <option value="15 Bulan">15 Bulan</option>
-                            <option value="20 Bulan">20 Bulan</option>
-                            <option value="25 Bulan">25 Bulan</option>
+                    <div class="form-group mb-3">
+                        <label>Lama Pinjaman</label>
+                        <select name="lama_pinjaman" class="form-control" required>
+                            <option value="">-- Pilih Lama Pinjaman --</option>
+                            <option value="6 Bulan">6 Bulan</option>
+                            <option value="12 Bulan">12 Bulan</option>
+                            <option value="18 Bulan">18 Bulan</option>
+                            <option value="24 Bulan">24 Bulan</option>
                             <option value="30 Bulan">30 Bulan</option>
+                            <option value="36 Bulan">36 Bulan</option>
                         </select>
-                        <label for="lama_pinjaman">Lama Pinjaman</label>
                     </div>
 
                     <!-- Jumlah Pinjaman -->

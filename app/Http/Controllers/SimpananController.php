@@ -116,7 +116,6 @@ class SimpananController extends Controller
                 ->route('simpanan.index')
                 ->with('success', 'Simpanan Wajib berhasil ditambahkan untuk ' . $jumlahBulanDitambahkan . ' bulan tertunggak.');
         } else {
-            // Logika untuk jenis simpanan selain "Simpanan Wajib"
             $sudahBayarTahunIni = Simpanan::where('user_id', $userId)->where('jenis_simpanan', $jenisSimpanan)->whereYear('created_at', $tahunSekarang)->exists();
 
             if ($sudahBayarTahunIni) {
