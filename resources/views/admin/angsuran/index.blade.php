@@ -1,5 +1,6 @@
 @extends('layouts.master')
 @section('title', 'Data Angsuran')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 @section('bread')
     <div class="page-header">
         <h3 class="fw-bold mb-3">@yield('title')</h3>
@@ -247,13 +248,13 @@
                         <input type="hidden" name="tanggal_jatuh_tempo" id="jatuh_tempo_hidden">
 
                         <div class="form-floating form-floating-custom mb-3">
-                            <select class="form-control" id="user_id" name="user_id" required>
+                            <select class="form-control select2" style="width: 100%;" id="user_id" name="user_id" required>
                                 <option value="">--Pilih Nama Nasabah--</option>
                                 @foreach ($nasabah as $n)
-                                    <option value="{{ $n->id }}">{{ $n->name }}</option>
+                                    <option value="{{ $n->id }}">{{ $n->nm_koperasi }} - {{ $n->name }}</option>
                                 @endforeach
                             </select>
-                            <label for="user_id">Nama Nasabah</label>
+                            <!-- <label for="user_id">Nama Nasabah</label> -->
                         </div>
 
                         <div class="form-floating form-floating-custom mb-3">
@@ -317,7 +318,7 @@
     @endif
 
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{ config('midtrans.midtrans.client_key') }}"></script>
@@ -342,6 +343,12 @@
                 $("#basic-datatables").DataTable({});
             });
 
+            $('#user_id').select2({
+                dropdownParent: $('#tambah')
+            });
+
+
+            // Fungsi untuk format angka ke format mata uang Indonesia
             function formatCurrency(number) {
                 return "Rp. " + parseFloat(number).toLocaleString('id-ID');
             }

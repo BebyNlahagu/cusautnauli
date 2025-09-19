@@ -123,7 +123,7 @@
                         @endphp
 
                         <div class="form-floating form-floating-custom mb-3">
-                            <select class="form-control @error('user_id') is-invalid @enderror" id="user_id"
+                            <select class="form-control select2 @error('user_id') is-invalid @enderror" style="width: 100%;" id="user_id"
                                 name="user_id">
                                 <option value="">Pilih Nomor Anggota</option>
 
@@ -145,7 +145,6 @@
                                     <option disabled>Tidak ada Data</option>
                                 @endif
                             </select>
-                            <label for="user_id">Pilih Nomor Anggota</label>
                         </div>
 
 
@@ -345,7 +344,6 @@
         </script>
     @endif
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/plugin/datatables/datatables.min.js') }}"></script>
     <script>
@@ -366,6 +364,10 @@
         }
         $(document).ready(function() {
             $("#basic-datatables").DataTable({});
+
+            $('#user_id').select2({
+                dropdownParent: $('#tambah')
+            });
 
             let maxLoan = 0;
 
