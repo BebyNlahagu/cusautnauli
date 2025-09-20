@@ -91,7 +91,7 @@ class PinjamanController extends Controller
                 return back()->withInput()->with('error', 'Masih ada angsuran yang belum lunas.');
             }
 
-            $total_simpanan = Simpanan::where('user_id', $user->id)->sum('jumlah_simpanan');
+            $total_simpanan = Simpanan::where('user_id', $user->id)->where('status', 'Lunas')->sum('jumlah_simpanan');
             $maksimal_pinjaman = $total_simpanan * 5;
 
             if ($request->jumlah_pinjaman > $maksimal_pinjaman) {
@@ -193,7 +193,7 @@ class PinjamanController extends Controller
                 ]);
             }
 
-            $total_simpanan = Simpanan::where('user_id', $nasabah->id)->sum('jumlah_simpanan');
+            $total_simpanan = Simpanan::where('user_id', $nasabah->id)->where('status', 'Lunas')->sum('jumlah_simpanan');
             $maksimal_pinjaman = $total_simpanan * 5;
 
             return response()->json([
