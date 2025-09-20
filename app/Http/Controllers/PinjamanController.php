@@ -123,7 +123,7 @@ class PinjamanController extends Controller
 
             DB::commit();
 
-            return redirect()->route('pinjaman.index')->with('success', 'pengajuan anda berhasil, untuk pencairan agar datang ke kantor cu saut maju nauli');
+            return redirect()->route('pinjaman.index')->with('success', 'Data berhasil di tambahkan');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', $e->getMessage());

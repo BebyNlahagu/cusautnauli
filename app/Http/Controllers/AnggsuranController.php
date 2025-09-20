@@ -38,7 +38,6 @@ class AnggsuranController extends Controller
 
             $angsuranPerUser = null;
 
-            // Total per user cuma 1 user, buat array supaya di blade tetap jalan
             $totalPerUser = [
                 $user->id => $jumlahAngsuran
             ];
@@ -47,9 +46,7 @@ class AnggsuranController extends Controller
         $nasabah = User::where('role', 'User')
             ->whereNotNull('nm_koperasi')
             ->where('nm_koperasi', '!=', '')
-            ->whereHas('pinjaman', function($query) {
-                $query->where('status', 'Disetujui');
-            })
+            ->whereHas('pinjaman')
             ->get();
 
         return view("admin.angsuran.index", compact('angsuran', 'nasabah', 'jumlahAngsuran', 'angsuranPerUser', 'totalPerUser'));

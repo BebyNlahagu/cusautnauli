@@ -410,7 +410,6 @@
                             });
                         });
 
-                        // Event bayar (User)
                         tbody.off('click', '.btn-pay').on('click', '.btn-pay', function() {
                             var simpananId = $(this).data('id');
 
