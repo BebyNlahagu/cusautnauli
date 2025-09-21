@@ -18,10 +18,10 @@ class PinjamanController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'Admin') {
-            $pinjaman = Pinjaman::latest()->get();
+            $pinjaman = Pinjaman::latest()->orderBy('user_id', 'desc')->get();
             $nasabah = User::where('status', 'Verify')->get();
         } else {
-            $pinjaman = Pinjaman::where('user_id', $user->id)->latest()->get();
+            $pinjaman = Pinjaman::where('user_id', $user->id)->latest()->orderBy('user_id', 'desc')->get();
             $nasabah = User::where('id', $user->id)->get();
         }
 
@@ -181,6 +181,15 @@ class PinjamanController extends Controller
                 return response()->json([
                     'status' => 'not_eligible',
                     'message' => 'Nasabah belum memenuhi syarat minimal usia atau lama bergabung.',
+                ]);
+            }
+
+            $simpananBelumLunas = Simpanan::where('user_id', $nasabah->id)->where('status', 'Belum Lunas')->exists();
+
+            if($simpananBelumLunas){
+                return response()->json([
+                    "status" => 'not_eligible',
+                    "message" => "Masih Ada Simpanan Yang Belum Lunas. Mohon di Lunaskan Terlebih Dahulu Sebelum Melalukan Pinjaman"
                 ]);
             }
 

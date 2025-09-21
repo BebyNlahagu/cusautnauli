@@ -145,7 +145,7 @@
                                                         <td>Rp {{ number_format($detail->total_angsuran, 0, ',', '.') }}
                                                         </td>
                                                         <td>{{ \Carbon\Carbon::parse($detail->tanggal_jatuh_tempo)->translatedFormat('l,
-                                                                                                                                                                                                                                                                                                                                                                                            d F Y') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            d F Y') }}
                                                         </td>
                                                         @if ($detail->status == 'Lunas')
                                                             <td>{{ \Carbon\Carbon::parse($detail->tanggal_bayar)->translatedFormat('l, d F Y') }}
@@ -178,7 +178,7 @@
                                                                 @endif
                                                                 <button type="button" class="btn btn-success btn-sm"
                                                                     title="Payment"
-                                                                    onclick="payNow({{ $detail->id }}, {{ (int)$detail->total_angsuran }})">
+                                                                    onclick="payNow({{ $detail->id }}, {{ (int) $detail->total_angsuran }})">
                                                                     <i class="fa fa-credit-card"></i>
                                                                 </button>
                                                             @else
@@ -224,7 +224,12 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-primary btnPayAllAngsuran"
+                            data-nasabah="{{ $nasabahId }}">
+                            <i class="fa fa-credit-card"></i> Bayar Semua Angsuran
+                        </button>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -248,10 +253,12 @@
                         <input type="hidden" name="tanggal_jatuh_tempo" id="jatuh_tempo_hidden">
 
                         <div class="form-floating form-floating-custom mb-3">
-                            <select class="form-control select2" style="width: 100%;" id="user_id" name="user_id" required>
+                            <select class="form-control select2" style="width: 100%;" id="user_id" name="user_id"
+                                required>
                                 <option value="">--Pilih Nama Nasabah--</option>
                                 @foreach ($nasabah as $n)
-                                    <option value="{{ $n->id }}">{{ $n->nm_koperasi }} - {{ $n->name }}</option>
+                                    <option value="{{ $n->id }}">{{ $n->nm_koperasi }} - {{ $n->name }}
+                                    </option>
                                 @endforeach
                             </select>
                             <!-- <label for="user_id">Nama Nasabah</label> -->
@@ -489,5 +496,97 @@
                     });
                 });
         }
+
+        $(document).on('click', '.btnPayAllAngsuran', function() {
+            let nasabahId = $(this).data('nasabah');
+            let ids = [];
+
+            $(`#DetailModal${nasabahId} tbody tr`).each(function() {
+                let status = $(this).find('span.badge').text().trim();
+                if (status === 'Belum Lunas') {
+                    let payBtn = $(this).find('button[onclick^="payNow"]');
+                    if (payBtn.length > 0) {
+                        let btnOnclick = payBtn.attr('onclick');
+                        let angsuranId = btnOnclick.match(/payNow\((\d+),/)[1];
+                        ids.push(angsuranId);
+                    }
+                }
+            });
+
+            if (ids.length === 0) {
+                Swal.fire('Info', 'Tidak ada angsuran belum lunas.', 'info');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Bayar semua angsuran?',
+                text: 'Semua angsuran belum lunas akan dibayar sekaligus.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, bayar semua',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "/angsuran/pay-all",
+                        type: "POST",
+                        data: {
+                            ids: ids
+                        },
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        success: function(res) {
+                            if (res.snap_token) {
+                                snap.pay(res.snap_token, {
+                                    onSuccess: function(result) {
+                                        $.ajax({
+                                            url: "/angsuran/pay-all/success",
+                                            type: "POST",
+                                            data: {
+                                                ids: ids
+                                            },
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                            },
+                                            success: function() {
+                                                Swal.fire('Berhasil!',
+                                                        'Semua angsuran sudah dibayar.',
+                                                        'success')
+                                                    .then(() => location
+                                                        .reload());
+                                            },
+                                            error: function() {
+                                                Swal.fire('Error!',
+                                                    'Gagal update status angsuran.',
+                                                    'error');
+                                            }
+                                        });
+                                    },
+                                    onPending: function(result) {
+                                        Swal.fire('Menunggu pembayaran...', '',
+                                            'info');
+                                    },
+                                    onError: function(result) {
+                                        Swal.fire('Error!', 'Pembayaran gagal.',
+                                            'error');
+                                    },
+                                    onClose: function() {
+                                        Swal.fire('Dibatalkan',
+                                            'Anda menutup popup pembayaran.',
+                                            'warning');
+                                    }
+                                });
+                            } else {
+                                Swal.fire('Error!', 'Token Midtrans tidak valid.', 'error');
+                            }
+                        },
+                        error: function() {
+                            Swal.fire('Error!', 'Gagal membuat transaksi.', 'error');
+                        }
+                    });
+                }
+            });
+        });
     </script>
 @endsection

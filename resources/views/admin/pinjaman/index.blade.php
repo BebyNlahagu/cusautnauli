@@ -105,8 +105,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -123,8 +122,8 @@
                         @endphp
 
                         <div class="form-floating form-floating-custom mb-3">
-                            <select class="form-control select2 @error('user_id') is-invalid @enderror" style="width: 100%;" id="user_id"
-                                name="user_id">
+                            <select class="form-control select2 @error('user_id') is-invalid @enderror" style="width: 100%;"
+                                id="user_id" name="user_id">
                                 <option value="">Pilih Nomor Anggota</option>
 
                                 @if (isset($nasabah) && $nasabah->isNotEmpty())
@@ -167,7 +166,7 @@
                                 <option value="30 Bulan">30 Bulan</option>
                                 <option value="36 Bulan">36 Bulan</option>
                             </select>
-                             <label>Lama Pinjaman</label>
+                            <label>Lama Pinjaman</label>
                         </div>
 
                         <!-- Jumlah Pinjaman -->
@@ -217,24 +216,6 @@
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Nasabah Belum Eligible -->
-    <div class="modal fade" id="nasabahBergabungModal" data-bs-backdrop="static" data-bs-keyboard="false"
-        tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Konfirmasi Nasabah</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <h1> Nasabah belum bergabung lebih dari 6 bulan. Anda tidak bisa melanjutkan transaksi pinjaman.</h1>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @if (session('success'))
         <script>
@@ -276,6 +257,7 @@
                 }
             });
         }
+
         $(document).ready(function() {
             $("#basic-datatables").DataTable({});
 
@@ -340,9 +322,12 @@
                             if (response.status === 'not_eligible') {
                                 let alasan = response.message ??
                                     'Nasabah tidak memenuhi syarat.';
-                                $('#nasabahBergabungModal').modal('show');
-                                $('#nasabahBergabungModal .modal-body').html(
-                                `<p>${alasan}</p>`);
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Peringatan!',
+                                    html: alasan,
+                                    confirmButtonText: 'OK'
+                                });
 
                                 // Reset semua inputan kecuali nama
                                 $('#jumlah_pinjaman_display').val('');
@@ -353,6 +338,7 @@
                                 $('#jumlah_terima').val('');
                                 $('#maxInfo').hide();
                                 $('#infoTambahan').hide();
+
                             } else if (response.status === 'eligible') {
                                 maxLoan = response.jumlah_pinjaman;
 
@@ -375,11 +361,25 @@
                                         `Umur nasabah: ${response.umur} tahun<br>Lama bergabung: ${response.lama_gabung_bulan} bulan`;
                                 }
                                 $('#infoTambahan').html(info).show();
+
+                                // Tambahkan popup sukses eligible
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Nasabah Memenuhi Syarat',
+                                    html: 'Maksimal pinjaman: <b>' + formatRupiah(
+                                            maxLoan) +
+                                        '</b><br>Bunga: ' + response.bunga_pinjaman +
+                                        '%',
+                                    confirmButtonText: 'OK'
+                                });
                             }
                         },
                         error: function(xhr) {
-                            alert('Terjadi kesalahan: ' + (xhr.responseJSON?.error ??
-                                'Unknown Error'));
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Terjadi Kesalahan',
+                                text: xhr.responseJSON?.error ?? 'Unknown Error'
+                            });
                         }
                     });
                 } else {

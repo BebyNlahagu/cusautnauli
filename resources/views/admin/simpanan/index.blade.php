@@ -181,6 +181,11 @@
                             <!-- Data simpanan user akan diisi lewat JS -->
                         </tbody>
                     </table>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="btnPayAll">
+                            <i class="fa fa-credit-card"></i> Bayar Semua
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -281,19 +286,28 @@
                                 </td>
                             `;
                             } else if (currentUserRole === 'Admin') {
-                                actionColumn = `
-                                <td class="d-flex align-items-center gap-2">
-                                    <button class="btn btn-success btn-sm btn-konfirmasi"
-                                            data-id="${item.id}"
-                                            data-amount="${item.jumlah_simpanan}">
-                                        Confirm
-                                    </button>
-                                    <button class="btn btn-danger btn-sm btn-hapus"
-                                            data-id="${item.id}">
-                                        Hapus
-                                    </button>
-                                </td>
-                            `;
+                                if (item.status === 'Belum Lunas') {
+                                    actionColumn = `
+                                        <td class="d-flex align-items-center gap-2">
+                                            <button class="btn btn-success btn-sm btn-konfirmasi"
+                                                    data-id="${item.id}"
+                                                    data-amount="${item.jumlah_simpanan}">
+                                                Confirm
+                                            </button>
+                                            <button class="btn btn-danger btn-sm btn-hapus"
+                                                    data-id="${item.id}">
+                                                Hapus
+                                            </button>
+                                        </td>
+                                    `;
+                                } else {
+                                    actionColumn = `
+                                        <td>
+                                            <button class="btn btn-danger btn-sm btn-hapus" data-id="${item.id}">Hapus</button>
+                                        </td>
+                                    `;
+                                }
+
                             } else {
                                 actionColumn = `<td>-</td>`;
                             }
@@ -342,9 +356,9 @@
                                                         'Simpanan dikonfirmasi.',
                                                         'success');
                                                     $('.view-simpanan-btn[data-id="' +
-                                                        userId +
-                                                        '"]')
-                                                    .click();
+                                                            userId +
+                                                            '"]')
+                                                        .click();
                                                     location.reload();
                                                 } else {
                                                     Swal.fire('Gagal!',
@@ -390,9 +404,9 @@
                                                     'Data berhasil dihapus.',
                                                     'success');
                                                 $('.view-simpanan-btn[data-id="' +
-                                                    userId +
-                                                    '"]')
-                                                .click();
+                                                        userId +
+                                                        '"]')
+                                                    .click();
                                                 location.reload();
                                             } else {
                                                 Swal.fire('Gagal!',
@@ -434,7 +448,7 @@
                                                     .snap_token, {
                                                         onSuccess: function(
                                                             result
-                                                            ) {
+                                                        ) {
                                                             $.ajax({
                                                                 url: '/simpanan/paid/' +
                                                                     simpananId,
@@ -444,19 +458,19 @@
                                                                 },
                                                                 success: function(
                                                                     resp
-                                                                    ) {
+                                                                ) {
                                                                     if (resp
                                                                         .success
-                                                                        ) {
+                                                                    ) {
                                                                         Swal.fire(
                                                                             'Berhasil!',
                                                                             'Pembayaran sukses.',
                                                                             'success'
-                                                                            );
+                                                                        );
                                                                         $('.view-simpanan-btn[data-id="' +
                                                                                 userId +
                                                                                 '"]'
-                                                                                )
+                                                                            )
                                                                             .click();
                                                                         location
                                                                             .reload();
@@ -466,8 +480,123 @@
                                                                             resp
                                                                             .message,
                                                                             'error'
-                                                                            );
+                                                                        );
                                                                     }
+                                                                }
+                                                            });
+                                                        },
+                                                        onPending: function(
+                                                            result
+                                                        ) {
+                                                            Swal.fire(
+                                                                'Menunggu pembayaran.',
+                                                                '',
+                                                                'info'
+                                                            );
+                                                        },
+                                                        onError: function(
+                                                            result
+                                                        ) {
+                                                            Swal.fire(
+                                                                'Error!',
+                                                                'Pembayaran gagal.',
+                                                                'error'
+                                                            );
+                                                        },
+                                                        onClose: function() {
+                                                            Swal.fire(
+                                                                'Dibatalkan',
+                                                                'Anda menutup popup pembayaran.',
+                                                                'warning'
+                                                            );
+                                                        }
+                                                    });
+                                            } else {
+                                                Swal.fire('Error!',
+                                                    'Token pembayaran tidak valid.',
+                                                    'error');
+                                            }
+                                        },
+                                        error: function() {
+                                            Swal.fire('Error!',
+                                                'Gagal membuat transaksi.',
+                                                'error');
+                                        }
+                                    });
+                                }
+                            });
+                        });
+
+                        // Event tombol "Bayar Semua"
+                        $('#btnPayAll').off('click').on('click', function() {
+                            let belumLunasIds = [];
+                            data.simpanan.forEach(item => {
+                                if (item.status === 'Belum Lunas') {
+                                    belumLunasIds.push(item.id);
+                                }
+                            });
+
+                            if (belumLunasIds.length === 0) {
+                                Swal.fire('Info',
+                                    'Tidak ada simpanan yang belum lunas.', 'info');
+                                return;
+                            }
+
+                            Swal.fire({
+                                title: 'Bayar semua simpanan Belum Lunas?',
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonText: 'Ya, bayar semua',
+                                cancelButtonText: 'Batal'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $.ajax({
+                                        url: "{{ route('simpanan.payAll') }}",
+                                        type: 'POST',
+                                        data: {
+                                            ids: belumLunasIds
+                                        },
+                                        headers: {
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        },
+                                        success: function(res) {
+                                            if (res.snap_token) {
+                                                window.snap.pay(res
+                                                    .snap_token, {
+                                                        onSuccess: function(
+                                                            result
+                                                            ) {
+                                                            $.ajax({
+                                                                url: "{{ url('/simpanan/pay-all/success') }}",
+                                                                type: 'POST',
+                                                                data: {
+                                                                    ids: belumLunasIds
+                                                                },
+                                                                headers: {
+                                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                                                },
+                                                                success: function(
+                                                                    resp
+                                                                    ) {
+                                                                    Swal.fire(
+                                                                        'Berhasil!',
+                                                                        'Semua simpanan berhasil dibayar.',
+                                                                        'success'
+                                                                        );
+                                                                    $('.view-simpanan-btn[data-id="' +
+                                                                            userId +
+                                                                            '"]'
+                                                                            )
+                                                                        .click();
+                                                                    location
+                                                                        .reload();
+                                                                },
+                                                                error: function() {
+                                                                    Swal.fire(
+                                                                        'Error!',
+                                                                        'Gagal update status simpanan.',
+                                                                        'error'
+                                                                        );
                                                                 }
                                                             });
                                                         },
@@ -512,6 +641,7 @@
                                 }
                             });
                         });
+
 
                     },
                     error: function() {
