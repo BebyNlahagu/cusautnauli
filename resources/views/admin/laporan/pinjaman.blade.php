@@ -30,7 +30,7 @@
         <div class="card">
             <div class="card-header d-flex align-items-center flex-wrap">
                 <h4 class="card-title text-start">@yield('title')</h4>
-            
+
                 @if (auth()->user()->role == "Admin")
                     <div class="btn-group ms-auto">
                         <button type="button" class="btn btn-label-info btn-round btn-sm me-2" data-bs-toggle="dropdown" aria-expanded="false" title="Filter">
@@ -50,7 +50,7 @@
                                         @endfor
                                     </select>
                                 </div>
-                
+
                                 <!-- Tahun Filter -->
                                 <div class="mb-3">
                                     <label for="tahun" class="form-label">Pilih Tahun</label>
@@ -63,13 +63,13 @@
                                         @endfor
                                     </select>
                                 </div>
-                
+
                                 <!-- Hari Filter -->
                                 <div class="mb-3">
                                     <label for="hari" class="form-label">Pilih Hari</label>
                                     <input type="date" name="hari" id="hari" value="{{ request('hari') }}" class="form-control">
                                 </div>
-                
+
                                 <!-- Submit & Reset Button -->
                                 <div class="d-flex justify-content-between">
                                     <button type="submit" class="btn btn-primary">Terapkan</button>
@@ -78,8 +78,8 @@
                             </form>
                         </div>
                     </div>
-            
-                
+
+
                     <a class="btn btn-label-info btn-round btn-sm"" href="{{ route('pdf.pinjaman') }}">
                         <i class="fa fa-download"></i>
                     </a>
@@ -145,30 +145,16 @@
                             <th>Jumlah</th>
                             <th>Lama</th>
                             <th>Bunga</th>
-                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($pinjaman_user as $i => $p)
                             <tr>
                                 <td>{{ $i + 1 }}</td>
-                                <td>{{ \Carbon\Carbon::parse($p->created_at)->translatedFormat('d F Y') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($p->created_at)->translatedFormat('F Y') }}</td>
                                 <td>Rp {{ number_format($p->jumlah_pinjaman, 0, ',', '.') }}</td>
                                 <td>{{ $p->lama_pinjaman }}</td>
                                 <td>{{ $p->bunga_pinjaman }}%</td>
-                                <td>
-                                    <span class="badge 
-                                        {{ $p->status === 'Disetujui' ? 'bg-success' : 
-                                           ($p->status === 'Ditolak' ? 'bg-danger' : 'bg-secondary') }}">
-                                        @if ($p->status === 'Disetujui')
-                                            <i class="fa fa-check me-1"></i> Disetujui
-                                        @elseif ($p->status === 'Ditolak')
-                                            <i class="fa fa-times me-1"></i> Ditolak
-                                        @else
-                                            {{ ucfirst($p->status) }}
-                                        @endif
-                                    </span>
-                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -183,7 +169,7 @@
 @endforeach
 
 
-<script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugin/datatables/datatables.min.js') }}"></script>
 <script>
     $(document).ready(function() {
         $("#basic-datatables").DataTable({});
