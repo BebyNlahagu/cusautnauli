@@ -245,7 +245,8 @@
 
                                 <div class="form-floating form-floating-custom mb-3">
                                     <input type="file" name="ktp"
-                                        class="form-control @error('ktp') is-invalid @enderror" id="ktp"
+                                        class="form-control @error('ktp') is-invalid @enderror" accept="image/*"
+                                        capture="user" id="ktp"
                                         placeholder="Jenis Usaha" value="{{ old('ktp') }}" />
                                     <label for="floatingInput">KTP</label>
                                     <img id="ktpPreview" src="#" alt="KTP Preview"
@@ -257,7 +258,8 @@
 
                                 <div class="form-floating form-floating-custom mb-3">
                                     <input type="file" name="kk"
-                                        class="form-control @error('kk') is-invalid @enderror" id="kk"
+                                        class="form-control @error('kk') is-invalid @enderror" accept="image/*"
+                                        capture="user" id="kk"
                                         placeholder="Jenis Usaha" value="{{ old('kk') }}" />
                                     <label for="floatingInput">Kartu Keluarga</label>
                                     <img id="kkPreview" src="#" alt="KK Preview"

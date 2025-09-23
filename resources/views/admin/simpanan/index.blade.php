@@ -51,7 +51,7 @@
                                     @if (auth()->user()->role === 'Admin')
                                         <th>Nama</th>
                                     @endif
-                                    <th>Bulan Transaksi</th>
+                                    <th>Bulan Transaksi Terakhir</th>
                                     <th>Jumlah Simpanan</th>
                                     <th>Action</th>
                                 </tr>

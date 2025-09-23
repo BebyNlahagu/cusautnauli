@@ -202,7 +202,7 @@ class PinjamanController extends Controller
                 ]);
             }
 
-            $total_simpanan = Simpanan::where('user_id', $nasabah->id)->where('status', 'Lunas')->sum('jumlah_simpanan');
+            $total_simpanan = Simpanan::where('user_id', $nasabah->id)->where('status', 'Lunas')->where('jenis_simpanan', 'Simpanan Wajib')->sum('jumlah_simpanan');
             $maksimal_pinjaman = $total_simpanan * 5;
 
             return response()->json([

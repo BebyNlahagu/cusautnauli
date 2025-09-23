@@ -105,7 +105,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="tambah" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -195,8 +196,8 @@
                         </div>
 
                         <div class="form-floating form-floating-custom mb-3">
-                            <input type="file" class="form-control" id="foto" name="foto"
-                                placeholder="Foto Penjamin" />
+                            <input type="file" class="form-control" accept="image/*" capture="user" id="foto"
+                                name="foto" placeholder="Foto Penjamin" />
                             <label for="foto">KTP Penjamin</label>
                         </div>
 
