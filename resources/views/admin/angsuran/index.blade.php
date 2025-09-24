@@ -56,9 +56,9 @@
                                     @if (auth()->user()->role === 'Admin')
                                         <th>Nama</th>
                                     @endif
-                                    <th>Tanggal Angsuran</th>
+                                    <th>Tanggal Pinjaman</th>
                                     {{-- <th>Tanggal Pinjaman</th> --}}
-                                    <th>Jumlah Angsuran</th>
+                                    <th>Lama Angsuran</th>
                                     <th>Terima Total Pinjaman</th>
                                     @if (auth()->user()->role === 'Admin')
                                         <th style="width: 10%">Action</th>

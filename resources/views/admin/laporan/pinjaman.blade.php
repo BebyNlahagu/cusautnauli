@@ -80,7 +80,7 @@
                     </div>
 
 
-                    <a class="btn btn-label-info btn-round btn-sm"" href="{{ route('pdf.pinjaman') }}">
+                    <a class="btn btn-label-info btn-round btn-sm" href="{{ route('pdf.pinjaman') }}">
                         <i class="fa fa-download"></i>
                     </a>
                 @endif
