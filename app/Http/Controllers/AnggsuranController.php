@@ -10,7 +10,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-
 class AnggsuranController extends Controller
 {
     public function index()
@@ -19,39 +18,27 @@ class AnggsuranController extends Controller
 
         if ($user->role === 'Admin') {
             $angsuran = Anggsuran::with('user', 'pinjaman')->get();
-            $jumlahAngsuran = Anggsuran::sum("total_angsuran");
+            $jumlahAngsuran = Anggsuran::sum('total_angsuran');
 
-            $angsuranPerUser = Anggsuran::select('user_id', DB::raw('SUM(total_angsuran) as total'))
-                ->with('user')
-                ->groupBy('user_id')
-                ->get();
+            $angsuranPerUser = Anggsuran::select('user_id', DB::raw('SUM(total_angsuran) as total'))->with('user')->groupBy('user_id')->get();
 
             $totalPerUser = $angsuranPerUser->pluck('total', 'user_id')->toArray();
-
         } else {
-            $angsuran = Anggsuran::with('user', 'pinjaman')
-                ->where('user_id', $user->id)
-                ->get();
+            $angsuran = Anggsuran::with('user', 'pinjaman')->where('user_id', $user->id)->get();
 
-            $jumlahAngsuran = Anggsuran::where('user_id', $user->id)
-                ->sum("total_angsuran");
+            $jumlahAngsuran = Anggsuran::where('user_id', $user->id)->sum('total_angsuran');
 
             $angsuranPerUser = null;
 
             $totalPerUser = [
-                $user->id => $jumlahAngsuran
+                $user->id => $jumlahAngsuran,
             ];
         }
 
-        $nasabah = User::where('role', 'User')
-            ->whereNotNull('nm_koperasi')
-            ->where('nm_koperasi', '!=', '')
-            ->whereHas('pinjaman')
-            ->get();
+        $nasabah = User::where('role', 'User')->whereNotNull('nm_koperasi')->where('nm_koperasi', '!=', '')->whereHas('pinjaman')->get();
 
-        return view("admin.angsuran.index", compact('angsuran', 'nasabah', 'jumlahAngsuran', 'angsuranPerUser', 'totalPerUser'));
+        return view('admin.angsuran.index', compact('angsuran', 'nasabah', 'jumlahAngsuran', 'angsuranPerUser', 'totalPerUser'));
     }
-
 
     public function getPinjaman($user_id)
     {
@@ -76,7 +63,7 @@ class AnggsuranController extends Controller
         $angsuran_bunga_menurun = [];
 
         for ($i = 0; $i < $lama; $i++) {
-            $bunga_bulan_ini = ($sisa_pokok * ($bunga_persen / 100));
+            $bunga_bulan_ini = $sisa_pokok * ($bunga_persen / 100);
             $total_angsuran_bulan_ini = $angsuran_pokok + $bunga_bulan_ini;
 
             $angsuran_bunga_menurun[] = [
@@ -112,18 +99,13 @@ class AnggsuranController extends Controller
         ]);
 
         // Cek apakah masih ada angsuran berjalan untuk pinjaman ini
-        $angsuranBerjalan = Anggsuran::where('user_id', $request->user_id)
-            ->where('pinjaman_id', $request->pinjaman_id)
-            ->where('status', 'Belum Lunas')
-            ->exists();
+        $angsuranBerjalan = Anggsuran::where('user_id', $request->user_id)->where('pinjaman_id', $request->pinjaman_id)->where('status', 'Belum Lunas')->exists();
 
         if ($angsuranBerjalan) {
             return redirect()->back()->with('error', 'Masih ada angsuran yang belum lunas untuk pinjaman ini.');
         }
 
-        $pinjaman = Pinjaman::where('id', $request->pinjaman_id)
-            ->where('user_id', $request->user_id)
-            ->first();
+        $pinjaman = Pinjaman::where('id', $request->pinjaman_id)->where('user_id', $request->user_id)->first();
 
         if (!$pinjaman) {
             return redirect()->back()->with('error', 'Pinjaman tidak valid untuk nasabah ini.');
@@ -175,7 +157,7 @@ class AnggsuranController extends Controller
         $params = [
             'transaction_details' => [
                 'order_id' => $angsuran->id . '-' . time(),
-                'gross_amount' => (int)$angsuran->total_angsuran,
+                'gross_amount' => (int) $angsuran->total_angsuran,
             ],
             'customer_details' => [
                 'first_name' => $angsuran->user->name,
@@ -187,7 +169,7 @@ class AnggsuranController extends Controller
             $snapToken = \Midtrans\Snap::getSnapToken($params);
             return response()->json(['snapToken' => $snapToken]);
         } catch (\Exception $e) {
-             \Log::error('Midtrans error: ' . $e->getMessage());
+            \Log::error('Midtrans error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -203,7 +185,7 @@ class AnggsuranController extends Controller
         if ($tanggal_bayar > $tanggal_jatuh_tempo) {
             $selisih_hari = $tanggal_bayar->diffInDays($tanggal_jatuh_tempo);
 
-            $denda = round(($angsuran->sisa_pokok * 2 / 100), 2);
+            $denda = round(($angsuran->sisa_pokok * 2) / 100, 2);
         }
 
         $angsuran->status = 'Lunas';
@@ -212,6 +194,55 @@ class AnggsuranController extends Controller
         $angsuran->total_angsuran += $denda;
         $angsuran->save();
 
-        return redirect()->back()->with('success', 'Status angsuran berhasil diubah menjadi lunas. Denda: Rp ' . number_format($denda, 0, ',', '.'));
+        return redirect()
+            ->back()
+            ->with('success', 'Status angsuran berhasil diubah menjadi lunas. Denda: Rp ' . number_format($denda, 0, ',', '.'));
+    }
+
+    public function payAll(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['error' => 'Tidak ada angsuran dipilih'], 400);
+        }
+
+        $angsurans = Anggsuran::whereIn('id', $ids)->where('status', '!=', 'Lunas')->get();
+        $totalBayar = (int) round($angsurans->sum('total_angsuran'));
+
+        \Midtrans\Config::$serverKey = config('midtrans.midtrans.server_key');
+        \Midtrans\Config::$isProduction = false;
+        \Midtrans\Config::$isSanitized = true;
+        \Midtrans\Config::$is3ds = true;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => 'PAYALL-ANGSURAN-' . uniqid(),
+                'gross_amount' => $totalBayar,
+            ],
+            'customer_details' => [
+                'first_name' => auth()->user()->name,
+                'email' => auth()->user()->email,
+            ],
+        ];
+
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+        return response()->json(['snap_token' => $snapToken]);
+    }
+
+    public function payAllSuccess(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        if (empty($ids)) {
+            return response()->json(['error' => 'Tidak ada angsuran'], 400);
+        }
+
+        Anggsuran::whereIn('id', $ids)->update([
+            'status' => 'Lunas',
+            'tanggal_bayar' => now(),
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }

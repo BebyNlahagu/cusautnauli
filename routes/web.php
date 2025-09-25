@@ -37,17 +37,17 @@ Route::post('/notifications/{id}/mark-as-read', function ($id) {
     return response()->json(['status' => 'success']);
 })->name('notifications.read');
 
+Route::get('/alamat', [AlamatController::class, 'index'])->name('alamat.index');
+Route::post('/alamat', [AlamatController::class, 'store'])->name('alamat.store');
 
-Route::get('/alamat', [AlamatController::class, "index"])->name("alamat.index");
-Route::post('/alamat', [AlamatController::class, "store"])->name("alamat.store");
-
-Route::get('/nasabah', [NasabahController::class, 'create'])->name("create");
+Route::get('/nasabah', [NasabahController::class, 'create'])->name('create');
 Route::post('/nasabah', [NasabahController::class, 'addData'])->name('addNasabah');
 Route::get('/', [Daftar::class, 'index']);
 
-Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
+Route::get('/home', [HomeController::class, 'index'])
+    ->name('home')
+    ->middleware('auth');
 Route::middleware(['auth', 'role:Admin'])->group(function () {
-
     Route::resource('/admin/nasabah', NasabahController::class);
     Route::resource('/admin/pinjaman', PinjamanController::class);
     Route::resource('/admin/angsuran', AnggsuranController::class);
@@ -56,7 +56,7 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/admin/simpanan', [SimpananController::class, 'index'])->name('simpanan.index');
     Route::post('/admin/simpanan', [SimpananController::class, 'store'])->name('simpanan.store');
     Route::delete('/admin/simpanan/user/{user_id}', [SimpananController::class, 'destroyByUser'])->name('simpanan.destroyByUser');
-    Route::get('/simpanan/paid/{id}',[SimpananController::class, 'paid']);
+    Route::get('/simpanan/paid/{id}', [SimpananController::class, 'paid']);
 
     Route::put('/nasabah/update-checkbox/{id}', [NasabahController::class, 'updateCheckbox'])->name('nasabah.updateCheckbox');
     Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
@@ -84,34 +84,47 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::put('/pinjaman/status/{id}', [PinjamanController::class, 'ubahStatus'])->name('pengajuan.status');
     Route::post('/simpanan/konfirmasi/{id}', [SimpananController::class, 'konfirmasi']);
 
+    Route::post('/simpanan/pay-all', [SimpananController::class, 'payAll'])->name('simpanan.payAll');
+    Route::post('/simpanan/pay-all/success', [SimpananController::class, 'payAllSuccess']);
+
+    Route::post('/angsuran/pay-all', [AnggsuranController::class, 'payAll'])->name('angsuran.payAll');
+    Route::post('/angsuran/pay-all/success', [AnggsuranController::class, 'payAllSuccess']);
 });
 
-Route::middleware(['auth', 'role:Admin,Kepala'])->prefix('admin')->group(function () {
-    Route::prefix('laporan')->group(function () {
-        Route::get('/simpanan', [LaporanController::class, 'LaporanSimpanan'])->name('laporan.simpanan');
-        Route::get('/pinjaman', [LaporanController::class, 'LaporanPinjaman'])->name('laporan.pinjaman');
-        Route::get('/angsuran', [LaporanController::class, 'LaporanAngsuran'])->name('laporan.angsuran');
-        Route::get('/anggota', [LaporanController::class, 'LaporanAnggota'])->name('laporan.anggota');
-        Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
-    });
+Route::middleware(['auth', 'role:Admin,Kepala'])
+    ->prefix('admin')
+    ->group(function () {
+        Route::prefix('laporan')->group(function () {
+            Route::get('/simpanan', [LaporanController::class, 'LaporanSimpanan'])->name('laporan.simpanan');
+            Route::get('/pinjaman', [LaporanController::class, 'LaporanPinjaman'])->name('laporan.pinjaman');
+            Route::get('/angsuran', [LaporanController::class, 'LaporanAngsuran'])->name('laporan.angsuran');
+            Route::get('/anggota', [LaporanController::class, 'LaporanAnggota'])->name('laporan.anggota');
+            Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
+        });
 
-    Route::prefix('pdf')->group(function () {
-        Route::get('/simpanan', [PdfController::class, 'simpananPdf'])->name('pdf.simpanan');
-        Route::get('/pinjaman', [PdfController::class, 'pinjamanPdf'])->name('pdf.pinjaman');
-        Route::get('/angsuran', [PdfController::class, 'angsuranPdf'])->name('pdf.angsuran');
+        Route::prefix('pdf')->group(function () {
+            Route::get('/simpanan', [PdfController::class, 'simpananPdf'])->name('pdf.simpanan');
+            Route::get('/pinjaman', [PdfController::class, 'pinjamanPdf'])->name('pdf.pinjaman');
+            Route::get('/angsuran', [PdfController::class, 'angsuranPdf'])->name('pdf.angsuran');
+        });
     });
-});
 
 Route::middleware(['auth', 'role:User,Admin'])->group(function () {
     Route::resource('/admin/pinjaman', PinjamanController::class);
     Route::resource('/admin/angsuran', AnggsuranController::class);
     Route::get('/admin/simpanan', [SimpananController::class, 'index'])->name('simpanan.index');
     Route::resource('/admin/petugas', PetugasController::class);
-    Route::get("/profil", [Daftar::class, 'profil'])->name("user.profil");
-    Route::get("/profil/edit", [Daftar::class, 'edit'])->name('user.edit');
+    Route::get('/profil', [Daftar::class, 'profil'])->name('user.profil');
+    Route::get('/profil/edit', [Daftar::class, 'edit'])->name('user.edit');
     Route::Put('/profil/{id}', [Daftar::class, 'update'])->name('user.update');
     Route::get('/pinjaman/check-eligibility/{id}', [PinjamanController::class, 'checkEligibility']);
     Route::get('/simpanan/user/{id}', [SimpananController::class, 'getUserSimpanan'])->name('simpanan.user');
-    Route::get('/simpanan/paid/{id}',[SimpananController::class, 'paid']);
+    Route::get('/simpanan/paid/{id}', [SimpananController::class, 'paid']);
     Route::get('/angsuran/payment/{id}', [AnggsuranController::class, 'getPayment'])->name('angsuran.payment');
+
+    Route::post('/simpanan/pay-all', [SimpananController::class, 'payAll'])->name('simpanan.payAll');
+    Route::post('/simpanan/pay-all/success', [SimpananController::class, 'payAllSuccess']);
+
+    Route::post('/angsuran/pay-all', [AnggsuranController::class, 'payAll'])->name('angsuran.payAll');
+    Route::post('/angsuran/pay-all/success', [AnggsuranController::class, 'payAllSuccess']);
 });

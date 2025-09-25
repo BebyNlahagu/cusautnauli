@@ -209,7 +209,7 @@
 </div>
 @endforeach
 
-<script src="{{ asset('/assets/js/plugin/datatables/datatables.min.js') }}"></script>
+<script src="{{ asset('assets/js/plugin/datatables/datatables.min.js') }}"></script>
 <script>
     $(document).ready(function() {
         $("#basic-datatables").DataTable({});

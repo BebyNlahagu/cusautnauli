@@ -14,7 +14,7 @@ class SimpananController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $simpanan = Simpanan::with('user')->latest()->get();
+        $simpanan = Simpanan::with('user')->latest()->orderBy('user_id', 'asc')->get();
 
         $simpananGrouped = $simpanan->groupBy('user_id')->map(function ($items) {
             return [
@@ -175,10 +175,6 @@ class SimpananController extends Controller
         $simpanan = Simpanan::findOrFail($id);
         $user = Auth::user();
 
-        // if ($user->role !== 'Admin' && $simpanan->user_id !== $user->id) {
-        //     return response()->json(['error' => 'Unauthorized'], 403);
-        // }
-
         \Midtrans\Config::$serverKey = config('midtrans.midtrans.server_key');
         \Midtrans\Config::$isProduction = config('midtrans.midtrans.is_production');
         \Midtrans\Config::$isSanitized = true;
@@ -216,6 +212,52 @@ class SimpananController extends Controller
     {
         $simpanan = Simpanan::findOrFail($id);
         $simpanan->delete();
+        return response()->json(['success' => true]);
+    }
+
+    public function payAll(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['error' => 'Tidak ada simpanan yang dipilih'], 400);
+        }
+
+        $simpanan = Simpanan::whereIn('id', $ids)->get();
+        $totalBayar = $simpanan->sum('jumlah_simpanan');
+
+        // Setup Midtrans config
+        \Midtrans\Config::$serverKey = config('midtrans.midtrans.server_key');
+        \Midtrans\Config::$isProduction = false;
+        \Midtrans\Config::$isSanitized = true;
+        \Midtrans\Config::$is3ds = true;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => 'PAYALL-' . uniqid(),
+                'gross_amount' => $totalBayar,
+            ],
+            'customer_details' => [
+                'first_name' => auth()->user()->name,
+                'email' => auth()->user()->email,
+            ],
+        ];
+
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+        return response()->json(['snap_token' => $snapToken]);
+    }
+
+    public function payAllSuccess(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['error' => 'Tidak ada simpanan'], 400);
+        }
+
+        Simpanan::whereIn('id', $ids)->update(['status' => 'Lunas']);
+
         return response()->json(['success' => true]);
     }
 }
