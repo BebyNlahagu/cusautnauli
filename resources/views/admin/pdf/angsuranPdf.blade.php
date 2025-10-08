@@ -137,15 +137,20 @@
                     <td>{{ $no++ }}</td>
                     <td>{{ $angsurans->first()->user->name }}</td>
                     <td>{{ \Carbon\Carbon::parse($angsurans->first()->created_at)->translatedFormat('l, d F Y') }}</td>
-                    <td>{{ $angsurans->first()->total_angsuran }}</td>
+                    <td class="text-end">Rp {{ number_format($angsurans->first()->total_angsuran, 0, ',', '.') }}</td>
                     <td>{{ $angsurans->first()->pinjaman->lama_pinjaman }}</td>
-                    <td>Rp {{ number_format($angsurans->first()->pinjaman->terima_total, 0, ',', '.') }}
-                    </td>
+                    <td class="text-end">Rp {{ number_format($angsurans->first()->pinjaman->terima_total, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" class="text-center fw-bold">Total Keseluruhan Angsuran</td>
+                <td colspan="1" class="text-end fw-bold">Rp.{{ number_format($total_angsuran) }}</td>
+            </tr>
+        </tfoot>
     </table>
-    
+
     <div class="signature-inline">
         <div class="signature-left">
             <br>
