@@ -60,6 +60,7 @@ class PdfController extends Controller
     public function angsuranPdf(Request $request)
     {
         $angsuran = Anggsuran::with('user','pinjaman')->get();
+        $total_angsuran = Anggsuran::sum("total_angsuran");
         $query = Anggsuran::query();
         if ($request->filled('bulan')) {
             $query->whereMonth('tanggal_main', $request->bulan);
@@ -73,7 +74,8 @@ class PdfController extends Controller
         $user = Auth::user();
         $pdf = Pdf::loadView('admin.pdf.angsuranPdf', [
             'angsuran' => $angsuran,
-            'user' => $user
+            'user' => $user,
+            'total_angsuran' => $total_angsuran,
         ]);
         return $pdf->download('Laporan-Angsuran.pdf');
     }

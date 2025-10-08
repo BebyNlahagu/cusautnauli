@@ -148,12 +148,12 @@
 
             <tfoot>
                 <tr>
-                    <td colspan="6">Jumlah Pinjaman</td>
-                    <td class="text-end">Rp.{{ number_format($jumlah_pinjaman) }}</td>
+                    <td colspan="4" class="text-center fw-bold">Jumlah Pinjaman</td>
+                    <td colspan="3" class="text-end fw-bold">Rp.{{ number_format($jumlah_pinjaman) }}</td>
                 </tr>
             </tfoot>
         </tbody>
-    </table>>
+    </table>
 
     <div class="signature-inline">
         <div class="signature-left">

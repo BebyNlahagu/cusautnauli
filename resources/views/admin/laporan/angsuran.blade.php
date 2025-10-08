@@ -166,7 +166,7 @@
                                         <td>Rp {{ number_format($detail->bunga, 0, ',', '.') }}</td>
                                         <td>Rp {{ number_format($detail->denda, 0, ',', '.') }}</td>
 
-                                        <td>Rp {{ number_format($detail->total_angsuran, 0, ',', '.') }}
+                                        <td class="text-end">Rp {{ number_format($detail->total_angsuran, 0, ',', '.') }}
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($detail->tanggal_jatuh_tempo)->translatedFormat('l,
                                             d F Y') }}
