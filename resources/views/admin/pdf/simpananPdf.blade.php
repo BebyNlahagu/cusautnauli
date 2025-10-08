@@ -126,19 +126,21 @@
         </thead>
         <tbody>
             @php
+                $groupSimpanan = $simpanan->groupBy('user_id');
                 $no = 1;
                 $totalHarga = 0;
             @endphp
-            @foreach ($simpanan as $s)
+            @foreach ($groupSimpanan as $userId => $s)
             @php
-                $totalHarga += $s->jumlah_simpanan;
+                $totalPerUser = $s->sum('jumlah_simpanan');
+                $totalHarga += $totalPerUser;
             @endphp
             <tr>
-                <td>{{ $no++ }}</td>
-                <td>{{ $s->user->name }}</td>
-                <td>{{ \Carbon\Carbon::parse($s->created_at)->translatedFormat('l, d F Y') }}</td>
-                <td>{{ $s->jenis_simpanan}}</td>
-                <td class="text-end bold">Rp {{ number_format($s->jumlah_simpanan, 0, ',', '.') }}</td>
+                <td>{{ $loop->iteration }}</td>
+                <td>{{ $s->first()->user->name }}</td>
+                <td>{{ \Carbon\Carbon::parse($s->first()->created_at)->translatedFormat('F Y') }}</td>
+                <td>{{ $s->first()->jenis_simpanan }}</td>
+                <td class="text-right bold">Rp {{ number_format($totalPerUser, 0, ',', '.') }}</td>
             </tr>
             @endforeach
             <tr>
